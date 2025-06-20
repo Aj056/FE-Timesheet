@@ -1,0 +1,55 @@
+<section class="form__section">
+    <form class="form" (ngSubmit)="onLogin()" >
+      <div class="form__title">Login Form</div>
+      <div class="form__sub-title">Please Sign In to Access Your Account</div>
+  
+      <label class="form__input-label" for="username">Username</label>
+      <div class="form__input-wrapper">
+        <input
+          class="form__input"
+          id="username"
+          name="username"
+          placeholder="Type your username..."
+          type="text"
+          [(ngModel)]="userId"
+          required
+        /> 
+      </div>
+  
+      <label class="form__input-label" for="password">Password</label>
+      <div class="form__input-wrapper">
+        <input
+          id="password-input"
+          class="form__input form__input--has-svg"
+          placeholder="Type your password..."
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+        />
+        <div class="form__pass-toggle">
+          <!-- SVG Icon -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_216_38)">
+              <path
+                d="M0.833374 9.99998C0.833374 9.99998 4.16671 3.33331 10 3.33331C15.8334 3.33331 19.1667 9.99998 19.1667 9.99998C19.1667 9.99998 15.8334 16.6666 10 16.6666C4.16671 16.6666 0.833374 9.99998 0.833374 9.99998Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <defs>
+              <clipPath id="clip0_216_38">
+                <rect width="20" height="20" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+        </div>
+      </div>
+  
+      <a href="#" class="form__remmember">Forgot your password?</a>
+      <button class="form__submit-btn " type="submit">Submit</button>
+    </form>
+  </section>
+form

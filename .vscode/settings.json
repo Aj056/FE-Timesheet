@@ -1,0 +1,16 @@
+{
+"emmet.includeLanguages": {
+  "html": "html",
+  "typescript": "html",
+  "typescriptreact": "html"
+},
+"emmet.triggerExpansionOnTab": true,
+"files.watcherExclude": {
+  "**/node_modules/**": true,
+  "**/dist/**": true,
+  "**/.git/objects/**": true,
+  "**/.git/subtree-cache/**": true,
+  "**/.angular/cache/**": true
+}
+
+}
