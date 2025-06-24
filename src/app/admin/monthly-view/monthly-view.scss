@@ -1,0 +1,56 @@
+@import '../../../styles/mixins';
+@import '../../../styles/variables';
+
+.monthly-view {
+  @include card;
+  margin: 0 auto;
+  max-width: 960px;
+
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    label {
+      color: var(--text-color);
+      font-size: 14px;
+
+      select {
+        margin-left: 0.5rem;
+        background: var(--card-surface);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--muted-text-color);
+
+      th {
+        text-align: left;
+        padding: 12px 16px;
+      }
+    }
+
+    tbody tr {
+      border-top: 1px solid var(--border-color);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+
+      td {
+        padding: 12px 16px;
+        color: var(--text-color);
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+@import '../../../styles/variables';
+.admin-nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:10px 10px;
+    font-weight:600;
+}
+.logout-component{
+   justify-content: end;
+}
+.admin-routes{
+  background-color:azure;
+  padding:10px 10px;
+  border-radius:1000px;
+  color:var(--background-body);
+  a{
+     padding:8px 12px;
+  }
+  a:first-child{
+    margin-right:0.5rem;
+  }
+  .active-link {
+  color: azure;
+  background-color: var(--primary-color);
+  border-radius: 1000px;
+  transition: all 0.2s;
+ }
+}

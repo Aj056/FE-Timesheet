@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Logoutcomponent } from '../../shared/components/logoutcomponent/logoutcomponent';
-
+import { AdminNav} from '../admin-nav/admin-nav';
+import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-admin-component',
   standalone: true,
-  imports: [Logoutcomponent],
+  imports: [AdminNav, RouterOutlet],
   templateUrl: './admin-component.html',
   styleUrls: ['./admin-component.scss']
 })

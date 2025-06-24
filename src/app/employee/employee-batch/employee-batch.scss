@@ -1,0 +1,41 @@
+@import '../../../styles/variables';
+.circle{
+    padding:10px 10px;
+    background-color: rgba(76, 76, 76, 0.41);
+    border-radius: 50%;
+    &:hover{
+        cursor: pointer;
+        box-shadow:2px 1px 5px rgba(255, 255, 255, 0.41);
+    }
+    user-select: none;
+}
+.employee_pop{
+    padding:10px 4px;
+    background-color:var(--card-surface);
+    border-radius:10px;
+    border:1px solid var(--border-color);
+    position: absolute;
+    top:40px;
+    right:47px;
+    z-index:2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ul{
+       text-decoration: none;
+       list-style-type: none;
+       li{
+        padding:3px 10px;
+        margin-top:10px;
+        cursor: pointer;
+        &:hover{
+            background-color:var(--border-color);
+            border-radius:4px;
+        }
+        &:last-child:hover{
+            background-color: unset;
+        }
+       }
+       
+    }
+}

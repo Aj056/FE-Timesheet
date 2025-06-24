@@ -5,7 +5,14 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 const routes:Routes =[
-    {path:'',component:Employeecomponent}
+    {path:'',
+        component:Employeecomponent,
+    },
+    {
+      path:'profile-page',
+      loadComponent: () => import('./employee-profile/employee-profile').then(m => m.EmployeeProfile)
+          
+    }
 ]
 
 @NgModule({

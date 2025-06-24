@@ -1,0 +1,46 @@
+
+a:hover,
+button:hover {
+opacity: 0.8;
+}
+a {color:inherit;}
+
+:host{
+user-select: none;
+flex-direction: column;
+color: var(--text-color);
+display: flex;
+justify-content: center;
+background: var(--background-body);
+}
+
+.form__section {
+width: 100%;
+}
+
+.form {
+max-width:900px;
+width: 100%;
+background: var(--form-background);
+border-radius: 8px;
+border: 2px solid #414141;
+padding: 30px;
+margin:50px auto 0px auto;
+}
+
+.form__title {
+font-weight: 600;
+font-size: 20px;
+}
+.employeelogout-btn{
+background-color: var(--secondary-color);
+}
+.buttons{
+    display: flex;
+    justify-content:center;
+    padding:20px 0px;
+    .logout-btn{
+        margin-left:20px;
+        background-color: var(--secondary-color);
+    }
+}

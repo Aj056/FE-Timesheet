@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { Logoutcomponent } from '../../shared/components/logoutcomponent/logoutcomponent';
+import { EmployeeBatch } from '../employee-batch/employee-batch';
+import { EmployeeloginForm } from '../employeelogin-form/employeelogin-form'
+import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-employeecomponent',
-  imports: [Logoutcomponent],
+  imports: [EmployeeBatch, EmployeeloginForm,RouterOutlet ],
   templateUrl: './employeecomponent.html',
   styleUrl: './employeecomponent.scss'
 })
 export class Employeecomponent {
-logout(){
-  alert('hello')
-}
+
 }

@@ -1,0 +1,9 @@
+@import '../../../styles/variables';
+.admin-body{
+min-height: 100vh;
+color: var(--text-color);
+background:var(--background-body)
+}
+.child-routes{
+    padding:5px 10px;
+}

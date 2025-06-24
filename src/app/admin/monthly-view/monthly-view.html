@@ -1,0 +1,36 @@
+<div class="monthly-view">
+  <div class="filter-bar">
+    <label>
+      Year:
+      <select [(ngModel)]="selectedYear" (change)="loadLogs()">
+        <option *ngFor="let y of years">{{ y }}</option>
+      </select>
+    </label>
+
+    <label>
+      Month:
+      <select [(ngModel)]="selectedMonth" (change)="loadLogs()">
+        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+      </select>
+    </label>
+  </div>
+
+  <table class="monthly-table">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>Date</th>
+        <th>Login</th>
+        <th>Logout</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of filteredLogs">
+        <td>{{ row.name }}</td>
+        <td>{{ row.date }}</td>
+        <td>{{ row.login }}</td>
+        <td>{{ row.logout || '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

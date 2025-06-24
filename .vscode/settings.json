@@ -1,16 +1,15 @@
 {
-"emmet.includeLanguages": {
-  "html": "html",
-  "typescript": "html",
-  "typescriptreact": "html"
-},
-"emmet.triggerExpansionOnTab": true,
-"files.watcherExclude": {
-  "**/node_modules/**": true,
-  "**/dist/**": true,
-  "**/.git/objects/**": true,
-  "**/.git/subtree-cache/**": true,
-  "**/.angular/cache/**": true
-}
-
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.tabCompletion": "on",
+  "emmet.includeLanguages": {
+    "html": "html",
+    "typescript": "html",
+    "typescriptreact": "html"
+  }
 }
