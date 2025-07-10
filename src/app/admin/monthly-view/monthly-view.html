@@ -1,36 +1,268 @@
-<div class="monthly-view">
-  <div class="filter-bar">
-    <label>
-      Year:
-      <select [(ngModel)]="selectedYear" (change)="loadLogs()">
-        <option *ngFor="let y of years">{{ y }}</option>
-      </select>
-    </label>
-
-    <label>
-      Month:
-      <select [(ngModel)]="selectedMonth" (change)="loadLogs()">
-        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-      </select>
-    </label>
+<div class="admin-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1 class="page-title">
+          <div class="title-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          Monthly Attendance
+        </h1>
+        <p class="page-subtitle">Track and monitor employee attendance patterns</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="admin-btn btn-secondary" (click)="refreshData()" [disabled]="isLoading()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="23,4 23,10 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="1,20 1,14 7,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10M22.94,14.36A9,9,0,0,1,3.51,15L7,14" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          {{ isLoading() ? 'Loading...' : 'Refresh' }}
+        </button>
+        <button class="admin-btn btn-primary" (click)="exportData()" [disabled]="filteredLogs().length === 0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Export Data
+        </button>
+      </div>
+    </div>
   </div>
 
-  <table class="monthly-table">
-    <thead>
-      <tr>
-        <th>Employee</th>
-        <th>Date</th>
-        <th>Login</th>
-        <th>Logout</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of filteredLogs">
-        <td>{{ row.name }}</td>
-        <td>{{ row.date }}</td>
-        <td>{{ row.login }}</td>
-        <td>{{ row.logout || '-' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Filters and Statistics -->
+  <div class="controls-section">
+    <!-- Filter Controls -->
+    <div class="filter-controls admin-card">
+      <div class="control-group">
+        <label class="control-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Year
+        </label>
+        <select class="admin-select" [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)">
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 3V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M16 3V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M3 10H21" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Month
+        </label>
+        <select class="admin-select" [ngModel]="selectedMonth()" (ngModelChange)="selectedMonth.set($event)">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid" *ngIf="monthlyStats() as stats">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-primary">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 11H15M9 15H15M17 21H7A2 2 0 0 1 5 19V5A2 2 0 0 1 7 3H12.586A1 1 0 0 1 13.293 3.293L18.707 8.707A1 1 0 0 1 19 9.414V19A2 2 0 0 1 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.totalRecords }}</div>
+          <div class="stat-label">Total Records</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-success">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.presentRecords }}</div>
+          <div class="stat-label">Present Days</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-warning">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.incompleteRecords }}</div>
+          <div class="stat-label">Incomplete</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-danger">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.absentRecords }}</div>
+          <div class="stat-label">Absent</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-info">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.totalHours }}h</div>
+          <div class="stat-label">Total Hours</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state admin-card" *ngIf="error()">
+    <div class="error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </div>
+    <h3 class="error-title">Something went wrong</h3>
+    <p class="error-message">{{ error() }}</p>
+    <button class="admin-btn btn-primary" (click)="refreshData()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="23,4 23,10 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="1,20 1,14 7,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10M22.94,14.36A9,9,0,0,1,3.51,15L7,14" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state admin-card" *ngIf="isLoading()">
+    <div class="admin-spinner"></div>
+    <p>Loading attendance data...</p>
+  </div>
+
+  <!-- Attendance Table -->
+  <div class="data-table-container admin-card" *ngIf="!isLoading() && !error()">
+    <div class="table-header">
+      <h2 class="table-title">Attendance Records</h2>
+      <div class="table-info">
+        <span class="info-text">{{ getSelectedMonthName() }} {{ selectedYear() }}</span>
+      </div>
+    </div>
+    
+    <div class="table-content" *ngIf="filteredLogs().length > 0; else noData">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Total Hours</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of filteredLogs(); trackBy: trackByRecordId" class="table-row">
+            <td class="employee-cell">
+              <div class="employee-info">
+                <div class="employee-avatar">
+                  {{ record.employeeName.charAt(0).toUpperCase() || 'U' }}
+                </div>
+                <div class="employee-details">
+                  <div class="employee-name">{{ record.employeeName }}</div>
+                  <div class="employee-id">ID: {{ record.id.slice(-6) }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="date-cell">
+              <div class="date-info">
+                <span class="date-primary">{{ record.formattedDate }}</span>
+                <span class="date-secondary">{{ record.date }}</span>
+              </div>
+            </td>
+            <td class="time-cell">
+              <span class="time-value" [class.time-missing]="!record.checkinTime">
+                {{ record.checkinTime || '--:--' }}
+              </span>
+              <div class="time-raw" *ngIf="record.rawCheckin !== record.checkinTime">
+                <small>{{ record.rawCheckin }}</small>
+              </div>
+            </td>
+            <td class="time-cell">
+              <span class="time-value" [class.time-missing]="!record.checkoutTime">
+                {{ record.checkoutTime || '--:--' }}
+              </span>
+              <div class="time-raw" *ngIf="record.rawCheckout && record.rawCheckout !== record.checkoutTime">
+                <small>{{ record.rawCheckout }}</small>
+              </div>
+            </td>
+            <td class="hours-cell">
+              <span class="hours-badge" [class.hours-missing]="!record.totalHours">
+                {{ record.totalHours || '--:--' }}
+              </span>
+            </td>
+            <td class="status-cell">
+              <div class="status-indicator" [ngClass]="getStatusClass(record.status)">
+                <span class="status-icon">●</span>
+                {{ record.status }}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">No attendance records found</h3>
+        <p class="empty-subtitle">No attendance data available for {{ getSelectedMonthName() }} {{ selectedYear() }}</p>
+        <button class="admin-btn btn-primary" (click)="refreshData()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="23,4 23,10 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="1,20 1,14 7,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10M22.94,14.36A9,9,0,0,1,3.51,15L7,14" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Refresh Data
+        </button>
+      </div>
+    </ng-template>
+  </div>
 </div>

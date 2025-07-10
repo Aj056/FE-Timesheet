@@ -1,12 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ThemeService } from './core/services/theme.service';
+import { SessionWarningComponent } from './shared/components/session-warning.component';
+import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
+import { PopupContainerComponent } from './shared/components/popup-container/popup-container.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet, SessionWarningComponent, ToastContainerComponent, PopupContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
   protected title = 'Timesheet-ware';
+
+  constructor(private themeService: ThemeService) {}
+
+  ngOnInit(): void {
+    // Theme service automatically initializes theme on construction
+    console.log('Application initialized with theme service and security features');
+  }
 }

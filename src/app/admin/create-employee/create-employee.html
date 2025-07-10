@@ -1,0 +1,294 @@
+<div class="admin-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1 class="page-title">
+          <div class="title-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H6C4.93913 15 3.92172 15.4214 3.17157 16.1716C2.42143 16.9217 2 17.9391 2 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21V19C23 18.1326 22.7473 17.3235 22.2716 16.6172C21.7959 15.9109 21.1266 15.3497 20.364 14.9918" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13A4.96 4.96 0 0 1 18 7A4.96 4.96 0 0 1 16 10.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          Create New Employee
+        </h1>
+        <p class="page-subtitle">Add a new employee to your organization</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="admin-btn btn-secondary" routerLink="/admin/employees">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Employees
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="data-table-container">
+    <form class="admin-form" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <h2 class="form-title">Employee Information</h2>
+
+      <!-- Validation Summary -->
+      <div class="validation-summary" *ngIf="validationErrors.length > 0">
+        <div class="summary-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Please correct the following errors:
+        </div>
+        <ul class="summary-errors">
+          <li *ngFor="let error of validationErrors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="employeeName">Name *</label>
+          <input type="text" id="employeeName" formControlName="employeeName" class="admin-input"
+            [class.error]="employeeForm.get('employeeName')?.invalid && employeeForm.get('employeeName')?.touched"
+            (input)="clearValidationErrors()"
+            placeholder="Enter full name">
+          <div class="field-errors" *ngIf="employeeForm.get('employeeName')?.invalid && employeeForm.get('employeeName')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('employeeName')?.errors?.['required']">
+              Name is required
+            </span>
+            <span class="error-text" *ngIf="employeeForm.get('employeeName')?.errors?.['minlength']">
+              Name must be at least 2 characters long
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="employeeEmail">Email *</label>
+          <input type="email" id="employeeEmail" formControlName="employeeEmail" class="admin-input"
+            [class.error]="employeeForm.get('employeeEmail')?.invalid && employeeForm.get('employeeEmail')?.touched"
+            (input)="clearValidationErrors()"
+            placeholder="Enter email address">
+          <div class="field-errors" *ngIf="employeeForm.get('employeeEmail')?.invalid && employeeForm.get('employeeEmail')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('employeeEmail')?.errors?.['required']">
+              Email is required
+            </span>
+            <span class="error-text" *ngIf="employeeForm.get('employeeEmail')?.errors?.['email']">
+              Please enter a valid email address
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="workLocation">Work Location *</label>
+          <input type="text" id="workLocation" formControlName="workLocation" class="admin-input" 
+            [class.error]="employeeForm.get('workLocation')?.invalid && employeeForm.get('workLocation')?.touched"
+            (input)="clearValidationErrors()"
+            placeholder="e.g., Bangalore">
+          <div class="field-errors" *ngIf="employeeForm.get('workLocation')?.invalid && employeeForm.get('workLocation')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('workLocation')?.errors?.['required']">
+              Work location is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="department">Department *</label>
+          <input type="text" id="department" formControlName="department" class="admin-input" 
+            [class.error]="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched"
+            (input)="clearValidationErrors()"
+            placeholder="e.g., Software Development">
+          <div class="field-errors" *ngIf="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('department')?.errors?.['required']">
+              Department is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role *</label>
+          <select id="role" formControlName="role" class="admin-input"
+            [class.error]="employeeForm.get('role')?.invalid && employeeForm.get('role')?.touched"
+            (change)="clearValidationErrors()">
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+            <option value="dev">Developer</option>
+            <option value="consultant">Consultant</option>
+          </select>
+          <div class="field-errors" *ngIf="employeeForm.get('role')?.invalid && employeeForm.get('role')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('role')?.errors?.['required']">
+              Role is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="designation">Designation *</label>
+          <input type="text" id="designation" formControlName="designation" class="admin-input" 
+            [class.error]="employeeForm.get('designation')?.invalid && employeeForm.get('designation')?.touched"
+            (input)="clearValidationErrors()"
+            placeholder="e.g., Software Developer">
+          <div class="field-errors" *ngIf="employeeForm.get('designation')?.invalid && employeeForm.get('designation')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('designation')?.errors?.['required']">
+              Designation is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="joiningDate">Date of Joining *</label>
+          <input type="date" id="joiningDate" formControlName="joiningDate" class="admin-input"
+            [class.error]="employeeForm.get('joiningDate')?.invalid && employeeForm.get('joiningDate')?.touched">
+          <div class="field-errors" *ngIf="employeeForm.get('joiningDate')?.invalid && employeeForm.get('joiningDate')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('joiningDate')?.errors?.['required']">
+              Joining date is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bankAccount">Bank A/c No *</label>
+          <input type="text" id="bankAccount" formControlName="bankAccount" class="admin-input" 
+            [class.error]="employeeForm.get('bankAccount')?.invalid && employeeForm.get('bankAccount')?.touched"
+            placeholder="e.g., 77770142435888">
+          <div class="field-errors" *ngIf="employeeForm.get('bankAccount')?.invalid && employeeForm.get('bankAccount')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('bankAccount')?.errors?.['required']">
+              Bank account number is required
+            </span>
+            <span class="error-text" *ngIf="employeeForm.get('bankAccount')?.errors?.['pattern']">
+              Bank account number must be 8-20 digits
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="uanNumber">UAN No</label>
+          <input type="text" id="uanNumber" formControlName="uanNumber" class="admin-input" placeholder="e.g., NA">
+        </div>
+
+        <div class="form-group">
+          <label for="esiNumber">ESI Number</label>
+          <input type="text" id="esiNumber" formControlName="esiNumber" class="admin-input" placeholder="e.g., N/A">
+        </div>
+
+        <div class="form-group">
+          <label for="panNumber">PAN *</label>
+          <input type="text" id="panNumber" formControlName="panNumber" class="admin-input" 
+            [class.error]="employeeForm.get('panNumber')?.invalid && employeeForm.get('panNumber')?.touched"
+            placeholder="e.g., CSPPA0064D" style="text-transform: uppercase;">
+          <div class="field-errors" *ngIf="employeeForm.get('panNumber')?.invalid && employeeForm.get('panNumber')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('panNumber')?.errors?.['required']">
+              PAN number is required
+            </span>
+            <span class="error-text" *ngIf="employeeForm.get('panNumber')?.errors?.['pattern']">
+              PAN must be in format: 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="resourceType">Resource Type *</label>
+          <select id="resourceType" formControlName="resourceType" class="admin-input"
+            [class.error]="employeeForm.get('resourceType')?.invalid && employeeForm.get('resourceType')?.touched">
+            <option value="">Select Resource Type</option>
+            <option value="payslip">Pay Slip</option>
+            <option value="payment-confirmation-individual-consultant">Payment Confirmation - Individual Consultant</option>
+            <option value="payment-confirmation-individual-gst-consultant">Payment Confirmation - Individual GST Consultant</option>
+          </select>
+          <div class="field-errors" *ngIf="employeeForm.get('resourceType')?.invalid && employeeForm.get('resourceType')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('resourceType')?.errors?.['required']">
+              Resource type is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input type="text" id="username" formControlName="username" class="admin-input"
+            [class.error]="employeeForm.get('username')?.invalid && employeeForm.get('username')?.touched"
+            placeholder="Enter username">
+          <div class="field-errors" *ngIf="employeeForm.get('username')?.invalid && employeeForm.get('username')?.touched">
+            <span class="error-text" *ngIf="employeeForm.get('username')?.errors?.['required']">
+              Username is required
+            </span>
+            <span class="error-text" *ngIf="employeeForm.get('username')?.errors?.['minlength']">
+              Username must be at least 3 characters long
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <div class="password-input-group">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              id="password" 
+              formControlName="password" 
+              class="admin-input password-input"
+              (input)="onPasswordChange()">
+            <div class="password-actions">
+              <button 
+                type="button" 
+                class="password-toggle-btn" 
+                (click)="togglePasswordVisibility()"
+                title="{{ showPassword ? 'Hide password' : 'Show password' }}">
+                <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.94 17.94C16.2306 19.2519 14.1491 19.9961 12 20C5 20 1 12 1 12C2.24389 9.68192 4.028 7.66819 6.17 6.17M9.9 4.24C10.5883 4.0789 11.2931 3.99836 12 4C19 4 23 12 23 12C22.393 13.1356 21.6691 14.2048 20.84 15.19M14.12 14.12C13.8454 14.4148 13.5141 14.6512 13.1462 14.8151C12.7782 14.9791 12.3809 15.0673 11.9781 15.0744C11.5753 15.0815 11.1749 15.0074 10.8016 14.8565C10.4283 14.7056 10.0887 14.481 9.80385 14.1962C9.51900 13.9113 9.29439 13.5717 9.14351 13.1984C8.99262 12.8251 8.91853 12.4247 8.92563 12.0219C8.93274 11.6191 9.02091 11.2218 9.18488 10.8538C9.34884 10.4858 9.58525 10.1546 9.88 9.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                class="password-copy-btn" 
+                (click)="copyPasswordToClipboard()"
+                title="Copy password to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                class="password-generate-btn" 
+                (click)="generateSecurePassword()"
+                title="Generate new secure password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23 4V10H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 15C19.9828 16.8393 18.9716 18.4804 17.5701 19.7206C16.1687 20.9608 14.4316 21.7454 12.5935 21.9707C10.7555 22.1959 8.8943 21.8505 7.25656 20.9788C5.61881 20.1071 4.28699 18.746 3.44467 17.0657C2.60234 15.3855 2.29133 13.4648 2.54586 11.5689C2.80039 9.67312 3.60968 7.8926 4.86707 6.4599C6.12446 5.02719 7.76197 4.00559 9.59316 3.51677C11.4244 3.02795 13.3607 3.08747 15.16 3.69" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 4L13 14L10 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="password-strength" *ngIf="employeeForm.get('password')?.value">
+            <div class="strength-bar">
+              <div class="strength-indicator" [style.width.%]="passwordStrength * 25" [style.background-color]="getPasswordStrengthColor()"></div>
+            </div>
+            <span class="strength-text" [style.color]="getPasswordStrengthColor()">{{ getPasswordStrengthText() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="admin-btn btn-secondary" routerLink="/admin/employees">
+          Cancel
+        </button>
+        <button type="submit" class="admin-btn btn-primary" [disabled]="!employeeForm.valid">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Create Employee
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

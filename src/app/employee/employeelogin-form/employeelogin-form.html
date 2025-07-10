@@ -1,18 +1,368 @@
-<section class="form__section">
-  <form class="form">
-        <h1 class="page-title">Hi there Good Morning ! 👋</h1>
+<!-- Modern Professional Attendance Dashboard -->
+<div class="attendance-dashboard">
+  <!-- Welcome Header -->
+  <div class="dashboard-header">
+    <div class="greeting-section">
+      <div class="greeting-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span>{{ getStatusText() }}</span>
+      </div>
+      <h1 class="greeting-title">{{ getWelcomeMessage() }}</h1>
+      <p class="greeting-subtitle">{{ getCurrentDateString() }} • {{ getStatusMessage() }}</p>
+    </div>
+    
+    <div class="current-time-widget">
+      <div class="time-display">
+        <div class="time-value">{{ getCurrentTime() }}</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="status-indicator" [class]="getStatusClass()">
+        <div class="status-dot"></div>
+        <span class="status-label">{{ getStatusText() }}</span>
+      </div>
+      
+      <div class="wifi-status" [class]="getWifiStatusClass()">
+        <div class="wifi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" *ngIf="!networkStatus().checking">
+            <path d="M1,9L3,7C6.31,3.69 11.69,3.69 15,7L17,9C13.69,12.31 8.31,12.31 5,9L3,7M9,17L12,14L15,17L12,20L9,17Z" *ngIf="isOfficeWifiConnected()"/>
+            <path d="M1,9L3,7C6.31,3.69 11.69,3.69 15,7L17,9M5,13L7,11C8.31,9.69 10.69,9.69 12,11L14,13" *ngIf="networkStatus().isConnected && !networkStatus().isOfficeNetwork"/>
+            <path d="M1,9L3,7M5,13L7,11M9,17L12,14" *ngIf="!networkStatus().isConnected"/>
+          </svg>
+          <div class="loading-spinner" *ngIf="networkStatus().checking"></div>
+        </div>
+        <span class="wifi-label">{{ getWifiStatusMessage() }}</span>
+        <button class="wifi-refresh" (click)="refreshWifiStatus()" title="Refresh WiFi status">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <div class="login-container">
+  <!-- Daily Inspiration -->
+  <div class="inspiration-card">
+    <div class="inspiration-header">
+      <div class="inspiration-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H16.5C17.88,14 19,15.12 19,16.5V18.5C19,19.88 17.88,21 16.5,21H7.5C6.12,21 5,19.88 5,18.5V16.5C5,15.12 6.12,14 7.5,14H9.29L9.56,13.73C8.59,12.59 8,11.11 8,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5A4.5,4.5 0 0,0 5,9.5A4.5,4.5 0 0,0 9.5,14A4.5,4.5 0 0,0 14,9.5A4.5,4.5 0 0,0 9.5,5Z"/>
+        </svg>
+      </div>
+      <div class="inspiration-title">
+        <h3>Daily Inspiration</h3>
+        <span class="inspiration-subtitle">Words of wisdom for your journey</span>
+      </div>
+      <div class="quote-decoration">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14,17H17L19,13V7H13V13H16M6,17H9L11,13V7H5V13H8L6,17Z"/>
+        </svg>
+      </div>
+    </div>
+    
+    <div class="inspiration-content">
+      <blockquote class="quote-text">{{ currentQuote()?.content || 'Loading inspiration...' }}</blockquote>
+      <div class="quote-footer">
+        <cite class="quote-author">{{ currentQuote()?.author || '' }}</cite>
+        <div class="quote-source-indicator" [class.api-source]="currentQuote() !== null" title="Quote source: {{ currentQuote() ? 'API' : 'Local' }}">
+          <span class="source-dot"></span>
+          <span class="source-text">{{ currentQuote() ? 'API' : 'Local' }}</span>
+        </div>
+        <div class="quote-divider"></div>
+        <p class="motivational-message">{{ getMotivationalMessage() }}</p>
+      </div>
+    </div>
+    
+    <div class="inspiration-actions">
+      <button class="refresh-quote-btn" (click)="refreshQuote()" [disabled]="isQuoteLoading()" title="Get new inspiration">
+        <div class="loading-spinner" *ngIf="isQuoteLoading()"></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" *ngIf="!isQuoteLoading()">
+          <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+        </svg>
+      </button>
+      <button class="share-quote-btn" (click)="shareQuote()" [disabled]="!currentQuote()" title="Share this quote">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A1.92,1.92 0 0,0 18,17.08Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
 
-      <p class="date-time">
-        <!-- <strong>Date:</strong> {{ currentDate }}<br>
-        <strong>Time:</strong> {{ currentTime }} -->
-      </p>
+  <!-- Network Status Section -->
+  <div class="network-status-section" [ngClass]="getNetworkStatusClass()">
+    <div class="network-indicator">
+      <div class="network-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" *ngIf="networkStatus().isOfficeNetwork">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" *ngIf="!networkStatus().isOfficeNetwork && networkStatus().isConnected">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" *ngIf="!networkStatus().isConnected">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+        </svg>
+      </div>
+      <div class="network-text">
+        <span class="network-status-text">{{ getNetworkStatusMessage() }}</span>
+        <span class="network-ip" *ngIf="networkStatus().ipAddress">IP: {{ networkStatus().ipAddress }}</span>
+      </div>
+      <button class="refresh-network-btn" (click)="refreshNetworkStatus()" title="Refresh network status">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Office Network Warning (shown when not connected to office network) -->
+  <div class="office-network-warning" *ngIf="!isOfficeNetworkConnected()">
+    <div class="warning-content">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="warning-icon">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <div class="warning-text">
+        <h4>Office Network Required</h4>
+        <p>Please connect to office WiFi (49.37.212.x) to use check-in/check-out features.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Action Section -->
+  <div class="action-section" [class.disabled-actions]="!isOfficeNetworkConnected()">
+    <!-- Clock In/Out Actions -->
+    <div class="attendance-actions">
+      <div class="action-grid">
+        <button 
+          class="action-card checkin-card"
+          [class.active]="isLoggedIn()"
+          [class.disabled]="isLoggedIn() || isLoggingIn() || !isOfficeNetworkConnected()"
+          [disabled]="isLoggedIn() || isLoggingIn() || !isOfficeNetworkConnected()"
+          (click)="employee_login()">
+          <div class="action-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+          </div>
+          <div class="action-content">
+            <h3 class="action-title">
+              {{ isLoggingIn() ? 'Checking In...' : (isLoggedIn() ? 'Checked In' : 'Check In') }}
+            </h3>
+            <p class="action-description">{{ isLoggedIn() ? 'Already clocked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}</p>
+            <div class="action-time" *ngIf="isLoggedIn() && lastLoginTime()">
+              Started at {{ lastLoginTime() }}
+            </div>
+          </div>
+          <div class="action-status" *ngIf="isLoggedIn()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </button>
+
+        <button 
+          class="action-card checkout-card"
+          [class.active]="canLogout()"
+          [class.disabled]="!canLogout() || isLoggingOut() || !isOfficeNetworkConnected()"
+          [disabled]="!canLogout() || isLoggingOut() || !isOfficeNetworkConnected()"
+          (click)="employee_logout()">
+          <div class="action-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+          </div>
+          <div class="action-content">
+            <h3 class="action-title">
+              {{ isLoggingOut() ? 'Checking Out...' : 'Check Out' }}
+            </h3>
+            <p class="action-description">
+              {{ canLogout() ? (isOfficeNetworkConnected() ? 'End your workday' : 'Office network required') : 
+                 (isLoggedIn() ? 'Available in ' + getTimeUntilLogoutAvailable() : 'Check in first') }}
+            </p>
+            <div class="action-time" *ngIf="canLogout()">
+              Ready to clock out
+            </div>
+            <div class="action-time restriction-notice" *ngIf="isLoggedIn() && !canLogout() && getTimeUntilLogoutAvailable()">
+              <span class="restriction-text">⏳ Wait {{ getTimeUntilLogoutAvailable() }} (30 min minimum)</span>
+            </div>
+          </div>
+          <div class="action-status" *ngIf="lastLogoutTime()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Summary -->
+  <div class="summary-section">
+    <h2 class="section-title">Today's Summary</h2>
+    
+    <div class="summary-grid">
+      <!-- Today's Activity -->
+      <div class="summary-card today-card" *ngIf="todayAttendance() as attendance; else noAttendanceCard">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-3V2h-2v2H8V2H6v2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H3V9h14v11z"/>
+            </svg>
+          </div>
+          <div class="card-title-group">
+            <h3 class="card-title">Today's Activity</h3>
+            <div class="card-badge" [class]="attendance.status">{{ attendance.status | titlecase }}</div>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="time-entries">
+            <div class="time-entry">
+              <div class="entry-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z"/>
+                </svg>
+              </div>
+              <div class="entry-details">
+                <span class="entry-label">Check In</span>
+                <span class="entry-value">{{ attendance.loginTime || '--:--' }}</span>
+              </div>
+            </div>
+            <div class="time-entry">
+              <div class="entry-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 14l5-5 5 5z"/>
+                </svg>
+              </div>
+              <div class="entry-details">
+                <span class="entry-label">Check Out</span>
+                <span class="entry-value">{{ attendance.logoutTime || '--:--' }}</span>
+              </div>
+            </div>
+            <div class="time-entry highlight" *ngIf="attendance.workingHours">
+              <div class="entry-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                  <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+              </div>
+              <div class="entry-details">
+                <span class="entry-label">Total Hours</span>
+                <span class="entry-value">{{ getWorkingHoursFormatted() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-    <div class="buttons">
-      <button class="login-btn" (click)="employee_login()">Login</button>
-      <button class="logout-btn" (click)="employee_logout()">Logout</button>
+      <!-- No Attendance Card -->
+      <ng-template #noAttendanceCard>
+        <div class="summary-card empty-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-3V2h-2v2H8V2H6v2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H3V9h14v11z"/>
+              </svg>
+            </div>
+            <div class="card-title-group">
+              <h3 class="card-title">Today's Activity</h3>
+              <div class="card-badge pending">Pending</div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <h4 class="empty-title">No Activity Yet</h4>
+              <p class="empty-description">Start your day by checking in when you arrive at the office.</p>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Previous Day Summary -->
+      <div class="summary-card previous-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+          </div>
+          <div class="card-title-group">
+            <h3 class="card-title">Previous Day</h3>
+            <div class="card-badge history">History</div>
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="time-entries">
+            <div class="time-entry">
+              <div class="entry-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z"/>
+                </svg>
+              </div>
+              <div class="entry-details">
+                <span class="entry-label">Check In</span>
+                <span class="entry-value">{{ lastLoginTime() || '--:--' }}</span>
+              </div>
+            </div>
+            <div class="time-entry">
+              <div class="entry-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 14l5-5 5 5z"/>
+                </svg>
+              </div>
+              <div class="entry-details">
+                <span class="entry-label">Check Out</span>
+                <span class="entry-value">{{ lastLogoutTime() || '--:--' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </form>
-</section>
+  </div>
+
+  <!-- Live Session (if logged in) -->
+  <div class="live-session" *ngIf="isLoggedIn() && !lastLogoutTime()">
+    <div class="session-header">
+      <div class="session-indicator">
+        <div class="pulse-dot"></div>
+        <span class="session-label">Live Session</span>
+      </div>
+      <div class="session-time">{{ getCurrentTime() }}</div>
+    </div>
+    <div class="session-content">
+      <div class="session-stats">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Started</span>
+            <span class="stat-value">{{ lastLoginTime() }}</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Duration</span>
+            <span class="stat-value">{{ workingHours() }}h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

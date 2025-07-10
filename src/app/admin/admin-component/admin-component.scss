@@ -1,9 +1,95 @@
-@import '../../../styles/variables';
-.admin-body{
-min-height: 100vh;
-color: var(--text-color);
-background:var(--background-body)
+// Modern Admin Layout - Using Admin Theme with Global Theme Support
+@use '../../../styles/admin-theme';
+
+// Ensure theme variables are properly inherited globally
+:host {
+  display: block;
+  background: var(--admin-bg-primary);
+  color: var(--admin-text-primary);
+  min-height: 100vh;
+  font-family: var(--admin-font-family);
 }
-.child-routes{
-    padding:5px 10px;
+
+// Direct theme selectors to force theme application
+:host-context([data-theme="dark"]) {
+  .admin-container {
+    background: #0d1117 !important;
+    color: #f1f5f9 !important;
+  }
+}
+
+:host-context([data-theme="light"]) {
+  .admin-container {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+  }
+}
+
+// Modern Admin Layout
+.admin-container {
+  background: var(--admin-bg-primary);
+  min-height: 100vh;
+  color: var(--admin-text-primary);
+  font-family: var(--admin-font-family);
+  transition: var(--admin-transition);
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: var(--admin-sidebar-width);
+  background: var(--admin-sidebar-bg);
+  border-right: 1px solid var(--admin-sidebar-border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1000;
+  box-shadow: var(--admin-shadow-lg);
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.admin-main {
+  flex: 1;
+  margin-left: var(--admin-sidebar-width);
+  background: var(--admin-bg-primary);
+  min-height: 100vh;
+  padding: var(--admin-spacing-lg);
+  
+  @media (max-width: 768px) {
+    margin-left: 0;
+    width: 100%;
+    padding: var(--admin-spacing-md);
+  }
+}
+
+// Mobile menu toggle
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--admin-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
 }

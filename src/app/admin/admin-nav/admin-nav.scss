@@ -1,29 +1,396 @@
-@import '../../../styles/variables';
-.admin-nav{
+// Modern Admin Sidebar Navigation - Using Admin Theme with Global Theme Support
+@use '../../../styles/admin-theme';
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+// Direct theme selectors to force theme application for navigation
+:host-context([data-theme="dark"]) {
+  .admin-sidebar-nav {
+    background: #21262d !important;
+    color: #f1f5f9 !important;
+  }
+}
+
+:host-context([data-theme="light"]) {
+  .admin-sidebar-nav {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+  }
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--admin-sidebar-bg);
+  color: var(--admin-text-primary);
+  padding: 0;
+  overflow-y: auto;
+  transition: var(--admin-transition);
+}
+
+// Brand Section
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-spacing-md);
+  padding: var(--admin-spacing-xl) var(--admin-spacing-lg);
+  border-bottom: 1px solid var(--admin-sidebar-border);
+  margin-bottom: var(--admin-spacing-lg);
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--admin-primary);
+  border-radius: var(--admin-border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--admin-text-primary);
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  margin: 0;
+  line-height: 1;
+}
+
+// Navigation Menu
+.nav-menu {
+  flex: 1;
+  padding: 0 var(--admin-spacing-lg);
+}
+
+.menu-section {
+  margin-bottom: var(--admin-spacing-xl);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.menu-section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--admin-text-muted);
+  margin-bottom: var(--admin-spacing-md);
+  padding: 0 var(--admin-spacing-sm);
+}
+
+// Navigation Links
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-spacing-md);
+  padding: var(--admin-spacing-md) var(--admin-spacing-sm);
+  border-radius: var(--admin-border-radius);
+  color: var(--admin-text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: var(--admin-transition);
+  margin-bottom: var(--admin-spacing-xs);
+  position: relative;
+  
+  &:hover {
+    background: var(--admin-card-bg-hover);
+    color: var(--admin-text-primary);
+    transform: translateX(2px);
+  }
+  
+  &.nav-link-active {
+    background: var(--admin-card-bg-hover);
+    
+    .nav-link-icon {
+      color: var(--admin-primary);
+    }
+
+  }
+  
+  &.nav-link-primary {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-hover));
+    color: white;
+    font-weight: 600;
+    
+    &:hover {
+      transform: translateX(2px) translateY(-1px);
+      box-shadow: var(--admin-shadow);
+    }
+    
+    .nav-link-icon {
+      color: white;
+    }
+  }
+  
+  // Theme toggle button styling
+  &.nav-link-theme {
+    background: var(--admin-bg-tertiary);
+    border: 1px solid var(--admin-border);
+    cursor: pointer;
+  }
+}
+
+// Theme-specific styling for navigation links
+:host-context([data-theme="dark"]) {
+  .nav-link {
+    color: #cbd5e1;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #f1f5f9;
+    }
+  }
+}
+
+:host-context([data-theme="light"]) {
+  .nav-link {
+    color: #4b5563;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #1f2937;
+    }
+  }
+}
+
+.nav-link-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.nav-link-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-link-badge {
+  background: var(--admin-primary);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:empty {
+    display: none;
+  }
+}
+
+// Navigation Footer
+.nav-footer {
+  margin-top: auto;
+  padding: var(--admin-spacing-lg);
+  border-top: 1px solid var(--admin-sidebar-border);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-spacing-md);
+  padding: var(--admin-spacing-md);
+  border-radius: var(--admin-border-radius);
+  background: var(--admin-card-bg);
+  margin-bottom: var(--admin-spacing-md);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--admin-primary-light);
+  color: var(--admin-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--admin-text-primary);
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  line-height: 1;
+}
+
+.nav-logout {
+  // Let the logout component handle its own styling
+  // but ensure it fits the theme
+  :deep(.logout-btn) {
+    width: 100%;
+    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+    border: 1px solid var(--admin-card-border);
+    border-radius: var(--admin-border-radius);
+    background: var(--admin-bg-secondary);
+    color: var(--admin-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--admin-transition);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding:10px 10px;
-    font-weight:600;
-}
-.logout-component{
-   justify-content: end;
-}
-.admin-routes{
-  background-color:azure;
-  padding:10px 10px;
-  border-radius:1000px;
-  color:var(--background-body);
-  a{
-     padding:8px 12px;
+    gap: var(--admin-spacing-xs);
+    justify-content: center;
+    
+    &:hover {
+      background: var(--admin-card-bg-hover);
+      color: var(--admin-text-primary);
+    }
   }
-  a:first-child{
-    margin-right:0.5rem;
+}
+
+// Custom Admin Avatar Styling
+.admin-avatar {
+  .avatar-image {
+    color: white !important;
+    font-weight: 600;
   }
-  .active-link {
-  color: azure;
-  background-color: var(--primary-color);
-  border-radius: 1000px;
-  transition: all 0.2s;
- }
+}
+
+// Modern Logout Button Styling
+.modern-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-spacing-sm);
+  width: 100%;
+  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+  border: none;
+  border-radius: var(--admin-border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--admin-transition-normal);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+
+  &:hover {
+    background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%);
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+
+  .logout-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+  }
+
+  .logout-text {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+}
+
+// Action buttons spacing adjustment (removed theme toggle)
+.nav-actions {
+  display: none; // Hide the entire actions section since no buttons remain
+}
+
+// User profile hover effect
+.user-profile {
+  cursor: pointer;
+  transition: all var(--admin-transition-normal);
+  border-radius: var(--admin-border-radius);
+  padding: var(--admin-spacing-sm);
+  margin: var(--admin-spacing-md) 0;
+
+  &:hover {
+    background: var(--admin-sidebar-hover);
+    transform: translateX(2px);
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .admin-sidebar-nav {
+    padding-top: 60px; // Space for mobile menu toggle
+  }
+  
+  .nav-brand {
+    padding: var(--admin-spacing-lg);
+  }
+  
+  .brand-title {
+    font-size: 1rem;
+  }
+  
+  .nav-menu {
+    padding: 0 var(--admin-spacing-md);
+  }
+  
+  .nav-footer {
+    padding: var(--admin-spacing-md);
+  }
+}
+
+// Scrollbar styling
+.admin-sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-card-border) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--admin-card-border);
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--admin-text-muted);
+  }
 }

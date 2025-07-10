@@ -1,0 +1,480 @@
+// Payslip Download Component Styles
+.payslip-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--admin-bg-primary);
+  color: var(--admin-text-primary);
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// Header
+.payslip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--admin-card-border);
+  
+  .header-title {
+    flex: 1;
+    
+    .title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--admin-text-primary);
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+      color: var(--admin-text-muted);
+      margin: 0;
+    }
+  }
+  
+  .header-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: var(--admin-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+// Selection Form
+.selection-form {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+    
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-select {
+      padding: 0.75rem;
+      border: 2px solid var(--admin-input-border);
+      border-radius: 8px;
+      background: var(--admin-input-bg);
+      color: var(--admin-text-primary);
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .form-actions {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// Status Section
+.status-section {
+  margin-bottom: 2rem;
+}
+
+.status-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  
+  &.status-success {
+    border-color: var(--admin-success);
+    background: var(--admin-success-bg, rgba(16, 185, 129, 0.05));
+    
+    .status-icon {
+      background: var(--admin-success-bg, #d1fae5);
+      color: var(--admin-success);
+    }
+  }
+  
+  &.status-warning {
+    border-color: var(--admin-warning);
+    background: var(--admin-warning-bg, rgba(245, 158, 11, 0.05));
+    
+    .status-icon {
+      background: var(--admin-warning-bg, #fef3c7);
+      color: var(--admin-warning);
+    }
+  }
+  
+  &.status-info {
+    border-color: var(--admin-primary);
+    background: var(--admin-primary-bg, rgba(59, 130, 246, 0.05));
+    
+    .status-icon {
+      background: var(--admin-primary-bg, #dbeafe);
+      color: var(--admin-primary);
+    }
+  }
+  
+  &.status-error {
+    border-color: var(--admin-error);
+    background: var(--admin-error-bg, rgba(239, 68, 68, 0.05));
+    
+    .status-icon {
+      background: var(--admin-error-bg, #fee2e2);
+      color: var(--admin-error);
+    }
+  }
+  
+  .status-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  .status-content {
+    flex: 1;
+    
+    .status-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .status-message {
+      font-size: 0.875rem;
+      color: var(--admin-text-muted);
+      margin: 0 0 1rem 0;
+      line-height: 1.4;
+    }
+  }
+  
+  .status-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    
+    @media (max-width: 640px) {
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+// Payslip Details
+.payslip-details {
+  background: var(--admin-bg-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--admin-card-border);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      font-size: 0.875rem;
+      color: var(--admin-text-muted);
+    }
+    
+    .detail-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+    }
+  }
+}
+
+// Recent Section
+.recent-section {
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin: 0 0 1rem 0;
+  }
+}
+
+.empty-state, .loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--admin-text-muted);
+  
+  svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+}
+
+.payslip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payslip-item {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: var(--admin-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.status-available {
+    border-left: 4px solid var(--admin-success);
+  }
+  
+  &.status-processing {
+    border-left: 4px solid var(--admin-warning);
+  }
+  
+  &.status-not_available,
+  &.status-not_generated {
+    border-left: 4px solid var(--admin-error);
+    opacity: 0.7;
+  }
+  
+  .payslip-info {
+    flex: 1;
+    
+    .payslip-month {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+      margin: 0 0 0.25rem 0;
+    }
+    
+    .payslip-status {
+      font-size: 0.75rem;
+      color: var(--admin-text-muted);
+      margin: 0 0 0.25rem 0;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    
+    .payslip-amount {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--admin-success);
+      margin: 0;
+    }
+  }
+  
+  .payslip-actions {
+    flex-shrink: 0;
+  }
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background: var(--admin-primary);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-primary-dark);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-secondary {
+    background: var(--admin-bg-secondary);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-card-border);
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-bg-hover);
+      border-color: var(--admin-primary);
+    }
+  }
+  
+  &.btn-success {
+    background: var(--admin-success);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-success-dark);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  &.btn-sm svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Loading Spinner
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .status-card {
+    .status-actions {
+      width: 100%;
+      
+      .btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  }
+  
+  .payslip-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    
+    .payslip-actions {
+      width: 100%;
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+[data-theme="dark"] {
+  .selection-form,
+  .status-card,
+  .payslip-item {
+    background: var(--admin-card-bg-dark);
+    border-color: var(--admin-card-border-dark);
+  }
+  
+  .payslip-details {
+    background: var(--admin-bg-tertiary);
+  }
+  
+  .form-select {
+    background: var(--admin-input-bg-dark);
+    border-color: var(--admin-input-border-dark);
+    color: var(--admin-text-primary-dark);
+  }
+}

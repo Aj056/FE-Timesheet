@@ -1,0 +1,363 @@
+// Admin Theme - Using Consistent Color Palette with Light/Dark Mode Support
+:root {
+  // Use the same primary colors as employee module
+  --admin-primary: var(--primary-color);
+  --admin-primary-hover: var(--primary-hover);
+  --admin-primary-light: var(--primary-light);
+  --admin-primary-rgb: 21, 89, 162; // RGB values for rgba usage
+  
+  --admin-secondary: var(--secondary-color);
+  --admin-secondary-hover: var(--secondary-hover);
+  
+  --admin-success: var(--success-color);
+  --admin-success-light: var(--success-light);
+  
+  --admin-warning: var(--warning-color);
+  --admin-warning-light: var(--warning-light);
+  
+  --admin-danger: var(--error-color);
+  --admin-danger-light: var(--error-light);
+  
+  --admin-info: var(--primary-light);
+  --admin-info-light: rgba(37, 99, 235, 0.1);
+  
+  // Background colors - use same as employee module
+  --admin-bg-primary: var(--bg-primary, var(--background-body));
+  --admin-bg-secondary: var(--bg-secondary, var(--background-secondary));
+  --admin-bg-card: var(--bg-card, var(--card-surface));
+  --admin-bg-hover: var(--bg-hover, var(--card-hover));
+  --admin-bg-tertiary: var(--bg-tertiary, var(--background-secondary));
+  
+  // Text colors - use same as employee module
+  --admin-text-primary: var(--text-primary, var(--text-color));
+  --admin-text-secondary: var(--text-secondary);
+  --admin-text-muted: var(--text-tertiary, var(--muted-text-color));
+  --admin-text-inverse: var(--text-inverse);
+  
+  // Borders and dividers
+  --admin-border: var(--border-color);
+  --admin-border-light: var(--border-light);
+  --admin-divider: var(--divider-color);
+  
+  // Shadows - use same as employee module
+  --admin-shadow: var(--shadow-md);
+  --admin-shadow-sm: var(--shadow-sm);
+  --admin-shadow-lg: var(--shadow-lg);
+  --admin-shadow-xl: var(--shadow-xl);
+  
+  // Borders
+  --admin-border-radius: var(--radius-md);
+  --admin-border-radius-lg: var(--radius-lg);
+  --admin-border-radius-xl: var(--radius-xl);
+  
+  // Spacing - use same scale as employee module
+  --admin-spacing-xs: var(--spacing-xs);
+  --admin-spacing-sm: var(--spacing-sm);
+  --admin-spacing-md: var(--spacing-md);
+  --admin-spacing-lg: var(--spacing-lg);
+  --admin-spacing-xl: var(--spacing-xl);
+  --admin-spacing-2xl: var(--spacing-2xl);
+  
+  // Typography
+  --admin-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --admin-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  // Transitions
+  --admin-transition: var(--transition-normal);
+  --admin-transition-fast: var(--transition-fast);
+  --admin-transition-slow: var(--transition-slow);
+  
+  // Sidebar - specific variables for admin navigation
+  --admin-sidebar-bg: var(--admin-bg-card);
+  --admin-sidebar-border: var(--admin-border);
+  --admin-sidebar-width: 280px;
+  
+  // Card-specific variables for compatibility
+  --admin-card-bg: var(--admin-bg-card);
+  --admin-card-bg-hover: var(--admin-bg-hover);
+  --admin-card-border: var(--admin-border);
+  
+  // Button styles - using consistent color scheme
+  --admin-btn-primary-bg: var(--admin-primary);
+  --admin-btn-primary-text: var(--admin-text-inverse);
+  --admin-btn-primary-border: var(--admin-primary);
+  --admin-btn-primary-hover-bg: var(--admin-primary-hover);
+  --admin-btn-primary-hover-border: var(--admin-primary-hover);
+  
+  --admin-btn-secondary-bg: var(--admin-bg-card);
+  --admin-btn-secondary-text: var(--admin-text-primary);
+  --admin-btn-secondary-border: var(--admin-border);
+  --admin-btn-secondary-hover-bg: var(--admin-bg-hover);
+  --admin-btn-secondary-hover-border: var(--admin-border);
+}
+
+// Light Theme Overrides for Admin
+[data-theme="light"], 
+.light-theme {
+  // Admin inherits light theme variables from employee module base
+  --admin-nav-link-hover: rgba(0, 0, 0, 0.05);
+  
+  // Force light theme styles for admin elements
+  .admin-container {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .admin-sidebar-nav {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+  .nav-text{
+    color: black !important;
+  }
+}
+
+// Dark Theme Overrides for Admin
+[data-theme="dark"],
+.dark-theme {
+  // Admin inherits dark theme variables from employee module base
+  // Admin-specific dark theme adjustments
+  --admin-sidebar-bg: var(--bg-card);
+  --admin-nav-link-hover: rgba(255, 255, 255, 0.1);
+  
+  // Ensure proper contrast for admin elements
+  .admin-container {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .admin-sidebar-nav {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+}
+
+// Global admin styles
+.admin-container {
+  font-family: var(--admin-font-family);
+  background: var(--admin-bg-primary);
+  color: var(--admin-text-primary);
+  min-height: 100vh;
+}
+
+// Utility classes
+.admin-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  border-radius: var(--admin-border-radius);
+  box-shadow: var(--admin-shadow-sm);
+  transition: var(--admin-transition);
+  
+  &:hover {
+    background: var(--admin-card-bg-hover);
+    box-shadow: var(--admin-shadow-md);
+  }
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-spacing-sm);
+  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  border: none;
+  border-radius: var(--admin-border-radius);
+  font-family: var(--admin-font-family);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--admin-transition);
+  text-decoration: none;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background: var(--admin-primary);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-primary-hover);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-secondary {
+    background: var(--admin-card-bg);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-card-border);
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-card-bg-hover);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-success {
+    background: var(--admin-success);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-warning {
+    background: var(--admin-warning);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: var(--admin-warning-hover);
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-danger {
+    background: var(--admin-danger);
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+  }
+  
+  &.btn-lg {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  
+  &.badge-success {
+    background: var(--admin-success-light);
+    color: var(--admin-success);
+  }
+  
+  &.badge-warning {
+    background: var(--admin-warning-light);
+    color: var(--admin-warning);
+  }
+  
+  &.badge-danger {
+    background: var(--admin-danger-light);
+    color: var(--admin-danger);
+  }
+  
+  &.badge-info {
+    background: var(--admin-info-light);
+    color: var(--admin-info);
+  }
+  
+  &.badge-primary {
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+  }
+}
+
+// Status indicators
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  
+  &.status-active::before {
+    background: var(--admin-success);
+  }
+  
+  &.status-inactive::before {
+    background: var(--admin-danger);
+  }
+  
+  &.status-pending::before {
+    background: var(--admin-warning);
+  }
+}
+
+// Loading states
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--admin-spacing-2xl);
+  color: var(--admin-text-muted);
+}
+
+.admin-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--admin-card-border);
+  border-top: 2px solid var(--admin-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Form elements
+.admin-input {
+  width: 100%;
+  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-card-border);
+  border-radius: var(--admin-border-radius);
+  color: var(--admin-text-primary);
+  font-family: var(--admin-font-family);
+  font-size: 0.875rem;
+  transition: var(--admin-transition);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+  }
+  
+  &::placeholder {
+    color: var(--admin-text-muted);
+  }
+}
+
+.admin-select {
+  @extend .admin-input;
+  cursor: pointer;
+  
+  option {
+    background: var(--admin-card-bg);
+    color: var(--admin-text-primary);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  :root {
+    --admin-sidebar-width: 100%;
+    --admin-spacing-lg: 16px;
+    --admin-spacing-xl: 24px;
+    --admin-spacing-2xl: 32px;
+  }
+}

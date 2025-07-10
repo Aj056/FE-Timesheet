@@ -1,16 +1,19 @@
 import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { RouterModule, Routes } from "@angular/router";
 import { Logincomponent } from "./logincomponent/logincomponent";
 import { CommonModule } from "@angular/common";
 
-
-
-const routes:Routes = [
-    {path:'login',component:Logincomponent}
+const routes: Routes = [
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: 'login', component: Logincomponent }
 ]
 
 @NgModule({
-    declarations:[],
-    imports:[RouterModule.forChild(routes),CommonModule]
+    declarations: [],
+    imports: [
+        RouterModule.forChild(routes),
+        CommonModule,
+        Logincomponent // Import standalone component
+    ]
 })
-export class AuthModule{}
+export class AuthModule {}

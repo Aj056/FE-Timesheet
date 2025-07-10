@@ -9,9 +9,13 @@ const routes:Routes =[
         component:Employeecomponent,
     },
     {
-      path:'profile-page',
+      path:'profile',
       loadComponent: () => import('./employee-profile/employee-profile').then(m => m.EmployeeProfile)
           
+    },
+    {
+      path:'payslip',
+      loadComponent: () => import('./payslip-download/payslip-download').then(m => m.PayslipDownloadComponent)
     }
 ]
 

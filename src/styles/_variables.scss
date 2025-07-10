@@ -1,10 +1,217 @@
-:root {
+// Dark Theme (Default)
+:root,
+[data-theme="dark"],
+.dark-theme {
+  // Primary Brand Colors
   --primary-color: #1559a2;
+  --primary-hover: #0f4c87;
+  --primary-light: #2563eb;
+  
+  // Secondary Colors
   --secondary-color: rgba(255, 0, 0, 0.749);
+  --secondary-hover: rgba(220, 0, 0, 0.8);
+  
+  // Success, Warning, Error Colors
+  --success-color: #22c55e;
+  --success-light: rgba(34, 197, 94, 0.1);
+  --warning-color: #fbbf24;
+  --warning-light: rgba(251, 191, 36, 0.1);
+  --error-color: #ef4444;
+  --error-light: rgba(239, 68, 68, 0.1);
+  
+  // Text Colors
   --text-color: #f1f5f9;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
   --muted-text-color: #94a3b8;
+  --text-inverse: #0f172a;
+  
+  // Background Colors
   --background-body: #0d1117;
-  --card-surface: #161b22;
+  --background-secondary: #161b22;
+  --card-surface: #21262d;
+  --card-hover: #30363d;
+  
+  // Employee/Admin module background variables
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-card: #21262d;
+  --bg-sidebar: #0f172a;
+  
+  // Form & Input Colors
   --form-background: linear-gradient(to top, #0d0d0d, rgba(255, 255, 255, 0.1));
-  --border-color: #2f3845;
+  --input-background: #1c2128;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --input-focus: var(--primary-color);
+  
+  // Border & Divider Colors - Much lighter and subtle
+  --border-color: rgba(255, 255, 255, 0.131);
+  --border-light: rgba(255, 255, 255, 0.03);
+  --divider-color: rgba(255, 255, 255, 0.05);
+  
+  // Shadow & Elevation - Lighter shadows for subtle depth
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 8px 12px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -3px rgba(0, 0, 0, 0.04);
+  
+  // Spacing Scale
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  // Border Radius
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 1000px; 
+  
+  // Typography
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  
+  // Line Heights
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.75;
+  
+  // Font Weights
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  // Transitions
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  
+  // Z-Index Scale
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal: 1040;
+  --z-popover: 1050;
+  --z-tooltip: 1060;
+  
+  // RGB values for rgba() usage in gradients
+  --primary-rgb: 21, 89, 162;
+  --success-rgb: 34, 197, 94;
+  --warning-rgb: 251, 191, 36;
+  --error-rgb: 239, 68, 68;
+  
+  // Enhanced Blue Color Palette for Better Visibility
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  
+  // Primary color variations with better contrast
+  --primary-color-alpha: rgba(59, 130, 246, 0.1);
+  --primary-light-alpha: rgba(147, 197, 253, 0.1);
+}
+
+// Light Theme
+[data-theme="light"],
+.light-theme {
+  // Primary Brand Colors
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #3b82f6;
+  
+  // Secondary Colors
+  --secondary-color: #dc2626;
+  --secondary-hover: #b91c1c;
+  
+  // Success, Warning, Error Colors
+  --success-color: #16a34a;
+  --success-light: rgba(22, 163, 74, 0.1);
+  --warning-color: #d97706;
+  --warning-light: rgba(217, 119, 6, 0.1);
+  --error-color: #dc2626;
+  --error-light: rgba(220, 38, 38, 0.1);
+  
+  // Text Colors
+  --text-color: #1f2937;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --muted-text-color: #6b7280;
+  --text-inverse: #ffffff;
+  
+  // Background Colors
+  --background-body: #ffffff;
+  --background-secondary: #f9fafb;
+  --card-surface: #ecebebe8;
+  --card-hover: #f3f4f6;
+  
+  // Employee/Admin module background variables
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-sidebar: #1f2937;
+  
+  // Form & Input Colors
+  --form-background: linear-gradient(to top, #f8fafc, rgba(59, 130, 246, 0.05));
+  --input-background: #ffffff;
+  --input-border: rgba(0, 0, 0, 0.08);
+  --input-focus: var(--primary-color);
+  
+  // Border & Divider Colors - Much lighter and subtle
+  --border-color: rgb(212, 212, 212);
+  --border-light: rgba(0, 0, 0, 0.03);
+  --divider-color: rgba(0, 0, 0, 0.05);
+  
+  // Shadow & Elevation (lighter shadows for light theme)
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 8px 12px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -3px rgba(0, 0, 0, 0.04);
+  
+  // RGB values for rgba() usage in gradients (light theme)
+  --primary-rgb: 37, 99, 235;
+  --success-rgb: 22, 163, 74;
+  --warning-rgb: 217, 119, 6;
+  --error-rgb: 220, 38, 38;
+  
+  // Enhanced Blue Color Palette for Better Visibility (Light Theme)
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  
+  // Primary color variations with better contrast (Light Theme)
+  --primary-color-alpha: rgba(37, 99, 235, 0.1);
+  --primary-light-alpha: rgba(59, 130, 246, 0.1);
+  
+  // Text Muted Color
+  --text-muted: var(--muted-text-color);
+  
+  // Typography
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }

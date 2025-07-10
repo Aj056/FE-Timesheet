@@ -1,7 +1,19 @@
-<div class="admin-body">
-   <app-admin-nav></app-admin-nav>
-   <div class="child-routes">
+<div class="admin-container">
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <app-admin-nav></app-admin-nav>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="admin-main">
       <router-outlet></router-outlet>
-   </div>
-   
+    </main>
+  </div>
 </div>
+
+<!-- Toast Container for modern notifications -->
+<app-toast-container></app-toast-container>
+
+<!-- Popup Container for modern dialogs -->
+<app-popup-container></app-popup-container>

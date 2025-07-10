@@ -1,7 +1,50 @@
-<div class="employee-profile-nav">
-    <button  
-    routerLink=""
-    >
-    Back
-  </button>
+<div class="employee-profile-container">
+  <div class="profile-header">
+    <button class="back-button" (click)="goBack()">
+      ← Back to Dashboard
+    </button>
+    <h1 class="profile-title">👤 My Profile</h1>
+  </div>
+
+  <div *ngIf="employee() as emp; else loading" class="profile-content">
+    <div class="profile-card">
+      <div class="profile-avatar">
+        {{ (emp.employeeName || emp.name || 'U').charAt(0).toUpperCase() }}
+      </div>
+      
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="label">📝 Full Name:</span>
+          <span class="value">{{ emp.employeeName || emp.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">📧 Email:</span>
+          <span class="value">{{ emp.employeeEmail || emp.email || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">👥 Role:</span>
+          <span class="value">{{ emp.role || 'Employee' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">🔑 Username:</span>
+          <span class="value">{{ emp.username || emp.employeeName || emp.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">📅 Joining Date:</span>
+          <span class="value">{{ emp.joiningDate || 'N/A' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="emp.id">
+          <span class="label">🆔 Employee ID:</span>
+          <span class="value">{{ emp.id }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading-container">
+      <p class="loading-text">Loading your profile...</p>
+    </div>
+  </ng-template>
 </div>
+

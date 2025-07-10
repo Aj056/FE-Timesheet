@@ -1,0 +1,129 @@
+<div class="admin-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1 class="page-title">
+          <div class="title-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          Edit Employee
+        </h1>
+        <p class="page-subtitle">Update employee information and settings</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="admin-btn btn-secondary" (click)="goBack()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="data-table-container">
+    <form class="admin-form" [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <h2 class="form-title">Employee Information</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="employeeName">Name *</label>
+          <input type="text" id="employeeName" formControlName="employeeName" class="admin-input">
+        </div>
+
+        <div class="form-group">
+          <label for="employeeEmail">Email *</label>
+          <input type="email" id="employeeEmail" formControlName="employeeEmail" class="admin-input">
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role *</label>
+          <select id="role" formControlName="role" class="admin-input">
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="joiningDate">Joining Date</label>
+          <input type="date" id="joiningDate" formControlName="joiningDate" class="admin-input">
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input type="text" id="username" formControlName="username" class="admin-input">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" formControlName="password" class="admin-input" placeholder="Leave empty to keep current password">
+        </div>
+
+        <div class="form-group">
+          <label for="workLocation">Work Location *</label>
+          <input type="text" id="workLocation" formControlName="workLocation" class="admin-input" placeholder="e.g., Bangalore, Hyderabad">
+        </div>
+
+        <div class="form-group">
+          <label for="department">Department *</label>
+          <input type="text" id="department" formControlName="department" class="admin-input" placeholder="e.g., Engineering, HR, Sales">
+        </div>
+
+        <div class="form-group">
+          <label for="designation">Designation *</label>
+          <input type="text" id="designation" formControlName="designation" class="admin-input" placeholder="e.g., Software Engineer, Manager">
+        </div>
+
+        <div class="form-group">
+          <label for="bankAccount">Bank Account Number *</label>
+          <input type="text" id="bankAccount" formControlName="bankAccount" class="admin-input" placeholder="Enter bank account number">
+        </div>
+
+        <div class="form-group">
+          <label for="uanNumber">UAN Number</label>
+          <input type="text" id="uanNumber" formControlName="uanNumber" class="admin-input" placeholder="Universal Account Number">
+        </div>
+
+        <div class="form-group">
+          <label for="esiNumber">ESI Number</label>
+          <input type="text" id="esiNumber" formControlName="esiNumber" class="admin-input" placeholder="Employee State Insurance Number">
+        </div>
+
+        <div class="form-group">
+          <label for="panNumber">PAN Number</label>
+          <input type="text" id="panNumber" formControlName="panNumber" class="admin-input" placeholder="Permanent Account Number">
+        </div>
+
+        <div class="form-group">
+          <label for="resourceType">Resource Type *</label>
+          <select id="resourceType" formControlName="resourceType" class="admin-input">
+            <option value="Pay Slip">Pay Slip</option>
+            <option value="Payment Confirmation - Individual Consultant">Payment Confirmation - Individual Consultant</option>
+            <option value="Payment Confirmation - Individual GST Consultant">Payment Confirmation - Individual GST Consultant</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="admin-btn btn-secondary" (click)="goBack()">
+          Cancel
+        </button>
+        <button type="submit" class="admin-btn btn-primary" [disabled]="!employeeForm.valid">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Update Employee
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
