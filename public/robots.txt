@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://attendance-three-lemon.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin pages from search engines
+Disallow: /admin/
+Disallow: /api/
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /employee
+
+# Block sensitive files
+Disallow: /*.json$
+Disallow: /config/
+Disallow: /logs/
