@@ -12,9 +12,9 @@
     "test": "ng test",
     "deploy:vercel": "npm run build:prod && vercel --prod",
     "deploy:vercel:dev": "npm run build:prod && vercel",
-    "deploy:netlify": "npm run build:prod && netlify deploy --prod --dir=dist/timesheet-ware/browser",
-    "deploy:netlify:dev": "npm run build:prod && netlify deploy --dir=dist/timesheet-ware/browser",
-    "preview": "ng build --configuration production && npx http-server dist/timesheet-ware/browser -p 3000 -c-1"
+    "deploy:netlify": "npm run build:prod && netlify deploy --prod --dir=dist/Timesheet-ware/browser",
+    "deploy:netlify:dev": "npm run build:prod && netlify deploy --dir=dist/Timesheet-ware/browser",
+    "preview": "ng build --configuration production && npx http-server dist/Timesheet-ware/browser -p 3000 -c-1"
   },
   "private": true,
   "dependencies": {

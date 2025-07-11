@@ -1,7 +1,7 @@
 # Netlify configuration
 [build]
   command = "npm run build:prod"
-  publish = "dist/timesheet-ware/browser"
+  publish = "dist/Timesheet-ware/browser"
 
 # SPA routing
 [[redirects]]
