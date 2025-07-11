@@ -339,6 +339,13 @@
     color: var(--admin-text-secondary);
     line-height: 1;
   }
+  
+  .employee-designation {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    line-height: 1;
+    margin-top: 2px;
+  }
 }
 
 .id-cell {
@@ -415,6 +422,52 @@
   }
 }
 
+// Department Cell Styles
+.department-cell {
+  .department-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .department-name {
+    font-weight: 500;
+    color: var(--admin-text-primary);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+  }
+  
+  .work-location {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    line-height: 1;
+  }
+}
+
+// Phone/Contact Cell Styles
+.phone-cell {
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .phone-number {
+    font-weight: 500;
+    color: var(--admin-text-primary);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    font-family: var(--admin-font-mono);
+  }
+  
+  .address-short {
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    line-height: 1;
+    cursor: help;
+  }
+}
+
 // Empty State
 .empty-state {
   text-align: center;
@@ -444,9 +497,47 @@
 }
 
 // Responsive Design
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: stretch;
+    flex-wrap: wrap;
+    
+    .admin-btn {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+  
+  .table-header {
+    flex-direction: column;
+    gap: var(--admin-spacing-md);
+  }
+  
+  .table-actions {
+    width: 100%;
+  }
+  
+  .search-box {
+    width: 100%;
   }
   
   .modern-table {
@@ -482,6 +573,49 @@
       font-size: 0.75rem;
       padding: 4px 8px;
     }
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-direction: column;
+    gap: var(--admin-spacing-sm);
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  // Make table horizontally scrollable on mobile
+  .table-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .modern-table {
+    min-width: 600px;
+    font-size: 0.75rem;
+  }
+  
+  // Hide department and phone columns on mobile to save space
+  .department-cell,
+  .phone-cell {
+    display: none;
+  }
+  
+  // Simplify employee cell for mobile
+  .employee-details {
+    .employee-designation {
+      display: none;
+    }
+  }
+  
+  .stat-card {
+    padding: var(--admin-spacing-md);
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
   }
 }
 

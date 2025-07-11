@@ -19,6 +19,7 @@ export class ViewEmployee implements OnInit {
  employee = signal<Employee | null>(null);
  isLoading = signal(false);
  error = signal<string | null>(null);
+ showPassword = signal(false);
  
  ngOnInit():void{
    const id = this.route.snapshot.paramMap.get('id');
@@ -80,11 +81,17 @@ getRoleClass(role: string): string {
 }
 
 // get status class for styling
-getStatusClass(status: string): string {
+getStatusClass(status: boolean | string): string {
+  if (typeof status === 'boolean') {
+    return status ? 'status-active' : 'status-inactive';
+  }
+  
   switch (status?.toLowerCase()) {
     case 'active':
+    case 'true':
       return 'status-active';
     case 'inactive':
+    case 'false':
       return 'status-inactive';
     case 'pending':
       return 'status-pending';
@@ -99,6 +106,11 @@ refreshEmployee(): void {
   if (id) {
     this.loadEmployee(id);
   }
+}
+
+// toggle password visibility
+togglePasswordVisibility(): void {
+  this.showPassword.set(!this.showPassword());
 }
 
 // delete employee

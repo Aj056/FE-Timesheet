@@ -136,6 +136,9 @@
           }
         }
       }
+      &:hover{
+        cursor: pointer;
+      }
     }
     
     .nav-link {
@@ -144,7 +147,7 @@
       gap: 0.75rem;
       padding: 0.75rem 1rem;
       border-radius: 12px;
-      color: #f1f5f9; // Light text for dark sidebar
+      // color: #f1f5f9; // Light text for dark sidebar
       text-decoration: none;
       font-weight: 500;
       font-size: 0.875rem;
@@ -167,7 +170,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #f1f5f9; // Light color for icons in dark sidebar
+        // color: #f1f5f9; // Light color for icons in dark sidebar
         transition: all 0.2s ease;
         
         svg {
@@ -243,8 +246,6 @@
     }
     
     .logout-button {
-      width: 36px;
-      height: 36px;
       border: none;
       background: var(--border-color);
       color: #f1f5f9; // Light color for dark sidebar

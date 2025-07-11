@@ -98,7 +98,7 @@
           </svg>
           <input 
             type="text" 
-            placeholder="Search by name or email..." 
+            placeholder="Search by name, email, department, or phone..." 
             class="admin-input search-input"
             [value]="searchTerm()"
             (input)="onSearchChange($any($event.target).value)"
@@ -124,7 +124,8 @@
           <tr>
             <th>Employee</th>
             <th>ID</th>
-            <th>Role</th>
+            <th>Department</th>
+            <th>Phone</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -134,25 +135,35 @@
             <td class="employee-cell">
               <div class="employee-info">
                 <div class="employee-avatar">
-                  {{ (emp.username || 'U').charAt(0).toUpperCase() }}
+                  {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
                 </div>
                 <div class="employee-details">
-                  <div class="employee-name">{{ emp.username }}</div>
+                  <div class="employee-name">{{ emp.name || emp.username || 'Unknown' }}</div>
                   <div class="employee-email">{{ emp.email || 'No email' }}</div>
+                  <div class="employee-designation">{{ emp.designation || emp.role || 'No designation' }}</div>
                 </div>
               </div>
             </td>
             <td class="id-cell">
               <span class="employee-id">#{{ emp.id }}</span>
             </td>
-            <td class="role-cell">
-              <div class="role-badge" [ngClass]="getRoleClass(emp.role)">
-                {{ emp.role || 'employee' | titlecase }}
+            <td class="department-cell">
+              <div class="department-info">
+                <div class="department-name">{{ emp.department || 'No Department' }}</div>
+                <div class="work-location">{{ emp.workLocation || 'No Location' }}</div>
+              </div>
+            </td>
+            <td class="phone-cell">
+              <div class="contact-info">
+                <div class="phone-number">{{ emp.phone || 'No phone' }}</div>
+                <div class="address-short" *ngIf="emp.address" title="{{ emp.address }}">
+                  {{ getShortAddress(emp.address) }}
+                </div>
               </div>
             </td>
             <td class="status-cell">
               <div class="status-indicator" [ngClass]="getStatusClass(emp.status)">
-                {{ emp.status || 'active' | titlecase }}
+                {{ getStatusText(emp.status) }}
               </div>
             </td>
             <td class="actions-cell">

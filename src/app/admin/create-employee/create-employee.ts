@@ -49,6 +49,8 @@ export class CreateEmployee implements OnInit {
       resourceType: ['', Validators.required],
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
+      address: ['', [Validators.required]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]]
     });
 
     // Generate a secure default password
@@ -189,6 +191,11 @@ export class CreateEmployee implements OnInit {
       const sanitizedData = this.sanitizeFormData();
       const employeeData: CreateEmployeeRequest = sanitizedData;
 
+      // Debug: Log the payload being sent
+      console.log('Employee Data Payload:', employeeData);
+      console.log('All Form Fields:', Object.keys(this.employeeForm.value));
+      console.log('Payload Fields:', Object.keys(employeeData));
+
       this.employeeService.createEmployee(employeeData)
         .subscribe({
           next: (response) => {
@@ -203,7 +210,7 @@ export class CreateEmployee implements OnInit {
             // Show success toast with employee details
             this.toastService.success({
               title: 'Employee Created Successfully!',
-              message: `${employeeData.employeeName} has been added to the system with secure credentials.`,
+              message: `${this.employeeForm.get('employeeName')?.value} has been added to the system with secure credentials.`,
               duration: 5000,
               actions: [
                 {
@@ -283,6 +290,51 @@ private validateForm(): boolean {
       isValid = false;
     }
 
+    // Validate required fields
+    if (!formValue.role || formValue.role.trim().length === 0) {
+      this.validationErrors.push('Role is required');
+      isValid = false;
+    }
+
+    if (!formValue.designation || formValue.designation.trim().length === 0) {
+      this.validationErrors.push('Designation is required');
+      isValid = false;
+    }
+
+    if (!formValue.joiningDate) {
+      this.validationErrors.push('Joining date is required');
+      isValid = false;
+    }
+
+    if (!formValue.resourceType || formValue.resourceType.trim().length === 0) {
+      this.validationErrors.push('Resource type is required');
+      isValid = false;
+    }
+
+    // Validate address
+    if (!formValue.address || formValue.address.trim().length === 0) {
+      this.validationErrors.push('Address is required');
+      isValid = false;
+    }
+
+    // Validate phone number format
+    if (!formValue.phone || !formValue.phone.match(/^[0-9]{10}$/)) {
+      this.validationErrors.push('Phone number must be 10 digits');
+      isValid = false;
+    }
+
+    // Validate PAN number format
+    if (formValue.panNumber && !formValue.panNumber.match(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)) {
+      this.validationErrors.push('PAN number must be in format: ABCDE1234F');
+      isValid = false;
+    }
+
+    // Validate bank account number format
+    if (formValue.bankAccount && !formValue.bankAccount.match(/^\d{8,20}$/)) {
+      this.validationErrors.push('Bank account number must be 8-20 digits');
+      isValid = false;
+    }
+
     // Validate username
     if (!this.validationService.validateUsername(formValue.username)) {
       this.validationErrors.push('Username must be 3-20 characters, alphanumeric and underscores only');
@@ -308,12 +360,22 @@ private validateForm(): boolean {
     const formValue = this.employeeForm.value;
     
     return {
-      employeeName: this.validationService.sanitizeInput(formValue.employeeName),
-      employeeEmail: this.validationService.sanitizeInput(formValue.employeeEmail),
-      joiningDate: formValue.joiningDate,
+      name: this.validationService.sanitizeInput(formValue.employeeName), // employeeName -> name
+      email: this.validationService.sanitizeInput(formValue.employeeEmail), // employeeEmail -> email
+      workLocation: this.validationService.sanitizeInput(formValue.workLocation),
+      department: this.validationService.sanitizeInput(formValue.department),
       role: this.validationService.sanitizeInput(formValue.role),
+      position: this.validationService.sanitizeInput(formValue.designation), // designation -> position
+      joinDate: formValue.joiningDate, // joiningDate -> joinDate
+      bankAccount: this.validationService.sanitizeInput(formValue.bankAccount),
+      uanNumber: this.validationService.sanitizeInput(formValue.uanNumber),
+      esiNumber: this.validationService.sanitizeInput(formValue.esiNumber),
+      panNumber: this.validationService.sanitizeInput(formValue.panNumber),
+      resourceType: this.validationService.sanitizeInput(formValue.resourceType),
       username: this.validationService.sanitizeInput(formValue.username),
-      password: formValue.password // Password should not be sanitized, only validated
+      password: formValue.password, // Password should not be sanitized, only validated
+      address: this.validationService.sanitizeInput(formValue.address),
+      phone: this.validationService.sanitizeInput(formValue.phone)
     };
   }
 

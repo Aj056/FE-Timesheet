@@ -23,50 +23,108 @@
 // Theme-specific overrides
 :host-context([data-theme="dark"]) {
   .payslip-container {
-    background: #0d1117 !important;
-    color: #f1f5f9 !important;
+    background: var(--admin-bg-primary) !important;
+    color: var(--admin-text-primary) !important;
   }
   
   .page-header {
-    background: #21262d !important;
-    color: #f1f5f9 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: var(--admin-card-bg) !important;
+    color: var(--admin-text-primary) !important;
+    border-color: var(--admin-card-border) !important;
   }
   
+  // For screen viewing in dark theme, use dark colors
   .payslip-document {
-    background: #21262d !important;
-    color: #f1f5f9 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: var(--admin-card-bg) !important;
+    color: var(--admin-text-primary) !important;
+    border-color: var(--admin-card-border) !important;
+    
+    // Override the header for dark theme viewing
+    .payslip-header {
+      background: var(--admin-bg-secondary) !important;
+      color: var(--admin-text-primary) !important;
+      border-bottom: 2px solid var(--admin-card-border) !important;
+      
+      .company-details {
+        .company-name,
+        .company-address,
+        .payslip-title-text {
+          color: var(--admin-text-primary) !important;
+        }
+      }
+    }
+    
+    // All text elements in dark theme
+    * {
+      color: var(--admin-text-primary) !important;
+    }
+    
+    // Table headers and content
+    .table-header {
+      background: var(--admin-bg-secondary) !important;
+      color: var(--admin-text-primary) !important;
+    }
+    
+    .table-row {
+      border-color: var(--admin-card-border) !important;
+      
+      &:nth-child(even) {
+        background: var(--admin-bg-secondary) !important;
+      }
+    }
+  }
+  
+  // Form elements in dark theme
+  .admin-input,
+  .admin-select {
+    background: var(--admin-bg-secondary) !important;
+    color: var(--admin-text-primary) !important;
+    border-color: var(--admin-card-border) !important;
   }
 }
 
 :host-context([data-theme="light"]) {
   .payslip-container {
-    background: #ffffff !important;
-    color: #1f2937 !important;
+    background: var(--admin-bg-primary) !important;
+    color: var(--admin-text-primary) !important;
   }
   
   .page-header {
-    background: #ffffff !important;
-    color: #1f2937 !important;
-    border-color: #e2e8f0 !important;
+    background: var(--admin-card-bg) !important;
+    color: var(--admin-text-primary) !important;
+    border-color: var(--admin-card-border) !important;
   }
   
+  // For light theme, keep the white background for consistency
   .payslip-document {
     background: #ffffff !important;
     color: #1f2937 !important;
     border-color: #e2e8f0 !important;
+    
+    .payslip-header {
+      background: white !important;
+      color: black !important;
+      border-bottom: 2px solid #000 !important;
+      
+      .company-details {
+        .company-name,
+        .company-address,
+        .payslip-title-text {
+          color: #000 !important;
+        }
+      }
+    }
   }
 }
 
-// Print styles
+// Print styles - Always use consistent colors for PDF generation
 @media print {
   .no-print {
     display: none !important;
   }
   
   .payslip-container {
-    background: white;
+    background: white !important;
     padding: 0;
     margin: 0;
     max-width: none;
@@ -79,24 +137,33 @@
     page-break-inside: avoid;
     border: none !important;
     border-radius: 0 !important;
+    background: white !important;
+    color: black !important;
   }
 
   .payslip-header {
-    background: #1e293b !important;
-    color: white !important;
+    background: white !important;
+    color: black !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    border-bottom: 2px solid #000 !important;
+  }
+  
+  // Ensure all text is black for print
+  .payslip-document * {
+    color: black !important;
   }
 
   .company-logo .logo-placeholder {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(0, 0, 0, 0.1) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .table-header {
-    background: #1e293b !important;
-    color: white !important;
+    background: #f8f9fa !important;
+    color: black !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1476,5 +1543,52 @@
         height: 12px !important;
       }
     }
+  }
+}
+
+// PDF Generation temporary styles - Override theme during PDF capture
+.payslip-document.pdf-generation {
+  background: white !important;
+  color: black !important;
+  
+  .payslip-header {
+    background: white !important;
+    color: black !important;
+    border-bottom: 2px solid #000 !important;
+    
+    .company-details {
+      .company-name,
+      .company-address,
+      .payslip-title-text {
+        color: black !important;
+      }
+    }
+  }
+  
+  // Ensure all text is black during PDF generation
+  * {
+    color: black !important;
+  }
+  
+  .table-header {
+    background: #f8f9fa !important;
+    color: black !important;
+    border-color: #000 !important;
+  }
+  
+  .table-row {
+    border-color: #dee2e6 !important;
+    
+    &:nth-child(even) {
+      background: #f8f9fa !important;
+    }
+  }
+  
+  .employee-info,
+  .company-info,
+  .earnings-table,
+  .deductions-table,
+  .summary-section {
+    color: black !important;
   }
 }

@@ -66,8 +66,12 @@
           <div class="employee-role" [ngClass]="getRoleClass(employee()?.role || '')">
             {{ employee()?.role }}
           </div>
-          <div class="employee-status" [ngClass]="getStatusClass(employee()?.status || 'Active')">
-            {{ employee()?.status || 'Active' }}
+          <div class="employee-status" [ngClass]="getStatusClass(employee()?.status ?? false)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            {{ employee()?.status ? 'Active' : 'Inactive' }}
           </div>
         </div>
       </div>
@@ -86,9 +90,33 @@
             <span class="label">Email:</span>
             <span class="value">{{ employee()?.email }}</span>
           </div>
+          <div class="detail-row" *ngIf="employee()?.phone">
+            <span class="label">Phone:</span>
+            <span class="value">{{ employee()?.phone }}</span>
+          </div>
+          <div class="detail-row" *ngIf="employee()?.address">
+            <span class="label">Address:</span>
+            <span class="value">{{ employee()?.address }}</span>
+          </div>
           <div class="detail-row">
             <span class="label">Username:</span>
             <span class="value">{{ employee()?.username }}</span>
+          </div>
+          <div class="detail-row" *ngIf="employee()?.password">
+            <span class="label">Password:</span>
+            <span class="value password-field">
+              <input [type]="showPassword() ? 'text' : 'password'" [value]="employee()?.password" readonly class="password-input">
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [title]="showPassword() ? 'Hide Password' : 'Show Password'">
+                <svg *ngIf="!showPassword()" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <svg *ngIf="showPassword()" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2"/>
+                  <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </span>
           </div>
         </div>
 

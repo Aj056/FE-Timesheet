@@ -6,8 +6,15 @@
     "start": "ng serve",
     "dev": "ng serve -o",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "build:analyze": "ng build --configuration production --stats-json && npx webpack-bundle-analyzer dist/stats.json",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "deploy:vercel": "npm run build:prod && vercel --prod",
+    "deploy:vercel:dev": "npm run build:prod && vercel",
+    "deploy:netlify": "npm run build:prod && netlify deploy --prod --dir=dist/timesheet-ware/browser",
+    "deploy:netlify:dev": "npm run build:prod && netlify deploy --dir=dist/timesheet-ware/browser",
+    "preview": "ng build --configuration production && npx http-server dist/timesheet-ware/browser -p 3000 -c-1"
   },
   "private": true,
   "dependencies": {

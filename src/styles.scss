@@ -31,13 +31,11 @@ body {
   }
   
   .payslip-document {
-    background: #21262d !important;
     color: #f1f5f9 !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
   }
   
   .page-header {
-    background: #21262d !important;
     color: #f1f5f9 !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
   }
@@ -110,5 +108,210 @@ input {
   .nav-icon {
     color: #ffffff !important;
     font-weight: 600 !important;
+  }
+}
+
+// Responsive breakpoints and global mobile improvements
+@media (max-width: 1200px) {
+  // Large tablets and small laptops
+  .admin-page {
+    padding: var(--admin-spacing-lg) !important;
+  }
+  
+  .header-content {
+    gap: var(--admin-spacing-md) !important;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  // Tablets
+  .admin-page {
+    padding: var(--admin-spacing-md) !important;
+  }
+  
+  .header-content {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--admin-spacing-md) !important;
+  }
+  
+  .header-actions {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: var(--admin-spacing-sm) !important;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--admin-spacing-md) !important;
+  }
+  
+  // Table improvements for tablets
+  .modern-table {
+    font-size: 0.8rem !important;
+    
+    thead th,
+    tbody td {
+      padding: var(--admin-spacing-sm) !important;
+    }
+  }
+  
+  .employee-info {
+    gap: var(--admin-spacing-sm) !important;
+  }
+  
+  .employee-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  // Touch-friendly improvements for mobile
+  .admin-btn {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  // Better form inputs on mobile
+  .admin-input,
+  .admin-select {
+    min-height: 44px;
+    font-size: 16px; // Prevent zoom on iOS
+    touch-action: manipulation;
+  }
+  
+  // Better navigation
+  .nav-link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  // Improve table row touch targets
+  .table-row {
+    min-height: 44px;
+  }
+  
+  // Better action buttons
+  .action-buttons .admin-btn {
+    min-height: 36px;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  // Mobile phones
+  .admin-page {
+    padding: var(--admin-spacing-sm) !important;
+  }
+  
+  .page-title {
+    font-size: 1.5rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--admin-spacing-sm) !important;
+  }
+  
+  .title-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  .header-actions {
+    flex-direction: column !important;
+    gap: var(--admin-spacing-sm) !important;
+  }
+  
+  .admin-btn {
+    font-size: 0.875rem !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  // Mobile table styles
+  .table-content {
+    overflow-x: auto !important;
+  }
+  
+  .modern-table {
+    min-width: 600px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  // Hide less important columns on mobile
+  .modern-table .department-cell,
+  .modern-table .phone-cell {
+    display: none !important;
+  }
+  
+  .action-buttons {
+    flex-direction: column !important;
+    gap: 4px !important;
+    
+    .admin-btn {
+      font-size: 0.75rem !important;
+      padding: 4px 8px !important;
+      width: auto !important;
+    }
+  }
+}
+
+@media (max-width: 320px) {
+  // Very small phones
+  .admin-page {
+    padding: 8px !important;
+  }
+  
+  .page-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .admin-btn {
+    font-size: 0.8rem !important;
+    padding: 6px 10px !important;
+  }
+}
+
+// Improve scrollbar on mobile
+@media (max-width: 768px) {
+  .table-content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--admin-primary) transparent;
+    
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--admin-primary);
+      border-radius: 4px;
+    }
+  }
+}
+
+// Landscape mobile optimization
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-page {
+    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  }
+  
+  .page-header {
+    margin-bottom: var(--admin-spacing-md);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: var(--admin-spacing-md);
   }
 }

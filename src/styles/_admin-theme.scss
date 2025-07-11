@@ -353,11 +353,32 @@
 }
 
 // Responsive design
+@media (max-width: 1200px) {
+  :root {
+    --admin-spacing-lg: 18px;
+    --admin-spacing-xl: 28px;
+    --admin-spacing-2xl: 36px;
+  }
+}
+
 @media (max-width: 768px) {
   :root {
     --admin-sidebar-width: 100%;
+    --admin-spacing-sm: 8px;
+    --admin-spacing-md: 12px;
     --admin-spacing-lg: 16px;
     --admin-spacing-xl: 24px;
     --admin-spacing-2xl: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --admin-spacing-xs: 4px;
+    --admin-spacing-sm: 6px;
+    --admin-spacing-md: 10px;
+    --admin-spacing-lg: 14px;
+    --admin-spacing-xl: 20px;
+    --admin-spacing-2xl: 28px;
   }
 }

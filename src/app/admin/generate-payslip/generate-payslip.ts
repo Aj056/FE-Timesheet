@@ -108,18 +108,27 @@ export class GeneratePayslipComponent implements OnInit {
         this.isLoading.set(false);
         
         if (employee) {
-          // Pre-populate payslip data with employee details
+          // Pre-populate payslip data with employee details using correct mapping
           this.payslipData.employeeId = employee.id || 'UNKNOWN';
           this.payslipData.employeeName = employee.name || 'Unknown Employee';
           this.payslipData.employeeEmail = employee.email || 'unknown@company.com';
           this.payslipData.department = employee.department || 'Software Development';
-          this.payslipData.designation = employee.role || 'Software Developer';
-          this.payslipData.workLocation = 'Bangalore';
-          this.payslipData.dateOfJoining = '01.02.2024';
-          this.payslipData.bankAccount = '77770142435888';
-          this.payslipData.uanNumber = 'NA';
-          this.payslipData.esiNumber = 'N/A';
-          this.payslipData.panNumber = 'CSPPA0064D';
+          this.payslipData.designation = employee.designation || employee.role || 'Software Developer';
+          this.payslipData.workLocation = employee.workLocation || 'Bangalore';
+          
+          // Format joining date from employee data
+          if (employee.joiningDate) {
+            const joiningDate = new Date(employee.joiningDate);
+            this.payslipData.dateOfJoining = joiningDate.toLocaleDateString('en-GB').replace(/\//g, '.');
+          } else {
+            this.payslipData.dateOfJoining = '01.02.2024';
+          }
+          
+          // Use employee's actual financial data
+          this.payslipData.bankAccount = employee.bankAccount || '77770142435888';
+          this.payslipData.uanNumber = employee.uanNumber || 'NA';
+          this.payslipData.esiNumber = employee.esiNumber || 'N/A';
+          this.payslipData.panNumber = employee.panNumber || 'CSPPA0064D';
           
           console.log('Employee details loaded for payslip:', employee);
         } else {
@@ -216,6 +225,12 @@ export class GeneratePayslipComponent implements OnInit {
       // Show loading indicator
       this.isLoading.set(true);
 
+      // Temporarily add a class to force PDF-friendly styling
+      payslipElement.classList.add('pdf-generation');
+      
+      // Small delay to ensure styles are applied
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Configure html2canvas options for better quality
       const canvas = await html2canvas(payslipElement, {
         scale: 2, // Higher scale for better quality
@@ -228,6 +243,9 @@ export class GeneratePayslipComponent implements OnInit {
         scrollX: 0,
         scrollY: 0
       });
+
+      // Remove the temporary class
+      payslipElement.classList.remove('pdf-generation');
 
       // Calculate PDF dimensions
       const imgWidth = 210; // A4 width in mm

@@ -28,8 +28,7 @@ private readonly baseUrl = environment.apiUrl;
  employeeId: string = '';
  isLoading = false;
  isSubmitting = false;
- 
- // constructor to initialize the  form builder
+  // constructor to initialize the  form builder
   constructor(private formBuilder: FormBuilder) {
     this.employeeForm  = this.formBuilder.group({
       employeeName:['', Validators.required],
@@ -45,7 +44,10 @@ private readonly baseUrl = environment.apiUrl;
       uanNumber: [''],
       esiNumber: [''],
       panNumber: [''],
-      resourceType: ['Pay Slip', Validators.required]
+      resourceType: ['Pay Slip', Validators.required],
+      address: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      status: [true, Validators.required]
     });
 
   }
@@ -63,11 +65,32 @@ private readonly baseUrl = environment.apiUrl;
       
       this.injectHttpClient.get<any>(`${this.baseUrl}/view/${this.employeeId}`).subscribe({
         next: (emp:any) => {
-          this.employeeForm.patchValue(emp);
+          // Map backend field names to form field names
+          const formData = {
+            employeeName: emp.employeeName || emp.name,
+            employeeEmail: emp.employeeEmail || emp.email,
+            joiningDate: emp.joinDate || emp.joiningDate,
+            role: emp.role,
+            username: emp.username,
+            password: emp.password || '1234',
+            workLocation: emp.workLocation,
+            department: emp.department,
+            designation: emp.designation,
+            bankAccount: emp.bankAccount,
+            uanNumber: emp.uanNumber,
+            esiNumber: emp.esiNumber,
+            panNumber: emp.panNumber,
+            resourceType: emp.resourceType || 'Pay Slip',
+            address: emp.address || '',
+            phone: emp.phone || '',
+            status: emp.status ?? true
+          };
+          
+          this.employeeForm.patchValue(formData);
           this.isLoading = false;
           this.toastService.success({
             title: 'Employee Data Loaded',
-            message: `Successfully loaded data for ${emp.employeeName || 'employee'}`,
+            message: `Successfully loaded data for ${emp.employeeName || emp.name || 'employee'}`,
             duration: 3000
           });
         },
@@ -128,7 +151,29 @@ private readonly baseUrl = environment.apiUrl;
       duration: 3000
     });
     
-    this.injectHttpClient.put(`${this.baseUrl}/update/${this.employeeId}`, this.employeeForm.value).subscribe({
+    // Map form data to backend expected format
+    const formValue = this.employeeForm.value;
+    const updateData = {
+      name: formValue.employeeName,
+      email: formValue.employeeEmail,
+      joinDate: formValue.joiningDate,
+      role: formValue.role,
+      username: formValue.username,
+      password: formValue.password,
+      workLocation: formValue.workLocation,
+      department: formValue.department,
+      position: formValue.designation,
+      bankAccount: formValue.bankAccount,
+      uanNumber: formValue.uanNumber,
+      esiNumber: formValue.esiNumber,
+      panNumber: formValue.panNumber,
+      resourceType: formValue.resourceType,
+      address: formValue.address,
+      phone: formValue.phone,
+      status: formValue.status
+    };
+    
+    this.injectHttpClient.put(`${this.baseUrl}/update/${this.employeeId}`, updateData).subscribe({
       next:()=>{
         this.isSubmitting = false;
         this.toastService.success({

@@ -45,8 +45,15 @@ export class EmployeesList {
     return employees.filter(employee => {
       const name = (employee.name || employee.username || '').toLowerCase();
       const email = (employee.email || '').toLowerCase();
+      const department = (employee.department || '').toLowerCase();
+      const designation = (employee.designation || '').toLowerCase();
+      const phone = (employee.phone || '').toLowerCase();
       
-      return name.includes(searchTerm) || email.includes(searchTerm);
+      return name.includes(searchTerm) || 
+             email.includes(searchTerm) || 
+             department.includes(searchTerm) ||
+             designation.includes(searchTerm) ||
+             phone.includes(searchTerm);
     });
   });
   
@@ -210,13 +217,13 @@ export class EmployeesList {
   // get active employees count
   activeEmployeesCount() {
     const employees = this.employees();
-    return Array.isArray(employees) ? employees.filter(emp => emp.status === 'active').length : 0;
+    return Array.isArray(employees) ? employees.filter(emp => emp.status === true).length : 0;
   }
 
   // get inactive employees count
   inactiveEmployeesCount() {
     const employees = this.employees();
-    return Array.isArray(employees) ? employees.filter(emp => emp.status === 'inactive').length : 0;
+    return Array.isArray(employees) ? employees.filter(emp => emp.status === false).length : 0;
   }
 
   // track function for ngFor
@@ -239,17 +246,20 @@ export class EmployeesList {
   }
 
   // get status class for styling
-  getStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'active':
-        return 'status-active';
-      case 'inactive':
-        return 'status-inactive';
-      case 'pending':
-        return 'status-pending';
-      default:
-        return 'status-default';
-    }
+  getStatusClass(status: boolean): string {
+    return status === true ? 'status-active' : 'status-inactive';
+  }
+
+  // get status text for display
+  getStatusText(status: boolean): string {
+    return status === true ? 'Active' : 'Inactive';
+  }
+
+  // get short address for table display
+  getShortAddress(address: string): string {
+    if (!address) return '';
+    const maxLength = 30;
+    return address.length > maxLength ? address.substring(0, maxLength) + '...' : address;
   }
 
   // edit employee

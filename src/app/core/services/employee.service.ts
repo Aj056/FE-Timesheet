@@ -20,19 +20,23 @@ export interface Employee {
   esiNumber?: string;
   panNumber?: string;
   resourceType?: string;
-  status: 'active' | 'inactive';
+  address?: string;
+  phone?: string;
+  status: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface CreateEmployeeRequest {
+// Backend API response interface
+export interface BackendEmployee {
+  _id: string;
   employeeName: string;
   employeeEmail: string;
   workLocation: string;
   department: string;
   role: string;
   designation: string;
-  joiningDate: string;
+  joinDate: string;
   bankAccount: string;
   uanNumber?: string;
   esiNumber?: string;
@@ -40,6 +44,29 @@ export interface CreateEmployeeRequest {
   resourceType: string;
   username: string;
   password: string;
+  address: string;
+  phone: string;
+  status: boolean;
+  __v?: number;
+}
+
+export interface CreateEmployeeRequest {
+  name: string; // changed from employeeName
+  email: string; // changed from employeeEmail
+  workLocation: string;
+  department: string;
+  role: string;
+  position: string; // changed from designation
+  joinDate: string; // changed from joiningDate
+  bankAccount: string;
+  uanNumber?: string;
+  esiNumber?: string;
+  panNumber: string;
+  resourceType: string;
+  username: string;
+  password: string;
+  address: string; // added
+  phone: string; // added
 }
 
 @Injectable({
@@ -62,19 +89,7 @@ export class EmployeeService {
           if (response && response.data && Array.isArray(response.data)) {
             return {
               success: true,
-              employees: response.data.map((emp: any) => ({
-                id: emp._id || emp.id,
-                name: emp.employeeName || emp.name,
-                email: emp.employeeEmail || emp.email,
-                joiningDate: emp.joiningDate || emp.joinDate,
-                role: emp.role || 'employee',
-                username: emp.username,
-                department: emp.department || 'General',
-                position: emp.position || 'Employee',
-                status: emp.status === false ? 'inactive' : 'active', // Default to active if undefined or true
-                createdAt: emp.createdAt,
-                updatedAt: emp.updatedAt
-              })),
+              employees: response.data.map((emp: any) => this.mapBackendToFrontend(emp)),
               totalEmployees: response.data.length,
               totalPages: 1,
               currentPage: 1
@@ -106,20 +121,7 @@ export class EmployeeService {
           console.log('👤 Employee by ID response:', response);
           
           if (response) {
-            const emp = response;
-            return {
-              id: emp._id || emp.id,
-              name: emp.name,
-              email: emp.email,
-              joiningDate: emp.joinDate,
-              role: emp.role || 'employee',
-              username: emp.username || emp.employeeId,
-              department: emp.department,
-              position: emp.position,
-              status: emp.status || 'active',
-              createdAt: emp.createdAt,
-              updatedAt: emp.updatedAt
-            };
+            return this.mapBackendToFrontend(response);
           }
           return null;
         }),
@@ -132,57 +134,24 @@ export class EmployeeService {
 
   // Create new employee
   createEmployee(employeeData: CreateEmployeeRequest): Observable<any> {
-    const newEmployeeData = {
-      name: employeeData.employeeName,
-      email: employeeData.employeeEmail,
-      workLocation: employeeData.workLocation,
-      department: employeeData.department,
-      role: employeeData.role,
-      designation: employeeData.designation,
-      joinDate: employeeData.joiningDate,
-      bankAccount: employeeData.bankAccount,
-      uanNumber: employeeData.uanNumber || 'NA',
-      esiNumber: employeeData.esiNumber || 'N/A',
-      panNumber: employeeData.panNumber,
-      resourceType: employeeData.resourceType,
-      position: employeeData.designation,
-      phone: '',
-      address: '',
-      username: employeeData.username,
-      password: employeeData.password
-    };
+    const backendData = this.mapFrontendToBackend(employeeData);
 
-    return this.http.post<any>(`${this.baseUrl}/register`, newEmployeeData).pipe(
+    return this.http.post<any>(`${this.baseUrl}/register`, backendData).pipe(
       map(response => {
         console.log('✅ Create employee response:', response);
         
         if (response.success && response.employee) {
           return {
             success: true,
-            employee: {
-              id: response.employee._id || response.employee.id,
-              name: response.employee.name,
-              email: response.employee.email,
-              joiningDate: response.employee.joinDate,
-              role: response.employee.role || 'employee',
-              username: response.employee.username,
-              department: response.employee.department,
-              workLocation: response.employee.workLocation,
-              designation: response.employee.designation,
-              bankAccount: response.employee.bankAccount,
-              uanNumber: response.employee.uanNumber,
-              esiNumber: response.employee.esiNumber,
-              panNumber: response.employee.panNumber,
-              resourceType: response.employee.resourceType,
-              status: response.employee.status || 'active'
-            }
-          };
-        } else {
-          return {
-            success: false,
-            message: response.message || 'Failed to create employee'
+            employee: this.mapBackendToFrontend(response.employee),
+            message: response.message || 'Employee created successfully'
           };
         }
+        
+        return {
+          success: false,
+          message: response.message || 'Failed to create employee'
+        };
       }),
       catchError(error => {
         console.error('Failed to create employee:', error);
@@ -196,10 +165,24 @@ export class EmployeeService {
 
   // Update employee
   updateEmployee(id: string, employeeData: Partial<Employee>): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/update/${id}`, employeeData).pipe(
+    const backendData = this.mapFrontendToBackend(employeeData);
+    
+    return this.http.put<any>(`${this.baseUrl}/update/${id}`, backendData).pipe(
       map(response => {
         console.log('✅ Update employee response:', response);
-        return response;
+        
+        if (response && response.success) {
+          return {
+            success: true,
+            employee: response.employee ? this.mapBackendToFrontend(response.employee) : null,
+            message: response.message || 'Employee updated successfully'
+          };
+        }
+        
+        return {
+          success: false,
+          message: response?.message || 'Failed to update employee'
+        };
       }),
       catchError(error => {
         console.error('Failed to update employee:', error);
@@ -265,7 +248,9 @@ export class EmployeeService {
             username: user.username,
             password: user.password,
             department: user.department || 'IT',
-            status: 'active' as const,
+            address: user.address,
+            phone: user.phone,
+            status: user.status ?? true,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
           };
@@ -348,5 +333,54 @@ export class EmployeeService {
   // Generate unique ID for new employees
   private generateId(): string {
     return Math.random().toString(36).substr(2, 9);
+  }
+
+  // Helper function to map backend employee data to frontend Employee interface
+  private mapBackendToFrontend(backendEmp: any): Employee {
+    return {
+      id: backendEmp._id || backendEmp.id,
+      name: backendEmp.employeeName || backendEmp.name,
+      email: backendEmp.employeeEmail || backendEmp.email,
+      joiningDate: backendEmp.joinDate || backendEmp.joiningDate,
+      role: backendEmp.role || 'employee',
+      username: backendEmp.username,
+      password: backendEmp.password, // Include password for editing
+      department: backendEmp.department,
+      workLocation: backendEmp.workLocation,
+      designation: backendEmp.designation,
+      bankAccount: backendEmp.bankAccount,
+      uanNumber: backendEmp.uanNumber,
+      esiNumber: backendEmp.esiNumber,
+      panNumber: backendEmp.panNumber,
+      resourceType: backendEmp.resourceType,
+      address: backendEmp.address,
+      phone: backendEmp.phone,
+      status: backendEmp.status === true, // Ensure boolean
+      createdAt: backendEmp.createdAt,
+      updatedAt: backendEmp.updatedAt
+    };
+  }
+
+  // Helper function to map frontend Employee to backend format
+  private mapFrontendToBackend(frontendEmp: any): any {
+    return {
+      employeeName: frontendEmp.name || frontendEmp.employeeName,
+      employeeEmail: frontendEmp.email || frontendEmp.employeeEmail,
+      workLocation: frontendEmp.workLocation,
+      department: frontendEmp.department,
+      role: frontendEmp.role,
+      designation: frontendEmp.designation || frontendEmp.position,
+      joinDate: frontendEmp.joiningDate || frontendEmp.joinDate,
+      bankAccount: frontendEmp.bankAccount,
+      uanNumber: frontendEmp.uanNumber || 'NA',
+      esiNumber: frontendEmp.esiNumber || 'N/A',
+      panNumber: frontendEmp.panNumber,
+      resourceType: frontendEmp.resourceType,
+      username: frontendEmp.username,
+      password: frontendEmp.password,
+      address: frontendEmp.address,
+      phone: frontendEmp.phone,
+      status: frontendEmp.status
+    };
   }
 }
