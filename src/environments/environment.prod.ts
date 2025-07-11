@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   // 🚀 PRODUCTION BACKEND API URL
   // Replace this with your actual deployed backend URL
-  apiUrl: 'https://your-timesheet-backend.vercel.app', // TODO: Update with your deployed backend URL
+  apiUrl: 'https://attendance-three-lemon.vercel.app', // TODO: Update with your deployed backend URL
   
   // External APIs (these should work in production)
   timeApiUrl: 'https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata',
