@@ -1,0 +1,455 @@
+// Shared Responsive Header Styles for Admin Components
+// Use this file in list, view, edit, generate components for consistent styling
+
+// Enhanced Header Content (300px to Desktop)
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  
+  // Desktop (>1024px) - Enhanced spacing
+  @media (min-width: 1025px) {
+    gap: 40px;
+    align-items: center;
+  }
+  
+  // Large Tablet (769px - 1024px)
+  @media (max-width: 1024px) and (min-width: 769px) {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+  
+  // Mobile Portrait (481px - 768px)
+  @media (max-width: 768px) and (min-width: 481px) {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+  
+  // Small Mobile (321px - 480px)
+  @media (max-width: 480px) and (min-width: 321px) {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  // Extra Small Mobile (300px - 320px)
+  @media (max-width: 320px) and (min-width: 300px) {
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+}
+
+// Enhanced Header Title Section
+.header-title {
+  flex: 1;
+  min-width: 0;
+  
+  // Desktop - Keep horizontal layout
+  @media (min-width: 1025px) {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  
+  // Large Tablet (769px - 1024px)
+  @media (max-width: 1024px) and (min-width: 769px) {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  // Mobile Portrait (481px - 768px)
+  @media (max-width: 768px) and (min-width: 481px) {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+  
+  // Small Mobile (321px - 480px)
+  @media (max-width: 480px) and (min-width: 321px) {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  // Extra Small Mobile (300px - 320px)
+  @media (max-width: 320px) and (min-width: 300px) {
+    width: 100%;
+    margin-bottom: 3px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    width: 100%;
+    margin-bottom: 2px;
+  }
+}
+
+// Enhanced Page Title
+.page-title {
+  display: flex;
+  align-items: center;
+  font-weight: 800;
+  color: var(--admin-text-primary);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  
+  @media (min-width: 1025px) {
+    font-size: 42px;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 1024px) and (min-width: 769px) {
+    font-size: 36px;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 768px) and (min-width: 481px) {
+    font-size: 32px;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  
+  @media (max-width: 480px) and (min-width: 321px) {
+    font-size: 28px;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  
+  @media (max-width: 320px) and (min-width: 300px) {
+    font-size: 24px;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    font-size: 22px;
+    gap: 6px;
+    margin-bottom: 4px;
+    line-height: 1.0;
+  }
+}
+
+// Enhanced Title Icon
+.title-icon {
+  color: var(--admin-primary);
+  flex-shrink: 0;
+  
+  @media (min-width: 1025px) {
+    width: 42px;
+    height: 42px;
+  }
+  
+  @media (max-width: 1024px) and (min-width: 769px) {
+    width: 36px;
+    height: 36px;
+  }
+  
+  @media (max-width: 768px) and (min-width: 481px) {
+    width: 32px;
+    height: 32px;
+  }
+  
+  @media (max-width: 480px) and (min-width: 321px) {
+    width: 28px;
+    height: 28px;
+  }
+  
+  @media (max-width: 320px) and (min-width: 300px) {
+    width: 24px;
+    height: 24px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Enhanced Page Subtitle
+.page-subtitle {
+  color: var(--admin-text-secondary);
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+  
+  @media (min-width: 1025px) {
+    font-size: 18px;
+  }
+  
+  @media (max-width: 1024px) and (min-width: 769px) {
+    font-size: 16px;
+  }
+  
+  @media (max-width: 768px) and (min-width: 481px) {
+    font-size: 15px;
+  }
+  
+  @media (max-width: 480px) and (min-width: 321px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 320px) and (min-width: 300px) {
+    font-size: 13px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+// Enhanced Header Actions
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  
+  @media (min-width: 1025px) {
+    gap: 24px;
+  }
+  
+  @media (max-width: 1024px) and (min-width: 769px) {
+    width: 100%;
+    gap: 16px;
+    
+    .admin-btn {
+      flex: 1;
+      justify-content: center;
+      min-height: 52px;
+    }
+  }
+  
+  @media (max-width: 768px) and (min-width: 481px) {
+    width: 100%;
+    gap: 14px;
+    
+    .admin-btn {
+      flex: 1;
+      justify-content: center;
+      min-height: 48px;
+    }
+  }
+  
+  @media (max-width: 480px) and (min-width: 321px) {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    
+    .admin-btn {
+      width: 100%;
+      min-height: 44px;
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 320px) and (min-width: 300px) {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    
+    .admin-btn {
+      width: 100%;
+      min-height: 40px;
+      justify-content: center;
+      font-size: 12px;
+      padding: 10px 12px;
+    }
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    
+    .admin-btn {
+      width: 100%;
+      min-height: 36px;
+      justify-content: center;
+      font-size: 11px;
+      padding: 8px 10px;
+      
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+}
+
+// Enhanced Page Header Container
+.page-header {
+  @media (min-width: 1025px) {
+    margin-bottom: 48px;
+  }
+  
+  @media (max-width: 1024px) and (min-width: 769px) {
+    margin-bottom: 40px;
+  }
+  
+  @media (max-width: 768px) and (min-width: 481px) {
+    margin-bottom: 32px;
+  }
+  
+  @media (max-width: 480px) and (min-width: 321px) {
+    margin-bottom: 28px;
+  }
+  
+  @media (max-width: 320px) and (min-width: 300px) {
+    margin-bottom: 24px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    margin-bottom: 20px;
+  }
+}
+
+// Enhanced Admin Page Container
+.admin-page {
+  background: var(--admin-bg-primary);
+  min-height: 100vh;
+  color: var(--admin-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // Desktop (>1024px)
+  @media (min-width: 1025px) {
+    padding: 40px 48px;
+  }
+  
+  // Large Tablet (769px - 1024px)
+  @media (max-width: 1024px) and (min-width: 769px) {
+    padding: 32px 24px;
+  }
+  
+  // Mobile Portrait (481px - 768px)
+  @media (max-width: 768px) and (min-width: 481px) {
+    padding: 24px 20px;
+  }
+  
+  // Small Mobile (321px - 480px)
+  @media (max-width: 480px) and (min-width: 321px) {
+    padding: 20px 16px;
+  }
+  
+  // Extra Small Mobile (300px - 320px)
+  @media (max-width: 320px) and (min-width: 300px) {
+    padding: 16px 12px;
+  }
+  
+  // Ultra Small (≤300px)
+  @media (max-width: 300px) {
+    padding: 12px 8px;
+  }
+}
+
+// Responsive Button Enhancements for Ultra Small Screens
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  
+  // Size variants for ultra small screens
+  &.btn-sm {
+    @media (max-width: 300px) {
+      padding: 6px 8px;
+      font-size: 10px;
+      gap: 2px;
+      border-radius: 6px;
+      
+      svg {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
+  
+  // Ultra small default sizing
+  @media (max-width: 300px) {
+    padding: 8px 10px;
+    font-size: 11px;
+    gap: 4px;
+    border-radius: 6px;
+    
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+// Form and Input Enhancements for Ultra Small Screens
+.search-box {
+  @media (max-width: 300px) {
+    height: 36px;
+    padding: 0 8px;
+    border-radius: 8px;
+  }
+}
+
+.search-input {
+  @media (max-width: 300px) {
+    font-size: 12px;
+  }
+}
+
+// Card and Layout Enhancements for Ultra Small Screens
+.admin-card {
+  @media (max-width: 300px) {
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Typography Scale for Ultra Small Screens
+@media (max-width: 300px) {
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  p { font-size: 11px; line-height: 1.3; }
+}
+
+// Utility Classes for Ultra Small Screens
+.text-ultra-small {
+  @media (max-width: 300px) {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+.gap-ultra-small {
+  @media (max-width: 300px) {
+    gap: 4px !important;
+  }
+}
+
+.padding-ultra-small {
+  @media (max-width: 300px) {
+    padding: 8px !important;
+  }
+}

@@ -8,6 +8,13 @@
   margin: 0;
   padding: 0;
   font-family: var(--font-family);
+  
+  // Disable text size adjustment on iOS
+  -webkit-text-size-adjust: 100%;
+  
+  // Better font rendering
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -16,6 +23,30 @@ body {
   color: var(--text-color);
   line-height: var(--line-height-base);
   transition: background-color 0.3s ease, color 0.3s ease;
+  
+  // Mobile optimizations
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  
+  // Prevent horizontal scroll on mobile
+  overflow-x: hidden;
+  
+  // Better touch experience
+  touch-action: manipulation;
+}
+
+// Remove default mobile input styles
+input, button, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+// Better focus states for accessibility
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 // Force theme application for testing

@@ -1,19 +1,82 @@
 <div class="admin-container">
-  <div class="admin-layout">
-    <!-- Sidebar Navigation -->
-    <aside class="admin-sidebar">
-      <app-admin-nav></app-admin-nav>
-    </aside>
+  <!-- Desktop Sidebar (hidden on mobile) -->
+  <aside class="desktop-sidebar">
+    <app-admin-nav></app-admin-nav>
+  </aside>
+  
+  <!-- Main Content Area with Modern Design System -->
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Enhanced Mobile Bottom Navigation (iPhone-style Mobile Navigation) -->
+  <nav class="mobile-bottom-nav">
+    <a routerLink="/admin/employees" 
+       routerLinkActive="active" 
+       class="nav-item" 
+       aria-label="Employee Management">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1c0 .55.45 1 1 1h14c.55 0 1-.45 1-1v-1c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      <span>Home</span>
+    </a>
     
-    <!-- Main Content Area -->
-    <main class="admin-main">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
+    <a routerLink="/admin/monthly-view" 
+       routerLinkActive="active" 
+       class="nav-item" 
+       aria-label="Attendance Calendar">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 3h-1V2c0-.55-.45-1-1-1s-1 .45-1 1v1H8V2c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/>
+        <circle cx="12" cy="13" r="1.5"/>
+      </svg>
+      <span>Attendance</span>
+    </a>
+    
+    <a routerLink="/admin/create-employee" 
+       routerLinkActive="active" 
+       class="nav-item nav-item-primary" 
+       aria-label="Add New Employee">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"/>
+      </svg>
+      <span>Add</span>
+    </a>
+    
+    <button class="nav-item nav-theme-toggle" 
+            (click)="toggleTheme()" 
+            [attr.aria-label]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+            type="button">
+      <svg *ngIf="!isDarkTheme" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <svg *ngIf="isDarkTheme" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <span>Theme</span>
+    </button>
+    
+    <button class="nav-item nav-logout" 
+            (click)="logout()" 
+            aria-label="Sign Out"
+            type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+      </svg>
+      <span>Sign Out</span>
+    </button>
+  </nav>
 </div>
 
-<!-- Toast Container for modern notifications -->
+<!-- Toast Container -->
 <app-toast-container></app-toast-container>
 
-<!-- Popup Container for modern dialogs -->
+<!-- Popup Container -->
 <app-popup-container></app-popup-container>

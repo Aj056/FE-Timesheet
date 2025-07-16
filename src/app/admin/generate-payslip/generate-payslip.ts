@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { EmployeeService, Employee } from '../../core/services/employee.service';
+import { ToastService } from '../../core/services/toast.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -45,6 +46,7 @@ export class GeneratePayslipComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private employeeService = inject(EmployeeService);
+  private toastService = inject(ToastService);
 
   employee = signal<Employee | null>(null);
   isLoading = signal(false);
@@ -215,57 +217,103 @@ export class GeneratePayslipComponent implements OnInit {
 
   private async generatePDF(filename: string): Promise<void> {
     try {
-      // Get the payslip document element
-      const payslipElement = document.querySelector('.payslip-document') as HTMLElement;
+      // Get the payslip document element with more robust selection
+      let payslipElement = document.querySelector('.payslip-document') as HTMLElement;
+      
       if (!payslipElement) {
-        alert('Payslip document not found. Please try again.');
+        // Try alternative selectors if main one fails
+        payslipElement = document.querySelector('.payslip-container') as HTMLElement;
+        if (!payslipElement) {
+          payslipElement = document.querySelector('#payslip-content') as HTMLElement;
+        }
+      }
+      
+      if (!payslipElement) {
+        console.error('Payslip element not found');
+        alert('Unable to locate payslip content. Please ensure the payslip is fully loaded.');
         return;
       }
 
       // Show loading indicator
       this.isLoading.set(true);
 
-      // Temporarily add a class to force PDF-friendly styling
-      payslipElement.classList.add('pdf-generation');
+      // Ensure element is visible and scrolled into view
+      payslipElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       
-      // Small delay to ensure styles are applied
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for scroll and rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Configure html2canvas options for better quality
-      const canvas = await html2canvas(payslipElement, {
-        scale: 2, // Higher scale for better quality
+      // Create a clone for PDF generation to avoid affecting the original
+      const clonedElement = payslipElement.cloneNode(true) as HTMLElement;
+      clonedElement.style.position = 'absolute';
+      clonedElement.style.left = '-9999px';
+      clonedElement.style.top = '0';
+      clonedElement.style.width = payslipElement.offsetWidth + 'px';
+      clonedElement.style.background = '#ffffff';
+      clonedElement.style.padding = '20px';
+      clonedElement.classList.add('pdf-generation');
+      
+      // Append clone to body temporarily
+      document.body.appendChild(clonedElement);
+      
+      // Wait for clone to render
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Configure html2canvas with optimal settings for cloned element
+      const canvas = await html2canvas(clonedElement, {
+        scale: 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
-        width: payslipElement.scrollWidth,
-        height: payslipElement.scrollHeight,
+        width: clonedElement.scrollWidth || 800,
+        height: clonedElement.scrollHeight || 1200,
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        onclone: (clonedDoc) => {
+          // Ensure all styles are properly applied in the clone
+          const clonedPayslip = clonedDoc.querySelector('.pdf-generation');
+          if (clonedPayslip) {
+            (clonedPayslip as HTMLElement).style.transform = 'none';
+            (clonedPayslip as HTMLElement).style.position = 'static';
+          }
+        }
       });
 
-      // Remove the temporary class
-      payslipElement.classList.remove('pdf-generation');
+      // Remove the temporary clone
+      document.body.removeChild(clonedElement);
 
-      // Calculate PDF dimensions
+      // Validate canvas
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Failed to generate canvas from HTML content');
+      }
+
+      // Calculate PDF dimensions (A4)
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 295; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
 
-      // Create PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      // Create PDF with better quality settings
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
       let position = 0;
+      const imgData = canvas.toDataURL('image/jpeg', 0.95); // Use JPEG with high quality
 
       // Add the first page
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       // Add additional pages if needed
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
 
@@ -275,11 +323,31 @@ export class GeneratePayslipComponent implements OnInit {
       // Hide loading indicator
       this.isLoading.set(false);
 
+      // Success notification
+      this.toastService.success({
+        title: 'PDF Generated',
+        message: `Payslip PDF has been downloaded successfully: ${filename}`,
+        duration: 3000
+      });
+
       console.log('PDF generated and downloaded successfully');
     } catch (error) {
       this.isLoading.set(false);
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      
+      // More descriptive error handling
+      let errorMessage = 'An unexpected error occurred while generating the PDF.';
+      if (error instanceof Error) {
+        if (error.message.includes('canvas')) {
+          errorMessage = 'Failed to capture payslip content. Please try refreshing the page.';
+        } else if (error.message.includes('clone')) {
+          errorMessage = 'Unable to process payslip content. Please ensure all data is loaded.';
+        } else {
+          errorMessage = `PDF generation failed: ${error.message}`;
+        }
+      }
+      
+      alert(errorMessage + ' If the problem persists, please contact IT support.');
     }
   }
 

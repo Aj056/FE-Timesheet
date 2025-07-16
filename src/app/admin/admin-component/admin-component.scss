@@ -1,95 +1,491 @@
-// Modern Admin Layout - Using Admin Theme with Global Theme Support
+// Modern Mobile-First Admin Redesign (1024px and below)
 @use '../../../styles/admin-theme';
 
-// Ensure theme variables are properly inherited globally
 :host {
   display: block;
   background: var(--admin-bg-primary);
   color: var(--admin-text-primary);
   min-height: 100vh;
-  font-family: var(--admin-font-family);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-// Direct theme selectors to force theme application
-:host-context([data-theme="dark"]) {
-  .admin-container {
-    background: #0d1117 !important;
-    color: #f1f5f9 !important;
-  }
-}
-
-:host-context([data-theme="light"]) {
-  .admin-container {
-    background: #ffffff !important;
-    color: #1f2937 !important;
-  }
-}
-
-// Modern Admin Layout
+// Admin Container with Enhanced Layout
 .admin-container {
-  background: var(--admin-bg-primary);
-  min-height: 100vh;
-  color: var(--admin-text-primary);
-  font-family: var(--admin-font-family);
-  transition: var(--admin-transition);
-}
-
-.admin-layout {
   display: flex;
   min-height: 100vh;
+  background: var(--admin-bg-primary);
+  position: relative;
+  
+  // Ensure proper layout hierarchy
+  @media (min-width: 1025px) {
+    overflow-x: hidden; // Prevent horizontal scroll
+  }
 }
 
-.admin-sidebar {
-  width: var(--admin-sidebar-width);
-  background: var(--admin-sidebar-bg);
-  border-right: 1px solid var(--admin-sidebar-border);
+// Desktop Sidebar - Enhanced with better visibility
+.desktop-sidebar {
+  width: 280px;
+  background: var(--admin-surface);
+  border-right: 1px solid var(--admin-border);
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  z-index: 1000;
-  box-shadow: var(--admin-shadow-lg);
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08); // Better shadow
   
-  @media (max-width: 768px) {
-    width: 100%;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+  // Enhanced desktop visibility
+  @media (min-width: 1025px) {
+    display: block;
+    overflow-y: auto; // Allow sidebar scrolling if needed
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  // Hide on tablet and mobile
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+// Main Content Area - Enhanced for better visibility and spacing
+.admin-main {
+  flex: 1;
+  background: var(--admin-bg-primary);
+  min-height: 100vh;
+  position: relative;
+  
+  // Desktop layout with better spacing
+  @media (min-width: 1025px) {
+    margin-left: 280px; // Account for fixed sidebar
+    width: calc(100% - 280px);
+    min-height: 100vh;
+    padding: 0; // Let child components control their spacing
     
-    &.mobile-open {
-      transform: translateX(0);
+    // Ensure content doesn't get cut off
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  // Large Tablet (769px - 1024px) - Premium tablet experience
+  @media (max-width: 1024px) and (min-width: 769px) {
+    padding: 32px 24px 120px;
+    
+    // Large typography for tablets
+    font-size: 16px;
+    line-height: 1.5;
+    
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    h2 { font-size: 24px; font-weight: 600; margin-bottom: 16px; }
+    h3 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+    p { font-size: 16px; line-height: 1.6; }
+    
+    // Button redesign for tablets
+    .admin-btn {
+      height: 48px;
+      padding: 0 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      
+      &.btn-primary {
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-accent));
+        box-shadow: 0 4px 16px rgba(var(--admin-primary-rgb), 0.3);
+      }
+      
+      &.btn-secondary {
+        background: var(--admin-surface);
+        border: 2px solid var(--admin-border);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+    }
+    
+    // Card redesign for tablets
+    .admin-card {
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--admin-border);
+      background: var(--admin-surface);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+    }
+  }
+  
+  // Mobile Portrait (481px - 768px) - Standard mobile
+  @media (max-width: 768px) and (min-width: 481px) {
+    padding: 24px 20px 110px;
+    
+    // Mobile typography
+    font-size: 14px;
+    line-height: 1.4;
+    
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
+    h2 { font-size: 22px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em; }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    p { font-size: 14px; line-height: 1.5; }
+    
+    // Mobile buttons
+    .admin-btn {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      
+      &.btn-primary {
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-accent));
+        box-shadow: 0 3px 12px rgba(var(--admin-primary-rgb), 0.25);
+      }
+      
+      &.btn-secondary {
+        background: var(--admin-surface);
+        border: 1.5px solid var(--admin-border);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      }
+    }
+    
+    // Mobile cards
+    .admin-card {
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 3px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--admin-border);
+      background: var(--admin-surface);
+      
+      &:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+  
+  // Small Mobile (321px - 480px) - Compact mobile
+  @media (max-width: 480px) and (min-width: 321px) {
+    padding: 20px 16px 100px;
+    
+    // Compact typography
+    font-size: 13px;
+    line-height: 1.3;
+    
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+    h2 { font-size: 20px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.01em; }
+    h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    p { font-size: 13px; line-height: 1.4; }
+    
+    // Compact buttons
+    .admin-btn {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      
+      &.btn-primary {
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-accent));
+        box-shadow: 0 2px 8px rgba(var(--admin-primary-rgb), 0.2);
+      }
+      
+      &.btn-secondary {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+      }
+    }
+    
+    // Compact cards
+    .admin-card {
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--admin-border);
+      background: var(--admin-surface);
+      
+      &:active {
+        transform: scale(0.97);
+      }
+    }
+  }
+  
+  // Extra Small Mobile (320px and below) - Ultra compact
+  @media (max-width: 320px) {
+    padding: 16px 12px 95px;
+    
+    // Ultra compact typography
+    font-size: 12px;
+    line-height: 1.3;
+    
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 3px; letter-spacing: -0.02em; }
+    h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.01em; }
+    h3 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+    p { font-size: 12px; line-height: 1.3; }
+    
+    // Ultra compact buttons
+    .admin-btn {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      
+      &.btn-primary {
+        background: var(--admin-primary);
+        box-shadow: 0 1px 6px rgba(var(--admin-primary-rgb), 0.15);
+      }
+      
+      &.btn-secondary {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        box-shadow: none;
+      }
+    }
+    
+    // Ultra compact cards
+    .admin-card {
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--admin-border);
+      background: var(--admin-surface);
+      
+      &:active {
+        transform: scale(0.96);
+      }
     }
   }
 }
 
-.admin-main {
-  flex: 1;
-  margin-left: var(--admin-sidebar-width);
-  background: var(--admin-bg-primary);
-  min-height: 100vh;
-  padding: var(--admin-spacing-lg);
+// Modern Bottom Navigation - Dribbble/Webflow inspired
+.mobile-bottom-nav {
+  @media (min-width: 1025px) {
+    display: none;
+  }
   
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-    padding: var(--admin-spacing-md);
+  @media (max-width: 1024px) {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(var(--admin-surface-rgb, 255, 255, 255), 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--admin-border);
+    padding: 8px 12px 12px;
+    z-index: 1000;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: space-around;
+    gap: 4px;
+  }
+  
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--admin-text-secondary);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    
+    @media (max-width: 1024px) and (min-width: 769px) {
+      padding: 12px 8px;
+      min-height: 56px;
+    }
+    
+    @media (max-width: 768px) and (min-width: 481px) {
+      padding: 10px 6px;
+      min-height: 52px;
+    }
+    
+    @media (max-width: 480px) {
+      padding: 8px 4px;
+      min-height: 48px;
+    }
+    
+    svg {
+      margin-bottom: 4px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      @media (max-width: 1024px) and (min-width: 769px) {
+        width: 26px;
+        height: 26px;
+      }
+      
+      @media (max-width: 768px) and (min-width: 481px) {
+        width: 24px;
+        height: 24px;
+      }
+      
+      @media (max-width: 480px) {
+        width: 22px;
+        height: 22px;
+        margin-bottom: 2px;
+      }
+    }
+    
+    span {
+      font-weight: 600;
+      text-align: center;
+      line-height: 1;
+      
+      @media (max-width: 1024px) and (min-width: 769px) {
+        font-size: 12px;
+      }
+      
+      @media (max-width: 768px) and (min-width: 481px) {
+        font-size: 11px;
+      }
+      
+      @media (max-width: 480px) {
+        font-size: 10px;
+      }
+    }
+    
+    // Hover and active states
+    &:hover,
+    &.active {
+      color: var(--admin-primary);
+      background: rgba(var(--admin-primary-rgb), 0.08);
+      transform: translateY(-2px);
+      
+      svg {
+        transform: scale(1.1);
+      }
+    }
+    
+    &:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+    
+    // Primary button (Add Employee)
+    &.nav-item-primary {
+      background: var(--admin-primary);
+      color: white;
+      border-radius: 16px;
+      
+      @media (max-width: 480px) {
+        border-radius: 14px;
+      }
+      
+      &:hover {
+        background: var(--admin-primary-dark);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(var(--admin-primary-rgb), 0.3);
+      }
+      
+      &:active {
+        transform: translateY(-1px) scale(0.95);
+      }
+    }
+    
+    // Theme toggle button
+    &.nav-theme-toggle {
+      &:hover {
+        background: rgba(var(--admin-warning-rgb, 251, 191, 36), 0.1);
+        color: var(--admin-warning, #fbbf24);
+      }
+    }
+    
+    // Logout button
+    &.nav-logout {
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+    }
   }
 }
 
-// Mobile menu toggle
-.mobile-menu-toggle {
-  display: none;
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
-  background: var(--admin-primary);
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
+// Add padding to main content to account for mobile nav
+@media (max-width: 1024px) {
+  .admin-main {
+    padding-bottom: 80px; // Space for bottom navigation
+    min-height: calc(100vh - 80px);
+  }
+}
+
+// Improved responsive breakpoints for better mobile experience
+@media (max-width: 320px) {
+  .mobile-bottom-nav {
+    padding: 6px 8px 8px;
+    
+    .nav-item {
+      padding: 6px 2px;
+      min-height: 44px;
+      
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+      
+      span {
+        font-size: 9px;
+      }
+    }
+  }
   
-  @media (max-width: 768px) {
-    display: block;
+  .admin-main {
+    padding-bottom: 70px;
+  }
+}
+
+// Dark theme support for mobile nav
+:host-context([data-theme="dark"]) .mobile-bottom-nav {
+  background: rgba(30, 30, 30, 0.95);
+  border-top-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+// Light theme support for mobile nav
+:host-context([data-theme="light"]) .mobile-bottom-nav {
+  background: rgba(255, 255, 255, 0.95);
+  border-top-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+}
+
+// Landscape mobile optimizations
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-bottom-nav {
+    height: 64px;
+    padding: 6px 16px 8px;
+  }
+  
+  .nav-item {
+    gap: 2px;
+    font-size: 9px;
+    min-height: 48px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    &.nav-item-primary {
+      margin: 0 6px;
+      
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+  
+  .admin-main {
+    padding-bottom: 84px;
   }
 }

@@ -286,4 +286,10 @@ export class EmployeesList {
   isSearchActive(): boolean {
     return this.searchTerm().trim().length > 0;
   }
+
+  // toggle card menu for mobile
+  toggleCardMenu(employeeId: string) {
+    // Implementation for mobile card menu toggle
+    console.log('Toggle card menu for employee:', employeeId);
+  }
 }

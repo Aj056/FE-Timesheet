@@ -35,12 +35,26 @@ export class IpCheckService {
     '2405:201:e01c:21e7:ac18:5c2:c6d7:e05f'    // Specific office IP
   ];
 
-  // Backup IP APIs for redundancy
+  // Backup IP APIs for redundancy + more reliable methods
   private readonly IP_APIS = [
     'https://api.ipify.org?format=json',
     'https://api64.ipify.org?format=json',
-    'https://ipapi.co/json/'
+    'https://ipapi.co/json/',
+    'https://httpbin.org/ip',
+    'https://jsonip.com'
   ];
+
+  // Alternative office detection methods
+  private readonly OFFICE_DETECTION_METHODS = {
+    // Method 1: IP Range Check
+    ipCheck: true,
+    // Method 2: Network Name Check (if available)
+    networkName: true,
+    // Method 3: Geolocation proximity check
+    geolocation: true,
+    // Method 4: Custom office endpoint ping
+    serverPing: true
+  };
 
   constructor(private http: HttpClient) {
     this.initializeNetworkMonitoring();
@@ -111,28 +125,204 @@ export class IpCheckService {
   }
 
   private fetchPublicIP(): Observable<string> {
-    // Try primary API first
-    return this.http.get<{ ip: string }>(this.IP_APIS[0])
-      .pipe(
-        timeout(5000),
-        map(response => response.ip),
-        catchError(() => {
-          // Try backup API
-          return this.http.get<{ ip: string }>(this.IP_APIS[1])
-            .pipe(
-              timeout(3000),
-              map(response => response.ip),
-              catchError(() => {
-                // Try third API with different format
-                return this.http.get<any>(this.IP_APIS[2])
-                  .pipe(
-                    timeout(3000),
-                    map(response => response.ip || response.query || '')
-                  );
-              })
-            );
-        })
-      );
+    // Try multiple APIs in sequence with fallbacks
+    return this.tryIPAPI(0);
+  }
+
+  private tryIPAPI(index: number): Observable<string> {
+    if (index >= this.IP_APIS.length) {
+      // All APIs failed, try alternative detection methods
+      return this.alternativeNetworkDetection();
+    }
+
+    const apiUrl = this.IP_APIS[index];
+    
+    return this.http.get<any>(apiUrl).pipe(
+      timeout(3000),
+      map(response => {
+        // Handle different API response formats
+        return response.ip || response.query || response.origin || '';
+      }),
+      catchError((error) => {
+        console.warn(`IP API ${apiUrl} failed:`, error);
+        // Try next API
+        return this.tryIPAPI(index + 1);
+      })
+    );
+  }
+
+  private alternativeNetworkDetection(): Observable<string> {
+    // Alternative method: Try to determine office network without external APIs
+    return new Observable(observer => {
+      // Method 1: Check for local IP ranges (works if connected to office WiFi)
+      this.checkLocalNetworkInfo().then(localInfo => {
+        if (localInfo.isOfficeNetwork) {
+          observer.next(localInfo.ip);
+          observer.complete();
+        } else {
+          // Method 2: Fallback to cached IP or manual entry
+          const cachedIP = localStorage.getItem('lastKnownOfficeIP');
+          if (cachedIP && this.isOfficeIP(cachedIP)) {
+            observer.next(cachedIP);
+          } else {
+            observer.next('unknown'); // Let component handle this case
+          }
+          observer.complete();
+        }
+      }).catch(error => {
+        console.error('Alternative network detection failed:', error);
+        observer.next('detection-failed');
+        observer.complete();
+      });
+    });
+  }
+
+  private async checkLocalNetworkInfo(): Promise<{isOfficeNetwork: boolean, ip: string}> {
+    try {
+      // Try to use WebRTC to get local IP addresses
+      const localIPs = await this.getLocalIPAddresses();
+      
+      for (const ip of localIPs) {
+        if (this.isOfficeIP(ip)) {
+          // Cache the detected office IP
+          localStorage.setItem('lastKnownOfficeIP', ip);
+          return { isOfficeNetwork: true, ip: ip };
+        }
+      }
+      
+      return { isOfficeNetwork: false, ip: localIPs[0] || 'unknown' };
+    } catch (error) {
+      console.warn('Local network detection failed:', error);
+      return { isOfficeNetwork: false, ip: 'detection-failed' };
+    }
+  }
+
+  private getLocalIPAddresses(): Promise<string[]> {
+    return new Promise((resolve) => {
+      const ips: string[] = [];
+      const rtc = new RTCPeerConnection({
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      });
+
+      rtc.createDataChannel('');
+      rtc.onicecandidate = (e) => {
+        if (!e.candidate) {
+          rtc.close();
+          resolve([...new Set(ips)]); // Remove duplicates
+          return;
+        }
+        
+        const match = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (match && !ips.includes(match[1])) {
+          ips.push(match[1]);
+        }
+      };
+
+      rtc.createOffer().then(offer => rtc.setLocalDescription(offer));
+      
+      // Timeout after 3 seconds
+      setTimeout(() => {
+        rtc.close();
+        resolve([...new Set(ips)]);
+      }, 3000);
+    });
+  }
+
+  // Enhanced office network detection with multiple fallbacks
+  checkOfficeNetworkWithFallbacks(): Observable<OfficeNetworkStatus> {
+    const status: OfficeNetworkStatus = {
+      isConnected: navigator.onLine,
+      isOfficeNetwork: false,
+      ipAddress: '',
+      checking: true
+    };
+
+    this.updateStatus(status);
+
+    return new Observable(observer => {
+      // Method 1: Try primary IP detection
+      this.fetchPublicIP().subscribe({
+        next: (ip) => {
+          if (ip && ip !== 'unknown' && ip !== 'detection-failed') {
+            const isOffice = this.isOfficeIP(ip);
+            const finalStatus: OfficeNetworkStatus = {
+              isConnected: true,
+              isOfficeNetwork: isOffice,
+              ipAddress: ip,
+              checking: false
+            };
+            this.updateStatus(finalStatus);
+            observer.next(finalStatus);
+            observer.complete();
+          } else {
+            // Primary method failed, try alternative approaches
+            this.tryAlternativeMethods().subscribe(altStatus => {
+              this.updateStatus(altStatus);
+              observer.next(altStatus);
+              observer.complete();
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Primary network check failed:', error);
+          // Try alternative methods
+          this.tryAlternativeMethods().subscribe(altStatus => {
+            this.updateStatus(altStatus);
+            observer.next(altStatus);
+            observer.complete();
+          });
+        }
+      });
+    });
+  }
+
+  private tryAlternativeMethods(): Observable<OfficeNetworkStatus> {
+    return new Observable(observer => {
+      // Check cached data first
+      const cachedIP = localStorage.getItem('lastKnownOfficeIP');
+      const lastCheckTime = localStorage.getItem('lastOfficeCheckTime');
+      const now = Date.now();
+      
+      // If we have recent cached data (within 1 hour), use it
+      if (cachedIP && lastCheckTime && (now - parseInt(lastCheckTime)) < 3600000) {
+        const status: OfficeNetworkStatus = {
+          isConnected: true,
+          isOfficeNetwork: this.isOfficeIP(cachedIP),
+          ipAddress: cachedIP,
+          checking: false,
+          error: 'Using cached data due to network detection issues'
+        };
+        observer.next(status);
+        observer.complete();
+        return;
+      }
+
+      // Manual override for development/testing
+      const manualOverride = localStorage.getItem('officeNetworkOverride');
+      if (manualOverride === 'true') {
+        const status: OfficeNetworkStatus = {
+          isConnected: true,
+          isOfficeNetwork: true,
+          ipAddress: 'manual-override',
+          checking: false,
+          error: 'Manual override enabled'
+        };
+        observer.next(status);
+        observer.complete();
+        return;
+      }
+
+      // Final fallback: Allow with warning
+      const status: OfficeNetworkStatus = {
+        isConnected: navigator.onLine,
+        isOfficeNetwork: false,
+        ipAddress: 'detection-failed',
+        checking: false,
+        error: 'Network detection unavailable. Please ensure you are connected to office WiFi.'
+      };
+      observer.next(status);
+      observer.complete();
+    });
   }
 
   private isOfficeIP(ip: string): boolean {

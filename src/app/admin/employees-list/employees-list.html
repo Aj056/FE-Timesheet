@@ -118,79 +118,146 @@
       </div>
     </div>
     
-    <div class="table-content" *ngIf="filteredEmployees().length > 0; else noEmployees">
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>ID</th>
-            <th>Department</th>
-            <th>Phone</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row">
-            <td class="employee-cell">
-              <div class="employee-info">
-                <div class="employee-avatar">
-                  {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
+    <!-- Desktop Table View -->
+    <div class="desktop-view">
+      <div class="table-content" *ngIf="filteredEmployees().length > 0; else noEmployees">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>ID</th>
+              <th>Department</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row">
+              <td class="employee-cell">
+                <div class="employee-info">
+                  <div class="employee-avatar">
+                    {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="employee-details">
+                    <div class="employee-name">{{ emp.name || emp.username || 'Unknown' }}</div>
+                    <div class="employee-email">{{ emp.email || 'No email' }}</div>
+                    <div class="employee-designation">{{ emp.designation || emp.role || 'No designation' }}</div>
+                  </div>
                 </div>
-                <div class="employee-details">
-                  <div class="employee-name">{{ emp.name || emp.username || 'Unknown' }}</div>
-                  <div class="employee-email">{{ emp.email || 'No email' }}</div>
-                  <div class="employee-designation">{{ emp.designation || emp.role || 'No designation' }}</div>
+              </td>
+              <td class="id-cell">
+                <span class="employee-id">#{{ emp.id }}</span>
+              </td>
+              <td class="department-cell">
+                <div class="department-info">
+                  <div class="department-name">{{ emp.department || 'No Department' }}</div>
+                  <div class="work-location">{{ emp.workLocation || 'No Location' }}</div>
                 </div>
-              </div>
-            </td>
-            <td class="id-cell">
-              <span class="employee-id">#{{ emp.id }}</span>
-            </td>
-            <td class="department-cell">
-              <div class="department-info">
-                <div class="department-name">{{ emp.department || 'No Department' }}</div>
-                <div class="work-location">{{ emp.workLocation || 'No Location' }}</div>
-              </div>
-            </td>
-            <td class="phone-cell">
-              <div class="contact-info">
-                <div class="phone-number">{{ emp.phone || 'No phone' }}</div>
-                <div class="address-short" *ngIf="emp.address" title="{{ emp.address }}">
-                  {{ getShortAddress(emp.address) }}
+              </td>
+              <td class="phone-cell">
+                <div class="contact-info">
+                  <div class="phone-number">{{ emp.phone || 'No phone' }}</div>
+                  <div class="address-short" *ngIf="emp.address" title="{{ emp.address }}">
+                    {{ getShortAddress(emp.address) }}
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td class="status-cell">
-              <div class="status-indicator" [ngClass]="getStatusClass(emp.status)">
-                {{ getStatusText(emp.status) }}
-              </div>
-            </td>
-            <td class="actions-cell">
-              <div class="action-buttons">
-                <button class="admin-btn btn-sm btn-secondary" 
-                        (click)="viewDetails(emp.id)"
-                        title="View Details">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                  View
-                </button>
-                <button class="admin-btn btn-sm btn-warning" 
-                        (click)="editEmployee(emp.id)"
-                        title="Edit Employee">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 4H4A2 2 0 0 0 2 6V20A2 2 0 0 0 4 22H18A2 2 0 0 0 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.5A2.12 2.12 0 0 1 21 5L12 14L8 15L9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Edit
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td class="status-cell">
+                <div class="status-indicator" [ngClass]="getStatusClass(emp.status)">
+                  {{ getStatusText(emp.status) }}
+                </div>
+              </td>
+              <td class="actions-cell">
+                <div class="action-buttons">
+                  <button class="admin-btn btn-sm btn-secondary" 
+                          (click)="viewDetails(emp.id)"
+                          title="View Details">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    View
+                  </button>
+                  <button class="admin-btn btn-sm btn-warning" 
+                          (click)="editEmployee(emp.id)"
+                          title="Edit Employee">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4A2 2 0 0 0 2 6V20A2 2 0 0 0 4 22H18A2 2 0 0 0 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5A2.12 2.12 0 0 1 21 5L12 14L8 15L9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Edit
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modern Mobile Cards View (Dribbble/Webflow Inspired) -->
+    <div class="mobile-view">
+      <div class="employee-cards" *ngIf="filteredEmployees().length > 0; else noEmployees">
+        <div 
+          *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" 
+          class="employee-card"
+        >
+          <!-- Modern Card Header -->
+          <div class="employee-card-header">
+            <div class="employee-card-avatar">
+              {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
+            </div>
+            <div class="employee-card-info">
+              <h3 class="employee-card-name">{{ emp.name || emp.username || 'Unknown' }}</h3>
+              <p class="employee-card-email">{{ emp.email || 'No email' }}</p>
+            </div>
+            <div class="status-badge" [ngClass]="getStatusClass(emp.status)">
+              {{ getStatusText(emp.status) }}
+            </div>
+          </div>
+
+          <!-- Modern Card Details Grid -->
+          <div class="employee-card-details">
+            <div class="employee-card-detail">
+              <div class="detail-label">ID</div>
+              <div class="detail-value">#{{ emp.id }}</div>
+            </div>
+            <div class="employee-card-detail">
+              <div class="detail-label">Department</div>
+              <div class="detail-value">{{ emp.department || 'No Department' }}</div>
+            </div>
+            <div class="employee-card-detail">
+              <div class="detail-label">Phone</div>
+              <div class="detail-value">{{ emp.phone || 'No phone' }}</div>
+            </div>
+            <div class="employee-card-detail">
+              <div class="detail-label">Location</div>
+              <div class="detail-value">{{ emp.workLocation || 'No Location' }}</div>
+            </div>
+            <div class="employee-card-detail" *ngIf="emp.designation || emp.role">
+              <div class="detail-label">Role</div>
+              <div class="detail-value">{{ emp.designation || emp.role }}</div>
+            </div>
+          </div>
+
+          <!-- Modern Card Actions -->
+          <div class="employee-card-actions">
+            <button class="admin-btn btn-secondary btn-sm" (click)="viewDetails(emp.id)">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+              View
+            </button>
+            <button class="admin-btn btn-primary btn-sm" (click)="editEmployee(emp.id)">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ng-template #noEmployees>

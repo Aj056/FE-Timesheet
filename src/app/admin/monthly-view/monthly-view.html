@@ -179,67 +179,146 @@
       </div>
     </div>
     
-    <div class="table-content" *ngIf="filteredLogs().length > 0; else noData">
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Employee Name</th>
-            <th>Date</th>
-            <th>Check In</th>
-            <th>Check Out</th>
-            <th>Total Hours</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let record of filteredLogs(); trackBy: trackByRecordId" class="table-row">
-            <td class="employee-cell">
-              <div class="employee-info">
-                <div class="employee-avatar">
-                  {{ record.employeeName.charAt(0).toUpperCase() || 'U' }}
+    <!-- Desktop Table View -->
+    <div class="desktop-view">
+      <div class="table-content" *ngIf="filteredLogs().length > 0; else noData">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Date</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Total Hours</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredLogs(); trackBy: trackByRecordId" class="table-row">
+              <td class="employee-cell">
+                <div class="employee-info">
+                  <div class="employee-avatar">
+                    {{ record.employeeName.charAt(0).toUpperCase() || 'U' }}
+                  </div>
+                  <div class="employee-details">
+                    <div class="employee-name">{{ record.employeeName }}</div>
+                    <div class="employee-id">ID: {{ record.id.slice(-6) }}</div>
+                  </div>
                 </div>
-                <div class="employee-details">
-                  <div class="employee-name">{{ record.employeeName }}</div>
-                  <div class="employee-id">ID: {{ record.id.slice(-6) }}</div>
+              </td>
+              <td class="date-cell">
+                <div class="date-info">
+                  <span class="date-primary">{{ record.formattedDate }}</span>
+                  <span class="date-secondary">{{ record.date }}</span>
                 </div>
-              </div>
-            </td>
-            <td class="date-cell">
-              <div class="date-info">
-                <span class="date-primary">{{ record.formattedDate }}</span>
-                <span class="date-secondary">{{ record.date }}</span>
-              </div>
-            </td>
-            <td class="time-cell">
-              <span class="time-value" [class.time-missing]="!record.checkinTime">
-                {{ record.checkinTime || '--:--' }}
-              </span>
-              <div class="time-raw" *ngIf="record.rawCheckin !== record.checkinTime">
-                <small>{{ record.rawCheckin }}</small>
-              </div>
-            </td>
-            <td class="time-cell">
-              <span class="time-value" [class.time-missing]="!record.checkoutTime">
-                {{ record.checkoutTime || '--:--' }}
-              </span>
-              <div class="time-raw" *ngIf="record.rawCheckout && record.rawCheckout !== record.checkoutTime">
-                <small>{{ record.rawCheckout }}</small>
-              </div>
-            </td>
-            <td class="hours-cell">
-              <span class="hours-badge" [class.hours-missing]="!record.totalHours">
-                {{ record.totalHours || '--:--' }}
-              </span>
-            </td>
-            <td class="status-cell">
+              </td>
+              <td class="time-cell">
+                <span class="time-value" [class.time-missing]="!record.checkinTime">
+                  {{ record.checkinTime || '--:--' }}
+                </span>
+                <div class="time-raw" *ngIf="record.rawCheckin !== record.checkinTime">
+                  <small>{{ record.rawCheckin }}</small>
+                </div>
+              </td>
+              <td class="time-cell">
+                <span class="time-value" [class.time-missing]="!record.checkoutTime">
+                  {{ record.checkoutTime || '--:--' }}
+                </span>
+                <div class="time-raw" *ngIf="record.rawCheckout && record.rawCheckout !== record.checkoutTime">
+                  <small>{{ record.rawCheckout }}</small>
+                </div>
+              </td>
+              <td class="hours-cell">
+                <span class="hours-badge" [class.hours-missing]="!record.totalHours">
+                  {{ record.totalHours || '--:--' }}
+                </span>
+              </td>
+              <td class="status-cell">
+                <div class="status-indicator" [ngClass]="getStatusClass(record.status)">
+                  <span class="status-icon">●</span>
+                  {{ record.status }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-view">
+      <div class="attendance-cards" *ngIf="filteredLogs().length > 0; else noData">
+        <div 
+          *ngFor="let record of filteredLogs(); trackBy: trackByRecordId" 
+          class="attendance-card"
+        >
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="employee-avatar-large">
+              {{ record.employeeName.charAt(0).toUpperCase() || 'U' }}
+            </div>
+            <div class="card-main-info">
+              <h3 class="employee-name">{{ record.employeeName }}</h3>
+              <p class="record-date">{{ record.formattedDate }}</p>
               <div class="status-indicator" [ngClass]="getStatusClass(record.status)">
                 <span class="status-icon">●</span>
                 {{ record.status }}
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="attendance-times">
+              <div class="time-block">
+                <div class="time-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  Check In
+                </div>
+                <div class="time-value" [class.time-missing]="!record.checkinTime">
+                  {{ record.checkinTime || 'Not recorded' }}
+                </div>
+                <div class="time-raw" *ngIf="record.rawCheckin && record.rawCheckin !== record.checkinTime">
+                  <small>Raw: {{ record.rawCheckin }}</small>
+                </div>
+              </div>
+
+              <div class="time-divider">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="12,5 19,12 12,19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+
+              <div class="time-block">
+                <div class="time-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  Check Out
+                </div>
+                <div class="time-value" [class.time-missing]="!record.checkoutTime">
+                  {{ record.checkoutTime || 'Not recorded' }}
+                </div>
+                <div class="time-raw" *ngIf="record.rawCheckout && record.rawCheckout !== record.checkoutTime">
+                  <small>Raw: {{ record.rawCheckout }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="total-hours">
+              <div class="hours-label">Total Hours</div>
+              <div class="hours-value" [class.hours-missing]="!record.totalHours">
+                {{ record.totalHours || 'Not calculated' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ng-template #noData>

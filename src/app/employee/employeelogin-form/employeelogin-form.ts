@@ -263,6 +263,26 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     return `${minutes}m ${seconds}s`;
   }
 
+  // Daily Check-in Restriction Logic
+  hasCheckedInToday(): boolean {
+    const session = this.currentSession();
+    return session?.loginTime != null;
+  }
+
+  hasCompletedTodaySession(): boolean {
+    const session = this.currentSession();
+    return session?.loginTime != null && session?.logoutTime != null;
+  }
+
+  canCheckInToday(): boolean {
+    // Can check in if no session exists for today OR if completed previous session
+    const session = this.currentSession();
+    if (!session) return true; // No session today, can check in
+    
+    // If there's a session, can only check in again if previous session was completed
+    return session.loginTime != null && session.logoutTime != null;
+  }
+
   // Main Actions
   employee_login(): void {
     // Prevent multiple concurrent login attempts
@@ -273,6 +293,24 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     // Check if already logged in
     if (this.isLoggedIn()) {
       this.toastService.warning('You are already checked in.');
+      return;
+    }
+
+    // Check daily restriction - can't check in if already checked in today (unless completed previous session)
+    if (!this.canCheckInToday()) {
+      if (this.hasCompletedTodaySession()) {
+        this.toastService.info({
+          title: 'Daily Attendance Completed',
+          message: 'You have already completed your attendance for today. Check-in will be available tomorrow.',
+          duration: 5000
+        });
+      } else {
+        this.toastService.warning({
+          title: 'Already Checked In',
+          message: 'You have already checked in today. Please check out first to complete your session.',
+          duration: 5000
+        });
+      }
       return;
     }
 
