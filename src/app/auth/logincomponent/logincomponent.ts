@@ -53,24 +53,34 @@ export class Logincomponent implements OnInit {
     
     if (role === 'admin') {
       console.log('🔄 Navigating to /admin');
-      this.router.navigate(['/admin']).then(
+      this.router.navigate(['/admin'], { replaceUrl: true }).then(
         (success) => {
-          if (!success) {
-            console.log('❌ Navigation failed, trying alternative approach');
+          if (success) {
+            console.log('✅ Navigation successful');
+          } else {
+            console.log('❌ Navigation failed, trying window location');
             window.location.href = '/admin';
           }
         }
-      );
+      ).catch(error => {
+        console.error('❌ Navigation error:', error);
+        window.location.href = '/admin';
+      });
     } else if (role === 'employee') {
       console.log('🔄 Navigating to /employee');
-      this.router.navigate(['/employee']).then(
+      this.router.navigate(['/employee'], { replaceUrl: true }).then(
         (success) => {
-          if (!success) {
-            console.log('❌ Navigation failed, trying alternative approach');
+          if (success) {
+            console.log('✅ Navigation successful');
+          } else {
+            console.log('❌ Navigation failed, trying window location');
             window.location.href = '/employee';
           }
         }
-      );
+      ).catch(error => {
+        console.error('❌ Navigation error:', error);
+        window.location.href = '/employee';
+      });
     }
   }
 
@@ -145,17 +155,33 @@ export class Logincomponent implements OnInit {
   }
 
   private handleLoginResponse(response: any): void {
-    // Clear timeout and reset loading
-    // if (safetyTimeout) clearTimeout(safetyTimeout);
-    // this.isLoading.set(false);
-    // this.cdr.markForCheck();
+    this.isLoading.set(false);
+    this.cdr.markForCheck();
     
     try {
-      if (response?.success === true && response.user) {
-        console.log('✅ Login successful');
+      // Updated to handle the correct response structure from your API
+      if (response?.success === true && response.user && response.token) {
+        console.log('✅ Login successful - Auth service handled data storage');
         this.resetLoginAttempts();
         this.showSuccessToast();
-        this.redirectUserByRole();
+        
+        // Use setTimeout to ensure DOM is ready before navigation
+        setTimeout(() => {
+          this.redirectUserByRole();
+        }, 100);
+      } else if (response?.message === "Login Success fully" && response.data && response.token?.tokens) {
+        // Handle direct backend response format (fallback case)
+        console.log('✅ Login successful - Direct backend response');
+        this.resetLoginAttempts();
+        this.showSuccessToast();
+        
+        // Store data manually if auth service didn't handle it
+        this.storeLoginDataManually(response);
+        
+        // Use setTimeout to ensure DOM is ready before navigation
+        setTimeout(() => {
+          this.redirectUserByRole();
+        }, 100);
       } else {
         const errorMessage = response?.message || 'Login failed. Invalid username or password.';
         console.log('❌ Login failed:', errorMessage);
@@ -165,6 +191,24 @@ export class Logincomponent implements OnInit {
       console.error('❌ Error processing login response:', error);
       this.handleLoginFailure('Login processing error. Please try again.');
     }
+  }
+
+  private storeLoginDataManually(response: any): void {
+    const userData = response.data;
+    const authData = {
+      token: response.token.tokens,
+      role: userData.role || 'employee',
+      userId: userData._id,
+      userName: userData.employeeName,
+      userEmail: userData.employeeEmail,
+      username: userData.username
+    };
+    
+    Object.entries(authData).forEach(([key, value]) => {
+      localStorage.setItem(key, value);
+    });
+    
+    console.log('💾 Login data stored manually:', authData);
   }
 
   private handleLoginError(error: any): void {

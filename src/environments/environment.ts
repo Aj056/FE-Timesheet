@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://attendance-three-lemon.vercel.app',
+  apiUrl: 'https://attendance-three-lemon.vercel.app', // Use production backend
   appName: 'Willware Timesheet',
   appFullName: 'Willware Employee Timesheet & Attendance Management System',
   version: '1.0.0',

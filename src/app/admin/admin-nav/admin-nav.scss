@@ -4,6 +4,9 @@
 :host {
   display: block;
   height: 100vh;
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
 }
 
 // Direct theme selectors to force theme application for navigation

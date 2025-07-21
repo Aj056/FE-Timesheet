@@ -8,7 +8,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      console.error('🚨 HTTP Error Interceptor:', error);
+      // Don't log errors for IP detection APIs to reduce noise
+      if (!req.url.includes('ipify') && !req.url.includes('ipapi') && !req.url.includes('my-ip.io')) {
+        console.error('🚨 HTTP Error Interceptor:', error);
+      }
       
       if (error.status === 401) {
         console.log('🔐 401 Unauthorized - Token may be invalid or expired');
@@ -18,6 +21,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         localStorage.removeItem('role');
         localStorage.removeItem('userId');
         router.navigate(['/auth/login']);
+      } else if (error.status === 500) {
+        console.warn('⚠️ Server error (500) - falling back to local storage');
+      } else if (error.status === 0) {
+        // Handle CORS or network issues
+        console.warn('⚠️ Network error for:', req.url);
+      } else if (error.status === 404 && req.url.includes('attendance')) {
+        console.warn('⚠️ Attendance endpoint not found - using localStorage fallback');
       }
       
       return throwError(() => error);

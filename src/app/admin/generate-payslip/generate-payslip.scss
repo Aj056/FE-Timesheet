@@ -1592,3 +1592,58 @@
     color: black !important;
   }
 }
+
+// PDF Generation specific styling
+.pdf-generation {
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
+  width: 800px !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  
+  * {
+    color: #000000 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+  }
+  
+  .payslip-header {
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    color: #ffffff !important;
+    
+    * {
+      color: #ffffff !important;
+    }
+  }
+  
+  .net-salary {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+    color: #ffffff !important;
+    
+    * {
+      color: #ffffff !important;
+    }
+  }
+  
+  .earnings-section,
+  .deductions-section {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  
+  .employee-details {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  
+  .payslip-footer {
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+  }
+}

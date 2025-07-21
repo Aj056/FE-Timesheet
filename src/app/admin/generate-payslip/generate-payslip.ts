@@ -248,10 +248,37 @@ export class GeneratePayslipComponent implements OnInit {
       clonedElement.style.position = 'absolute';
       clonedElement.style.left = '-9999px';
       clonedElement.style.top = '0';
-      clonedElement.style.width = payslipElement.offsetWidth + 'px';
+      clonedElement.style.width = '800px'; // Fixed width for consistency
       clonedElement.style.background = '#ffffff';
+      clonedElement.style.color = '#000000';
       clonedElement.style.padding = '20px';
+      clonedElement.style.boxShadow = 'none';
+      clonedElement.style.transform = 'none';
+      clonedElement.style.fontSize = '14px';
+      clonedElement.style.fontFamily = 'Arial, sans-serif';
       clonedElement.classList.add('pdf-generation');
+      
+      // Force all text to be black and backgrounds to be white
+      const allElements = clonedElement.querySelectorAll('*') as NodeListOf<HTMLElement>;
+      allElements.forEach(el => {
+        el.style.color = '#000000';
+        el.style.backgroundColor = 'transparent';
+        el.style.boxShadow = 'none';
+        el.style.textShadow = 'none';
+        el.style.transform = 'none';
+        
+        // Ensure headers have proper styling
+        if (el.classList.contains('payslip-header')) {
+          el.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+          el.style.color = '#ffffff';
+        }
+        
+        // Ensure proper table styling
+        if (el.tagName === 'TABLE' || el.classList.contains('earnings-section') || el.classList.contains('deductions-section')) {
+          el.style.border = '1px solid #e5e7eb';
+          el.style.backgroundColor = '#ffffff';
+        }
+      });
       
       // Append clone to body temporarily
       document.body.appendChild(clonedElement);

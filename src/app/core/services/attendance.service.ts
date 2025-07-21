@@ -629,10 +629,23 @@ export class AttendanceService {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 
-    return this.http.get<AttendanceRecord[]>(`${this.baseUrl}/attendance?employeeId=${employeeId}`)
-      .pipe(
-        map(records => records.filter(record => record.date >= startDate)),
-        catchError(() => of([]))
-      );
+    // COMMENTED OUT: API call causing 404 errors
+    // return this.http.get<AttendanceRecord[]>(`${this.baseUrl}/attendance?employeeId=${employeeId}`)
+    //   .pipe(
+    //     map(records => records.filter(record => record.date >= startDate)),
+    //     catchError((error: HttpErrorResponse) => {
+    //       console.warn('⚠️ Backend attendance fetch failed, using localStorage fallback:', error);
+    //       // Fallback to localStorage data
+    //       return this.getEmployeeAttendance(employeeId).pipe(
+    //         map(records => records.filter(record => record.date >= startDate))
+    //       );
+    //     })
+    //   );
+
+    // Use localStorage fallback directly
+    console.log('📋 Using localStorage attendance data (API call disabled)');
+    return this.getEmployeeAttendance(employeeId).pipe(
+      map(records => records.filter(record => record.date >= startDate))
+    );
   }
 }

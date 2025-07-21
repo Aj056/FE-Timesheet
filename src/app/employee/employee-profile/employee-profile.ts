@@ -73,37 +73,41 @@ export class EmployeeProfile implements OnInit {
       return;
     }
     
-    // Fallback to localStorage if SecureAuthService doesn't have data
-    const user = localStorage.getItem('user');
-    console.log('📦 Retrieved user data from localStorage:', user);
+    // Fallback to localStorage with correct key structure
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+    const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
     
-    if (user) {
-      try {
-        const parsed = JSON.parse(user);
-        console.log('📋 Parsed user data:', parsed);
-        
-        // Handle different user data formats
-        const profileData = {
-          employeeName: parsed.employeeName || parsed.name || 'Unknown',
-          employeeEmail: parsed.employeeEmail || parsed.email || 'N/A',
-          role: parsed.role || 'employee',
-          username: parsed.username || parsed.employeeName || parsed.name || 'Unknown',
-          joiningDate: parsed.joiningDate || 'N/A',
-          id: parsed.id,
-          name: parsed.name,
-          email: parsed.email
-        };
-        
-        this.employee.set(profileData);
-        console.log('✅ Employee profile data set:', this.employee());
-      } catch (error) {
-        console.error('❌ Error parsing user data:', error);
-        this.employee.set(null);
-      }
-    } else {
-      console.warn('⚠️ No user data found in localStorage');
-      this.employee.set(null);
+    console.log('� Retrieved user data from localStorage keys:', {
+      userId: !!userId,
+      userName: !!userName,
+      userEmail: !!userEmail,
+      role: !!role,
+      token: !!token
+    });
+    
+    if (userId && userName && token) {
+      const profileData = {
+        employeeName: userName,
+        employeeEmail: userEmail || 'N/A',
+        role: role || 'employee',
+        username: userEmail || userName,
+        joiningDate: 'N/A', // Can be enhanced later if we store this data
+        id: userId,
+        name: userName,
+        email: userEmail || ''
+      };
+      
+      this.employee.set(profileData);
+      console.log('✅ Employee profile data set from localStorage keys:', this.employee());
+      return;
     }
+    
+    // No user data found
+    console.warn('⚠️ No user data found in localStorage');
+    this.employee.set(null);
   }
 
   goBack(): void {

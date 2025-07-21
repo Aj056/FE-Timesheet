@@ -51,7 +51,7 @@ export class SecureAuthService {
   
   private sessionTimer: any;
   private warningTimer: any;
-  private baseUrl = 'http://localhost:1001'; // Backend API URL
+  private baseUrl = 'https://attendance-three-lemon.vercel.app'; // Production backend API URL
 
   constructor(
     private http: HttpClient,
@@ -231,12 +231,60 @@ export class SecureAuthService {
    */
   getCurrentUser(): any {
     try {
+      // First check for the new secure user data format
       const userData = localStorage.getItem(this.USER_KEY);
-      if (!userData) return null;
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (this.validateUserData(user)) {
+          return user;
+        }
+      }
       
-      const user = JSON.parse(userData);
-      return this.validateUserData(user) ? user : null;
-    } catch {
+      // Fallback: Check for individual localStorage keys from login response
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      const userEmail = localStorage.getItem('userEmail');
+      const role = localStorage.getItem('role');
+      const token = localStorage.getItem('token');
+      
+      if (userId && userName && token) {
+        // Construct user object from individual localStorage items
+        const user = {
+          id: userId,
+          username: userName,
+          name: userName,
+          email: userEmail || '',
+          role: role || 'employee',
+          employeeName: userName,
+          employeeEmail: userEmail || ''
+        };
+        
+        console.log('✅ User data constructed from individual localStorage keys:', user);
+        return user;
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Error getting user data, trying fallback:', error);
+      
+      // Error fallback: try individual keys
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      const userEmail = localStorage.getItem('userEmail');
+      const role = localStorage.getItem('role');
+      
+      if (userId && userName) {
+        return {
+          id: userId,
+          username: userName,
+          name: userName,
+          email: userEmail || '',
+          role: role || 'employee',
+          employeeName: userName,
+          employeeEmail: userEmail || ''
+        };
+      }
+      
       return null;
     }
   }
@@ -463,13 +511,31 @@ export class SecureAuthService {
 
   private hasValidToken(): boolean {
     try {
+      // First check for the new secure token format
       const tokenData = localStorage.getItem(this.TOKEN_KEY);
-      if (!tokenData) return false;
+      if (tokenData) {
+        const parsed = JSON.parse(tokenData);
+        if (Date.now() < parsed.expiresAt) {
+          return true;
+        }
+      }
       
-      const parsed = JSON.parse(tokenData);
-      return Date.now() < parsed.expiresAt;
-    } catch {
+      // Fallback: Check for simple token format from login response
+      const simpleToken = localStorage.getItem('token');
+      if (simpleToken) {
+        // If we have a simple token and user data, consider it valid
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+        return !!(userId && userName);
+      }
+      
       return false;
+    } catch {
+      // If JSON parsing fails, check for simple token
+      const simpleToken = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      return !!(simpleToken && userId && userName);
     }
   }
 

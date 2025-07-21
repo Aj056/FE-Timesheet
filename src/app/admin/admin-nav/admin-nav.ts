@@ -30,11 +30,15 @@ export class AdminNav implements OnInit, OnDestroy {
     // Admin navigation initialization
     console.log('Admin navigation initialized');
     
+    // Get initial theme state
+    this.isDarkTheme = this.themeService.getCurrentTheme();
+    console.log('Initial admin nav theme:', this.isDarkTheme ? 'dark' : 'light');
+    
     // Subscribe to theme changes
     this.themeSubscription = this.themeService.isDarkTheme$.subscribe(
       isDark => {
         this.isDarkTheme = isDark;
-        console.log('Admin theme changed to:', isDark ? 'dark' : 'light');
+        console.log('Admin nav theme changed to:', isDark ? 'dark' : 'light');
         console.log('Current data-theme attribute:', document.documentElement.getAttribute('data-theme'));
         console.log('Current body classes:', document.body.className);
       }
@@ -44,8 +48,10 @@ export class AdminNav implements OnInit, OnDestroy {
       this.subscriptions.push(this.themeSubscription);
     }
     
-    // Initial theme debug
-    console.log('Initial theme state:', this.themeService.getCurrentTheme() ? 'dark' : 'light');
+    // Force apply theme once more to ensure proper initialization
+    setTimeout(() => {
+      this.themeService.setTheme(this.themeService.getCurrentTheme());
+    }, 100);
   }
 
   ngOnDestroy(): void {

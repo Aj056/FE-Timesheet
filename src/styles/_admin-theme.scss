@@ -275,25 +275,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  
-  &::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-  
-  &.status-active::before {
-    background: var(--admin-success);
-  }
-  
-  &.status-inactive::before {
-    background: var(--admin-danger);
-  }
-  
-  &.status-pending::before {
-    background: var(--admin-warning);
-  }
+
 }
 
 // Loading states
@@ -333,8 +315,6 @@
   
   &:focus {
     outline: none;
-    border-color: var(--admin-primary);
-    box-shadow: 0 0 0 3px var(--admin-primary-light);
   }
   
   &::placeholder {

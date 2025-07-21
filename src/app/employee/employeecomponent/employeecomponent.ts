@@ -31,6 +31,7 @@ export class Employeecomponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   isDarkTheme = false;
   isMobileMenuOpen = false;
+  currentUser: User | null = null; // Cache user data to prevent repeated calls
   private themeSubscription?: Subscription;
   
   constructor(
@@ -41,6 +42,9 @@ export class Employeecomponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Load user data once during initialization
+    this.loadCurrentUser();
+    
     // Subscribe to theme changes
     this.themeSubscription = this.themeService.isDarkTheme$.subscribe(
       isDark => {
@@ -57,18 +61,47 @@ export class Employeecomponent implements OnInit, OnDestroy {
     }
   }
 
-  // Get current user data from localStorage
-  getCurrentUser(): User | null {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        return JSON.parse(userData);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        // return null;
-      }
+  // Load current user data from localStorage (called once during initialization)
+  private loadCurrentUser(): void {
+    // Check for individual auth data in localStorage (correct format)
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+    const role = localStorage.getItem('role');
+    const token = localStorage.getItem('token');
+    
+    if (userId && userName && token) {
+      // Construct user object from individual localStorage items
+      this.currentUser = {
+        id: userId,
+        name: userName,
+        email: userEmail || '',
+        username: userEmail || userName,
+        role: role || 'employee',
+        department: 'Software Development' // Default, can be enhanced later
+      };
+      
+      console.log('✅ User data loaded from localStorage:', {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        role: role
+      });
+    } else {
+      console.log('❌ User data not found in localStorage:', {
+        userId: !!userId,
+        userName: !!userName,
+        userEmail: !!userEmail,
+        token: !!token
+      });
+      
+      this.currentUser = null;
     }
-    return null;
+  }
+
+  // Get current user data (now returns cached data instead of reading localStorage repeatedly)
+  getCurrentUser(): User | null {
+    return this.currentUser;
   }
 
   // Get current date as formatted string

@@ -37,11 +37,11 @@ export class IpCheckService {
 
   // Backup IP APIs for redundancy + more reliable methods
   private readonly IP_APIS = [
-    'https://api.ipify.org?format=json',
-    'https://api64.ipify.org?format=json',
-    'https://ipapi.co/json/',
+    // Remove CORS-problematic APIs and use CORS-friendly alternatives
     'https://httpbin.org/ip',
-    'https://jsonip.com'
+    'https://jsonip.com',
+    'https://api.my-ip.io/ip.json',
+    'https://ifconfig.me/ip'
   ];
 
   // Alternative office detection methods
@@ -138,13 +138,27 @@ export class IpCheckService {
     const apiUrl = this.IP_APIS[index];
     
     return this.http.get<any>(apiUrl).pipe(
-      timeout(3000),
+      timeout(5000), // Increased timeout
       map(response => {
         // Handle different API response formats
-        return response.ip || response.query || response.origin || '';
+        let ip = '';
+        if (typeof response === 'string') {
+          ip = response.trim();
+        } else if (response) {
+          ip = response.ip || response.query || response.origin || response.ipAddress || '';
+        }
+        
+        // Validate IP format
+        if (ip && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
+          return ip;
+        }
+        throw new Error('Invalid IP format');
       }),
       catchError((error) => {
-        console.warn(`IP API ${apiUrl} failed:`, error);
+        // Reduce console noise for expected API failures
+        if (index === this.IP_APIS.length - 1) {
+          console.warn(`All IP APIs failed, using fallback detection`);
+        }
         // Try next API
         return this.tryIPAPI(index + 1);
       })
@@ -290,7 +304,7 @@ export class IpCheckService {
           isOfficeNetwork: this.isOfficeIP(cachedIP),
           ipAddress: cachedIP,
           checking: false,
-          error: 'Using cached data due to network detection issues'
+          error: 'Using cached IP data (network APIs unavailable)'
         };
         observer.next(status);
         observer.complete();
@@ -305,20 +319,23 @@ export class IpCheckService {
           isOfficeNetwork: true,
           ipAddress: 'manual-override',
           checking: false,
-          error: 'Manual override enabled'
+          error: 'Manual override enabled for development'
         };
         observer.next(status);
         observer.complete();
         return;
       }
 
-      // Final fallback: Allow with warning
+      // Final fallback: Allow access with warning in development mode
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       const status: OfficeNetworkStatus = {
         isConnected: navigator.onLine,
-        isOfficeNetwork: false,
+        isOfficeNetwork: isDevelopment, // Allow in development, require check in production
         ipAddress: 'detection-failed',
         checking: false,
-        error: 'Network detection unavailable. Please ensure you are connected to office WiFi.'
+        error: isDevelopment 
+          ? 'Development mode: Network check bypassed' 
+          : 'Network detection unavailable. Please ensure you are connected to office WiFi.'
       };
       observer.next(status);
       observer.complete();

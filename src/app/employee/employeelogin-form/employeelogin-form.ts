@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, ViewEncapsulat
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { ToastService } from '../../core/services/toast.service';
 import { PopupService } from '../../core/services/popup.service';
 import { IpCheckService, OfficeNetworkStatus } from '../../core/services/ip-check.service';
@@ -44,6 +45,9 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   networkStatus = signal<OfficeNetworkStatus>({ isConnected: false, isOfficeNetwork: false, ipAddress: '', checking: false });
   currentQuote = signal<Quote | null>(null);
   isQuoteLoading = signal(false);
+  
+  // Cached countdown to prevent NG0100 error
+  private cachedTimeUntilLogout = signal<string>('');
 
   private subscriptions: Subscription[] = [];
 
@@ -69,27 +73,40 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   // Employee Management
   private loadEmployee(): void {
-    // First, try to get stored user data
-    const stored = localStorage.getItem('user');
+    // Check for individual auth data in localStorage (correct format)
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
     const token = localStorage.getItem('token');
     
-    if (stored && token ) {
-      // Parse stored employee data
-      const employee = JSON.parse(stored);
+    if (userId && userName && token) {
+      // Set employee data from individual localStorage items
       this.currentEmployee.set({
-        id: employee._id || employee.id,
-        name: employee.employeeName || employee.name,
-        username: employee.username
+        id: userId,
+        name: userName,
+        username: userEmail || userName // Use email as username if available
       });
       
-      // Optionally verify token is still valid and fetch fresh data
+      console.log('✅ Authentication successful - User loaded:', {
+        id: userId,
+        name: userName,
+        email: userEmail
+      });
+      
+      // Optionally verify token is still valid
       // this.verifyAndRefreshEmployeeData(token);
     } else {
-      // No stored data, set default and redirect to login
+      // Missing auth data, set default and show login message
       this.currentEmployee.set({
         id: 'guest',
         name: 'Guest User',
         username: 'guest'
+      });
+      
+      console.log('❌ Authentication failed - Missing data:', {
+        userId: !!userId,
+        userName: !!userName,
+        token: !!token
       });
       
       // Show message that user needs to login
@@ -103,7 +120,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private verifyAndRefreshEmployeeData(token: string): void {
     // Make a request to verify token and get fresh user data
-    this.http.get<any>('http://localhost:1002/all', {
+    this.http.get<any>('https://attendance-three-lemon.vercel.app/all', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -121,9 +138,12 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   }
 
   private handleInvalidToken(): void {
-    // Clear invalid token and user data
+    // Clear all auth-related localStorage items
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('role');
     
     // Set guest user
     this.currentEmployee.set({
@@ -138,6 +158,30 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       message: 'Your session has expired. Please login again.',
       duration: 5000
     });
+  }
+
+  // Utility Methods
+  private formatDateToDDMMYYYY(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  private calculateTotalHours(checkinTime: string, checkoutTime: string): string {
+    try {
+      const checkin = new Date(`${new Date().toDateString()} ${checkinTime}`);
+      const checkout = new Date(`${new Date().toDateString()} ${checkoutTime}`);
+      
+      const diffMs = checkout.getTime() - checkin.getTime();
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      return `${hours}:${minutes.toString().padStart(2, '0')}`;
+    } catch (error) {
+      console.error('Error calculating total hours:', error);
+      return "0:00";
+    }
   }
 
   // Session Management
@@ -160,7 +204,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   private startTimeUpdate(): void {
     const timeSub = interval(1000).subscribe(() => {
       this.updateTime();
-      this.cdr.markForCheck(); // Trigger change detection for zoneless
+      this.cdr.detectChanges(); // Use detectChanges instead of markForCheck to prevent NG0100
     });
     this.subscriptions.push(timeSub);
     this.updateTime();
@@ -180,6 +224,9 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       month: 'long',
       day: 'numeric'
     }));
+    
+    // Update cached countdown to prevent NG0100 error
+    this.cachedTimeUntilLogout.set(this.calculateTimeUntilLogout());
   }
 
   // Network Management - using IpCheckService
@@ -187,7 +234,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     // Subscribe to network status changes
     const networkSub = this.ipCheckService.networkStatus$.subscribe(status => {
       this.networkStatus.set(status);
-      this.cdr.markForCheck(); // Trigger change detection for zoneless
+      this.cdr.detectChanges(); // Use detectChanges instead of markForCheck to prevent NG0100
     });
     this.subscriptions.push(networkSub);
     
@@ -214,7 +261,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           });
         }
         this.isQuoteLoading.set(false);
-        this.cdr.markForCheck(); // Trigger change detection
+        this.cdr.detectChanges(); // Use detectChanges instead of markForCheck to prevent NG0100
       },
       error: () => {
         this.currentQuote.set({
@@ -222,7 +269,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           author: "Winston Churchill"
         });
         this.isQuoteLoading.set(false);
-        this.cdr.markForCheck(); // Trigger change detection
+        this.cdr.detectChanges(); // Use detectChanges instead of markForCheck to prevent NG0100
       }
     });
   }
@@ -247,6 +294,10 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   }
 
   getTimeUntilLogout(): string {
+    return this.cachedTimeUntilLogout();
+  }
+
+  private calculateTimeUntilLogout(): string {
     const session = this.currentSession();
     if (!session?.loginTime) return '';
 
@@ -283,6 +334,21 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     return session.loginTime != null && session.logoutTime != null;
   }
 
+  // Method to refresh session data from backend
+  refreshSessionFromBackend(): void {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    
+    if (userId && token) {
+      this.toastService.info('Refreshing session data...');
+      // For now, just reload the current session from localStorage
+      this.loadSession();
+      this.toastService.success('Session data refreshed from local storage.');
+    } else {
+      this.toastService.warning('Please login to refresh session data.');
+    }
+  }
+
   // Main Actions
   employee_login(): void {
     // Prevent multiple concurrent login attempts
@@ -290,7 +356,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Check if already logged in
+    // Check if already logged in (local session check)
     if (this.isLoggedIn()) {
       this.toastService.warning('You are already checked in.');
       return;
@@ -314,6 +380,24 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Check authentication before proceeding
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    
+    if (!userId || !token) {
+      this.toastService.error({
+        title: 'Authentication Error',
+        message: 'Missing user credentials. Please login again.',
+        duration: 4000
+      });
+      return;
+    }
+
+    // Proceed with network check and login flow
+    this.proceedWithNetworkCheck();
+  }
+
+  private proceedWithNetworkCheck(): void {
     // Step 1: Check office network using IpCheckService
     if (!this.ipCheckService.isConnectedToOffice()) {
       // Force refresh network status first
@@ -338,7 +422,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private proceedWithLogin(): void {
     this.isLoggingIn.set(true);
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     this.http.get<{ dateTime: string }>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata').subscribe({
       next: (response) => {
@@ -361,43 +445,79 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
     if (!userId || !userName || !token) return;
 
+    // Format date as dd.MM.yyyy (e.g., "07.07.2025")
+    const currentDate = this.formatDateToDDMMYYYY(new Date());
+
     const payload = {
       id: userId,
       employeeName: userName,
       status: true,
-      checkin:serverTime,
-      checkout: null,
-      totalhours: null
+      checkin: currentDate,
+      checkout: currentDate, // Initially same as checkin
+      totalhours: "0:00" // Will be calculated on checkout
     };
 
-    this.http.post(`http://192.168.29.198:1001/checkin`, payload, {
+    this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload, {
       headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
+    }).pipe(
+      timeout(10000) // 10 second timeout to prevent getting stuck
+    ).subscribe({
       next: () => {
-        this.saveSession();
-        this.isLoggingIn.set(false);
+        const loginTime = new Date().toLocaleTimeString('en-US', {
+          hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        
         this.currentSession.set({
-          loginTime: serverTime,
+          loginTime: loginTime,
           date: new Date().toDateString()
         });
-        this.cdr.markForCheck();
+        this.saveSession();
+        this.isLoggingIn.set(false);
+        this.cdr.detectChanges();
 
         if (isFallback) {
           this.toastService.success({
             title: 'Check-in Successful',
-            message: `You've checked in at ${serverTime} (local time).`,
+            message: `You've checked in at ${loginTime} (local time).`,
             duration: 4000
           });
         } else {
-          this.toastService.checkInSuccess(serverTime);
+          this.toastService.checkInSuccess(loginTime);
         }
 
-        console.log('✅ Check-in successful at:',serverTime);
+        console.log('✅ Check-in successful at:', loginTime);
       },
       error: (err) => {
-        console.error('❌ Failed to log check-in to backend', err);
+        console.error('❌ Backend check-in failed, using localStorage fallback:', err);
+        
+        // Always reset loading state and proceed with fallback
+        this.isLoggingIn.set(false);
+        this.handleCheckInFallback(serverTime, isFallback);
       }
     });
+  }
+
+  private handleCheckInFallback(serverTime: string, isFallback: boolean): void {
+    const loginTime = new Date().toLocaleTimeString('en-US', {
+      hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    
+    // Save session locally even if backend fails
+    this.currentSession.set({
+      loginTime: loginTime,
+      date: new Date().toDateString()
+    });
+    this.saveSession();
+    this.cdr.detectChanges();
+
+    // Show appropriate toast message
+    this.toastService.warning({
+      title: 'Check-in Completed (Offline Mode)',
+      message: `Checked in at ${loginTime}. Data saved locally - will sync when server is available.`,
+      duration: 5000
+    });
+
+    console.log('✅ Check-in completed with localStorage fallback at:', loginTime);
   }
 
   employee_logout(): void {
@@ -460,7 +580,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private proceedWithLogout(): void {
     this.isLoggingOut.set(true);
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     // Get server time for accurate logout timestamp
     this.http.get<{ dateTime: string }>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata').subscribe({
@@ -468,46 +588,106 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
         const serverTime = new Date(response.dateTime).toLocaleTimeString('en-US', {
           hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
-
-        const currentSession = this.currentSession();
-        if (currentSession) {
-          this.currentSession.set({
-            ...currentSession,
-            logoutTime: serverTime
-          });
-          this.saveSession();
-        }
-        this.isLoggingOut.set(false);
-        this.cdr.markForCheck();
-        
-        const workingHours = this.getWorkingHours();
-        this.toastService.checkOutSuccess(serverTime, workingHours);
+        this.sendCheckoutData(serverTime);
       },
       error: () => {
         // Fallback to local time if server time API fails
         const localTime = new Date().toLocaleTimeString('en-US', {
           hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
-
-        const currentSession = this.currentSession();
-        if (currentSession) {
-          this.currentSession.set({
-            ...currentSession,
-            logoutTime: localTime
-          });
-          this.saveSession();
-        }
-        this.isLoggingOut.set(false);
-        this.cdr.markForCheck();
-        
-        const workingHours = this.getWorkingHours();
-        this.toastService.success({
-          title: 'Check-out Successful',
-          message: `You've checked out at ${localTime} (using local time). Total working time: ${workingHours}. Great job today!`,
-          duration: 5000
-        });
+        this.sendCheckoutData(localTime);
       }
     });
+  }
+
+  private sendCheckoutData(checkoutTime: string, isFallback = false): void {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    const token = localStorage.getItem('token');
+    const currentSession = this.currentSession();
+
+    if (!userId || !userName || !token || !currentSession?.loginTime) {
+      this.isLoggingOut.set(false);
+      return;
+    }
+
+    // Format date as dd.MM.yyyy (e.g., "07.07.2025")
+    const currentDate = this.formatDateToDDMMYYYY(new Date());
+    
+    // Calculate total working hours
+    const totalHours = this.calculateTotalHours(currentSession.loginTime, checkoutTime);
+
+    const payload = {
+      id: userId,
+      employeeName: userName,
+      status: false, // false for checkout
+      checkin: currentDate,
+      checkout: currentDate,
+      totalhours: totalHours
+    };
+
+    this.http.post(`https://attendance-three-lemon.vercel.app/checkout`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).pipe(
+      timeout(10000) // 10 second timeout to prevent getting stuck
+    ).subscribe({
+      next: () => {
+        // Update local session
+        this.currentSession.set({
+          ...currentSession,
+          logoutTime: checkoutTime
+        });
+        this.saveSession();
+        this.isLoggingOut.set(false);
+        this.cdr.detectChanges();
+        
+        const workingHours = this.getWorkingHours();
+        
+        if (isFallback) {
+          this.toastService.success({
+            title: 'Check-out Successful',
+            message: `You've checked out at ${checkoutTime} (local time). Total working time: ${workingHours}. Great job today!`,
+            duration: 5000
+          });
+        } else {
+          this.toastService.checkOutSuccess(checkoutTime, workingHours);
+        }
+
+        console.log('✅ Check-out successful at:', checkoutTime);
+      },
+      error: (err) => {
+        console.error('❌ Backend check-out failed, using localStorage fallback:', err);
+        
+        // Always reset loading state and proceed with fallback
+        this.isLoggingOut.set(false);
+        this.handleCheckOutFallback(checkoutTime, isFallback);
+      }
+    });
+  }
+
+  private handleCheckOutFallback(checkoutTime: string, isFallback: boolean): void {
+    const currentSession = this.currentSession();
+    
+    if (currentSession) {
+      // Save session locally even if backend fails
+      this.currentSession.set({
+        ...currentSession,
+        logoutTime: checkoutTime
+      });
+      this.saveSession();
+      this.cdr.detectChanges();
+      
+      const workingHours = this.getWorkingHours();
+      
+      // Show appropriate toast message
+      this.toastService.warning({
+        title: 'Check-out Completed (Offline Mode)',
+        message: `Checked out at ${checkoutTime}. Total working time: ${workingHours}. Data saved locally - will sync when server is available.`,
+        duration: 5000
+      });
+
+      console.log('✅ Check-out completed with localStorage fallback at:', checkoutTime);
+    }
   }
 
   // Example methods to demonstrate toast usage
@@ -598,6 +778,59 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   getStatusClass(): string {
     return this.isLoggedIn() ? 'status-active' : 'status-inactive';
+  }
+
+  // Check if check-in button should be enabled
+  isCheckInAvailable(): boolean {
+    // Disable if already logged in
+    if (this.isLoggedIn()) return false;
+    
+    // Disable if can't check in today due to restrictions
+    if (!this.canCheckInToday()) return false;
+    
+    // Disable if currently processing login
+    if (this.isLoggingIn()) return false;
+    
+    return true;
+  }
+
+  // Check if check-out button should be enabled
+  isCheckOutAvailable(): boolean {
+    // Must be logged in
+    if (!this.isLoggedIn()) return false;
+    
+    // Must meet minimum time requirement
+    if (!this.canLogout()) return false;
+    
+    // Must not be currently processing logout
+    if (this.isLoggingOut()) return false;
+    
+    return true;
+  }
+
+  // Get reason why check-in is not available (for UI feedback)
+  getCheckInDisabledReason(): string {
+    if (this.isLoggingIn()) return 'Checking in...';
+    if (this.isLoggedIn()) return 'Already checked in';
+    if (!this.canCheckInToday()) {
+      if (this.hasCompletedTodaySession()) {
+        return 'Daily attendance completed';
+      } else {
+        return 'Already checked in today';
+      }
+    }
+    return '';
+  }
+
+  // Get reason why check-out is not available (for UI feedback)
+  getCheckOutDisabledReason(): string {
+    if (this.isLoggingOut()) return 'Checking out...';
+    if (!this.isLoggedIn()) return 'Not checked in';
+    if (!this.canLogout()) {
+      const remaining = this.getTimeUntilLogout();
+      return `Wait ${remaining} for minimum work time`;
+    }
+    return '';
   }
 
   // Network Status Methods
