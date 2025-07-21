@@ -17,6 +17,15 @@ interface User {
   username?: string;
   role?: string;
   department?: string;
+  designation?: string;
+  workLocation?: string;
+  phone?: string;
+  address?: string;
+  joinDate?: string;
+  panNumber?: string;
+  esiNumber?: string;
+  uanNumber?: string;
+  bankAccount?: string;
 }
 
 @Component({
@@ -70,22 +79,56 @@ export class Employeecomponent implements OnInit, OnDestroy {
     const role = localStorage.getItem('role');
     const token = localStorage.getItem('token');
     
+    // Try to get additional profile data from localStorage
+    const designation = localStorage.getItem('designation');
+    const department = localStorage.getItem('department');
+    const workLocation = localStorage.getItem('workLocation');
+    const phone = localStorage.getItem('phone');
+    const address = localStorage.getItem('address');
+    const joinDate = localStorage.getItem('joinDate');
+    const panNumber = localStorage.getItem('panNumber');
+    const esiNumber = localStorage.getItem('esiNumber');
+    const uanNumber = localStorage.getItem('uanNumber');
+    const bankAccount = localStorage.getItem('bankAccount');
+    
+    // Try to get full employee data if stored as JSON
+    let employeeData = null;
+    try {
+      const storedEmployeeData = localStorage.getItem('currentUserEmployeeData');
+      if (storedEmployeeData) {
+        employeeData = JSON.parse(storedEmployeeData);
+      }
+    } catch (e) {
+      console.warn('Could not parse employee data from localStorage');
+    }
+    
     if (userId && userName && token) {
-      // Construct user object from individual localStorage items
+      // Construct user object from individual localStorage items or employee data
       this.currentUser = {
         id: userId,
         name: userName,
-        email: userEmail || '',
-        username: userEmail || userName,
-        role: role || 'employee',
-        department: 'Software Development' // Default, can be enhanced later
+        email: userEmail || employeeData?.employeeEmail || '',
+        username: userEmail || userName || employeeData?.username,
+        role: role || employeeData?.role || 'employee',
+        department: department || employeeData?.department || 'Software Development',
+        designation: designation || employeeData?.designation || 'Software Developer',
+        workLocation: workLocation || employeeData?.workLocation || '',
+        phone: phone || employeeData?.phone || '',
+        address: address || employeeData?.address || '',
+        joinDate: joinDate || employeeData?.joinDate || '',
+        panNumber: panNumber || employeeData?.panNumber || '',
+        esiNumber: esiNumber || employeeData?.esiNumber || '',
+        uanNumber: uanNumber || employeeData?.uanNumber || '',
+        bankAccount: bankAccount || employeeData?.bankAccount || ''
       };
       
       console.log('✅ User data loaded from localStorage:', {
         id: userId,
         name: userName,
-        email: userEmail,
-        role: role
+        email: this.currentUser.email,
+        role: this.currentUser.role,
+        department: this.currentUser.department,
+        designation: this.currentUser.designation
       });
     } else {
       console.log('❌ User data not found in localStorage:', {
@@ -102,6 +145,21 @@ export class Employeecomponent implements OnInit, OnDestroy {
   // Get current user data (now returns cached data instead of reading localStorage repeatedly)
   getCurrentUser(): User | null {
     return this.currentUser;
+  }
+
+  // Get user initials (first two characters of the name)
+  getUserInitials(): string {
+    const user = this.getCurrentUser();
+    if (!user?.name) return 'US'; // Default initials
+    
+    const names = user.name.trim().split(' ');
+    if (names.length === 1) {
+      // Single name - take first two characters
+      return names[0].substring(0, 2).toUpperCase();
+    } else {
+      // Multiple names - take first character of first two words
+      return (names[0].charAt(0) + names[1].charAt(0)).toUpperCase();
+    }
   }
 
   // Get current date as formatted string

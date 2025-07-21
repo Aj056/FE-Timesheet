@@ -202,22 +202,24 @@
       flex-shrink: 0;
       position: relative;
       
-      img {
+      .avatar-initials {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-      }
-      
-      .avatar-fallback {
-        width: 100%;
-        height: 100%;
-        background: var(--primary-color);
-        color: var(--text-inverse);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark, #2563eb));
+        color: var(--text-inverse, white);
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
-        font-size: 1.125rem;
+        font-size: 0.875rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: linear-gradient(135deg, var(--primary-color-dark, #2563eb), var(--primary-color));
+          transform: scale(1.05);
+        }
       }
     }
     
@@ -232,7 +234,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: #f1f5f9; // Light text for dark sidebar
       }
       
       .user-role {

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AttendanceService, AttendanceRecord, AttendanceStats } from '../../core/services/attendance.service';
+import { AttendanceService } from '../../core/services/attendance.service';
+import { AttendanceRecord, AttendanceStats } from '../../core/interfaces/common.interfaces';
 
 @Component({
   selector: 'app-attendance-summary',

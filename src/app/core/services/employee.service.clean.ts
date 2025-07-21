@@ -44,51 +44,31 @@ export class EmployeeService {
    */
   getAllEmployees(page = 1, limit = 1000, search = ''): Observable<ApiResponse<Employee[]>> {
     console.log('🔍 Loading employees with params:', { page, limit, search });
-    console.log('🌐 Calling API endpoint:', `${this.baseUrl}/allemp`);
 
     return this.http.get<any>(`${this.baseUrl}/allemp`).pipe(
       map(response => {
-        console.log('📊 Raw API response:', response);
-        console.log('📊 Response type:', typeof response);
-        console.log('📊 Response keys:', Object.keys(response || {}));
+        console.log('📊 All employees response:', response);
         
         if (response?.data && Array.isArray(response.data)) {
-          const mappedEmployees = response.data.map((emp: any) => this.mapBackendToFrontend(emp));
-          console.log('✅ Mapped employees:', mappedEmployees);
           return {
             success: true,
-            data: mappedEmployees,
+            data: response.data.map((emp: any) => this.mapBackendToFrontend(emp)),
             message: `Found ${response.data.length} employees`
           };
-        } else if (response && Array.isArray(response)) {
-          // Handle case where API returns array directly without wrapper
-          console.log('📦 Direct array response detected');
-          const mappedEmployees = response.map((emp: any) => this.mapBackendToFrontend(emp));
-          console.log('✅ Mapped employees from direct array:', mappedEmployees);
-          return {
-            success: true,
-            data: mappedEmployees,
-            message: `Found ${response.length} employees`
-          };
         } else {
-          console.log('❌ Unexpected response structure:', response);
           return {
             success: false,
             data: [],
-            message: 'No employees found or unexpected response format'
+            message: 'No employees found'
           };
         }
       }),
       catchError(error => {
-        console.error('❌ Failed to fetch employees:', error);
-        console.error('❌ Error status:', error.status);
-        console.error('❌ Error message:', error.message);
-        console.error('❌ Full error object:', error);
-        
+        console.error('Failed to fetch employees:', error);
         return of({
           success: false,
           data: [],
-          message: `Failed to fetch employees: ${error.message || 'Unknown error'}`
+          message: 'Failed to fetch employees'
         });
       })
     );

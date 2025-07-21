@@ -2,7 +2,8 @@ import { Component, signal, computed, effect, inject, OnInit, ViewEncapsulation 
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AttendanceService, AttendanceRecord } from '../../core/services/attendance.service';
+import { AttendanceService } from '../../core/services/attendance.service';
+import { AttendanceRecord } from '../../core/interfaces/common.interfaces';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -73,6 +74,7 @@ export class MonthlyView implements OnInit {
     
     return this.attendanceRecords()
       .map(record => this.transformRecord(record))
+      .filter((record): record is AttendanceDisplay => record !== null) // Filter out null values
       .filter(record => this.isRecordInMonth(record, year, month))
       .sort((a, b) => {
         // Sort by date (newest first) then by employee name
@@ -159,9 +161,15 @@ export class MonthlyView implements OnInit {
     });
   }
 
-  private transformRecord(record: Employee): AttendanceDisplay {
+  private transformRecord(record: Employee): AttendanceDisplay | null {
     const checkinDate = this.parseDate(record.checkin);
     const checkoutDate = record.checkout ? this.parseDate(record.checkout) : null;
+    
+    // Validate parsed dates
+    if (!checkinDate || isNaN(checkinDate.getTime())) {
+      console.error('❌ Invalid checkin date:', record.checkin);
+      return null; // Skip invalid records
+    }
     
     return {
       id: record._id,
@@ -177,37 +185,58 @@ export class MonthlyView implements OnInit {
     };
   }
 
-  private parseDate(dateInput: string): Date {
-    // Handle different date formats from your API
-    if (dateInput.includes('T') && dateInput.includes('Z')) {
-      // ISO format: "2025-07-07T13:01:35.133Z"
-      return new Date(dateInput);
-    } else if (dateInput.includes(':') && (dateInput.includes('AM') || dateInput.includes('PM'))) {
-      // Time format: "06:25:46 PM"
-      const today = new Date();
-      const timeStr = dateInput;
-      const [time, period] = timeStr.split(' ');
-      const [hours, minutes, seconds] = time.split(':').map(Number);
-      
-      let hour24 = hours;
-      if (period === 'PM' && hours !== 12) hour24 += 12;
-      if (period === 'AM' && hours === 12) hour24 = 0;
-      
-      today.setHours(hour24, minutes, seconds || 0, 0);
-      return today;
-    } else if (dateInput.includes('.')) {
-      // Date format: "07.07.2025"
-      const [day, month, year] = dateInput.split('.').map(Number);
-      return new Date(year, month - 1, day);
-    } else {
-      // Fallback
-      return new Date(dateInput);
+  private parseDate(dateInput: string): Date | null {
+    try {
+      // Handle different date formats from your API
+      if (dateInput.includes('T')) {
+        // ISO format: "2025-07-21T15:03:35.921666" or "2025-07-07T13:01:35.133Z"
+        return new Date(dateInput);
+      } else if (dateInput.includes('/') && (dateInput.includes('am') || dateInput.includes('pm'))) {
+        // Format like: "07.07.2025/3:30:pm"
+        const [datePart, timePart] = dateInput.split('/');
+        const [day, month, year] = datePart.split('.').map(Number);
+        const [time, period] = timePart.split(/(?=[ap]m)/i);
+        const [hours, minutes] = time.split(':').map(Number);
+        
+        let hour24 = hours;
+        if (period.toLowerCase() === 'pm' && hours !== 12) hour24 += 12;
+        if (period.toLowerCase() === 'am' && hours === 12) hour24 = 0;
+        
+        return new Date(year, month - 1, day, hour24, minutes, 0);
+      } else if (dateInput.includes('.')) {
+        // Date format: "21.07.2025"
+        const [day, month, year] = dateInput.split('.').map(Number);
+        return new Date(year, month - 1, day);
+      } else if (dateInput.includes(':') && (dateInput.includes('AM') || dateInput.includes('PM'))) {
+        // Time format: "06:25:46 PM"
+        const today = new Date();
+        const timeStr = dateInput;
+        const [time, period] = timeStr.split(' ');
+        const [hours, minutes, seconds] = time.split(':').map(Number);
+        
+        let hour24 = hours;
+        if (period === 'PM' && hours !== 12) hour24 += 12;
+        if (period === 'AM' && hours === 12) hour24 = 0;
+        
+        today.setHours(hour24, minutes, seconds || 0, 0);
+        return today;
+      } else {
+        // Fallback
+        const fallbackDate = new Date(dateInput);
+        return isNaN(fallbackDate.getTime()) ? null : fallbackDate;
+      }
+    } catch (error) {
+      console.error('Error parsing date:', dateInput, error);
+      return null;
     }
   }
 
   private formatTime(timeInput: string): string {
     try {
       const date = this.parseDate(timeInput);
+      if (!date) {
+        return timeInput; // Return original if parsing fails
+      }
       return date.toLocaleTimeString('en-US', { 
         hour: '2-digit', 
         minute: '2-digit',

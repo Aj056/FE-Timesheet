@@ -5,59 +5,28 @@ import { Observable, of } from "rxjs";
 import { map, catchError } from "rxjs/operators";
 import { ValidationService } from "./validation.service";
 import { environment } from "../../../environments/environment";
+import { Employee, LoginResponse, LoginCredentials, ValidationResult } from "../interfaces/common.interfaces";
 
-export interface Employee {
-  id: string;
-  name?: string;
-  employeeName?: string;
-  email?: string;
-  employeeEmail?: string;
-  username: string;
-  password: string;
-  role: string;
-  department?: string;
-  status?: string;
-  joiningDate?: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  user?: Employee;
-  token?: string;
-  message?: string;
-}
-
+/**
+ * Streamlined Authentication Service
+ * Handles login, logout, and basic auth state management
+ */
 @Injectable({providedIn:'root'})
-export class Authservice{
+export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly validationService = inject(ValidationService);
     private readonly baseUrl = environment.apiUrl;
     
-    constructor(private router: Router){}
+    constructor(private router: Router) {}
 
-    // Main login method
-    login(username: string, password: string): Observable<LoginResponse> {
-        console.log('🔐 Login attempt for username:', username);
+    /**
+     * Main login method with simplified flow
+     */
+    login(credentials: LoginCredentials): Observable<LoginResponse> {
+        console.log('🔐 Login attempt for username:', credentials.username);
         
-        return this.authenticateUser(username, password).pipe(
-            map(response => {
-                if (response.success && response.user && response.token) {
-                    this.storeAuthData(response);
-                    console.log('✅ Login successful');
-                }
-                return response;
-            }),
-            catchError(error => {
-                console.error('🚨 Login error:', error);
-                return of({ success: false, message: 'Login failed due to service error' });
-            })
-        );
-    }
-
-    // Core authentication method - exposed for testing
-    authenticateUser(username: string, password: string): Observable<LoginResponse> {
         // Validate credentials format
-        const validation = this.validationService.validateCredentials(username, password);
+        const validation = this.validationService.validateCredentials(credentials.username, credentials.password);
         if (!validation.isValid) {
             return of({
                 success: false,
@@ -65,16 +34,23 @@ export class Authservice{
             });
         }
         
-        const loginData = { username, password };
-        console.log('🔍 Sending login request to:', `${this.baseUrl}/login`);
-        
-        return this.http.post<any>(`${this.baseUrl}/login`, loginData).pipe(
+        return this.http.post<any>(`${this.baseUrl}/login`, credentials).pipe(
             map(response => this.processLoginResponse(response)),
-            catchError(error => this.handleAuthError(error, username))
+            catchError(error => this.handleAuthError(error, credentials.username)),
+            map(response => {
+                if (response.success && response.user && response.token) {
+                    this.storeAuthData(response);
+                    this.fetchEmployeeStatusAfterLogin(response.user.id);
+                    console.log('✅ Login successful');
+                }
+                return response;
+            })
         );
     }
 
-    // Process backend login response
+    /**
+     * Process backend login response and map to unified format
+     */
     private processLoginResponse(response: any): LoginResponse {
         console.log('📊 Backend response:', response);
         
@@ -83,16 +59,24 @@ export class Authservice{
             const mappedUser: Employee = {
                 id: userData._id || userData.id,
                 name: userData.employeeName || userData.name || userData.username,
-                employeeName: userData.employeeName || userData.name || userData.username,
                 email: userData.employeeEmail || userData.email || '',
-                employeeEmail: userData.employeeEmail || userData.email || '',
                 username: userData.username,
                 password: '',
                 role: userData.role || 'employee',
                 department: userData.department || 'General',
-                status: userData.status || 'active',
+                status: userData.status ?? true,
                 joiningDate: userData.joiningDate
             };
+            
+            // Store attendance status from login response
+            const attendanceStatus = userData.attendanceStatus || userData.status;
+            if (typeof attendanceStatus === 'boolean') {
+                localStorage.setItem('currentAttendanceStatus', attendanceStatus.toString());
+                console.log('💾 Stored attendance status from login:', attendanceStatus);
+            } else {
+                localStorage.setItem('currentAttendanceStatus', 'false');
+                console.log('💾 No attendance status in login response, defaulting to false');
+            }
             
             return {
                 success: true,
@@ -108,11 +92,48 @@ export class Authservice{
         };
     }
 
-    // Handle authentication errors
+    /**
+     * Fetch employee status after login for attendance sync
+     */
+    private fetchEmployeeStatusAfterLogin(userId: string): void {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        console.log('🔍 Fetching employee status from /allemp for user:', userId);
+        
+        this.http.get<any>(`${this.baseUrl}/allemp`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).subscribe({
+            next: (response) => {
+                if (response.data && Array.isArray(response.data)) {
+                    const currentUser = response.data.find((emp: any) => emp._id === userId);
+                    
+                    if (currentUser) {
+                        localStorage.setItem('currentAttendanceStatus', currentUser.status.toString());
+                        localStorage.setItem('currentUserEmployeeData', JSON.stringify(currentUser));
+                        
+                        console.log('✅ Updated attendance status from /allemp:', {
+                            userId: userId,
+                            username: currentUser.username,
+                            status: currentUser.status,
+                            name: currentUser.employeeName
+                        });
+                    }
+                }
+            },
+            error: (error) => {
+                console.error('🚨 Error fetching employee status:', error);
+            }
+        });
+    }
+
+    /**
+     * Handle authentication errors with proper error mapping
+     */
     private handleAuthError(error: any, username: string): Observable<LoginResponse> {
         console.error('🚨 Auth error:', error);
         
-        const errorMessages = {
+        const errorMessages: Record<number, string> = {
             0: 'Unable to connect to server. Please check your connection.',
             400: 'Invalid request format. Please check your credentials.',
             401: `Invalid username '${username}' or password.`,
@@ -120,13 +141,13 @@ export class Authservice{
             500: 'Server error. Please try again later.'
         };
         
-        const message = errorMessages[error.status as keyof typeof errorMessages] || 
-                       'Authentication service temporarily unavailable.';
-        
+        const message = errorMessages[error.status] || 'Authentication service temporarily unavailable.';
         return of({ success: false, message });
     }
 
-    // Store authentication data in localStorage
+    /**
+     * Store authentication data in localStorage
+     */
     private storeAuthData(response: LoginResponse): void {
         if (!response.user || !response.token) return;
         
@@ -136,8 +157,8 @@ export class Authservice{
             role: role,
             userId: response.user.id,
             username: response.user.username,
-            userEmail: response.user.email || response.user.employeeEmail || '',
-            userName: response.user.name || response.user.employeeName || ''
+            userEmail: response.user.email || '',
+            userName: response.user.name || ''
         };
         
         Object.entries(authData).forEach(([key, value]) => {
@@ -147,7 +168,9 @@ export class Authservice{
         console.log('💾 Auth data stored');
     }
 
-    // Determine user role
+    /**
+     * Determine user role based on user data
+     */
     private determineUserRole(user: Employee): string {
         const role = user.role.toLowerCase();
         return (role.includes('admin') || role.includes('manager') || user.username.toLowerCase() === 'admin') 
@@ -155,7 +178,9 @@ export class Authservice{
                : 'employee';
     }
 
-    // Logout user
+    /**
+     * Logout user and clear all auth data
+     */
     logout(): Observable<any> {
         console.log('🚪 Logout initiated');
         this.clearAuthData();
@@ -171,19 +196,25 @@ export class Authservice{
         return of({ success: true, message: 'Logged out successfully' });
     }
 
-    // Clear all authentication data
+    /**
+     * Clear all authentication data from localStorage
+     */
     private clearAuthData(): void {
-        const authKeys = ['token', 'role', 'userId', 'username', 'userEmail', 'userName', 'user', 'refreshToken'];
+        const authKeys = [
+            'token', 'role', 'userId', 'username', 'userEmail', 'userName', 
+            'user', 'refreshToken', 'currentAttendanceStatus', 'currentUserEmployeeData'
+        ];
         authKeys.forEach(key => localStorage.removeItem(key));
         console.log('🧹 Auth data cleared');
     }
 
-    // Auth state getters
+    // === AUTH STATE GETTERS ===
+    
     isLoggedIN(): boolean {
         return !!(localStorage.getItem('token') && localStorage.getItem('role'));
     }
 
-    getuserrole(): string | null {
+    getUserRole(): string | null {
         return localStorage.getItem('role');
     }
 
@@ -207,15 +238,20 @@ export class Authservice{
         return localStorage.getItem('token');
     }
 
-    // Validation helpers
+    // === VALIDATION HELPERS ===
+    
     getCredentialValidationMessage(username: string, password: string): string {
         return this.validationService.getLoginValidationMessage(username, password);
     }
 
-    validateCredentialsFormat(username: string, password: string): { isValid: boolean; message: string } {
+    validateCredentialsFormat(username: string, password: string): ValidationResult {
         const validation = this.validationService.validateCredentials(username, password);
-        return validation.isValid 
-               ? { isValid: true, message: 'Credentials format is valid' }
-               : { isValid: false, message: `Please fix: ${validation.errors.join(', ')}` };
+        return {
+            isValid: validation.isValid,
+            errors: validation.errors,
+            message: validation.isValid 
+                    ? 'Credentials format is valid' 
+                    : `Please fix: ${validation.errors.join(', ')}`
+        };
     }
 }

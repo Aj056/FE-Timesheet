@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 
 import { EmployeesList } from './employees-list';
-import { EmployeeService, Employee } from '../../core/services/employee.service';
+import { EmployeeService } from '../../core/services/employee.service';
+import { Employee } from '../../core/interfaces/common.interfaces';
 import { ToastService } from '../../core/services/toast.service';
 import { PopupService } from '../../core/services/popup.service';
 
@@ -15,9 +17,36 @@ describe('EmployeesList', () => {
   let mockPopupService: jasmine.SpyObj<PopupService>;
 
   const mockEmployees: Employee[] = [
-    { id: '1', name: 'John Doe', username: 'john.doe', email: 'john@company.com', role: 'employee', status: 'active' },
-    { id: '2', name: 'Jane Smith', username: 'jane.smith', email: 'jane@company.com', role: 'manager', status: 'active' },
-    { id: '3', name: 'Bob Johnson', username: 'bob.johnson', email: 'bob@company.com', role: 'admin', status: 'inactive' }
+    { 
+      id: '1', 
+      name: 'John Doe', 
+      username: 'john.doe', 
+      email: 'john@company.com', 
+      role: 'employee', 
+      status: true,
+      department: 'IT',
+      designation: 'Developer'
+    },
+    { 
+      id: '2', 
+      name: 'Jane Smith', 
+      username: 'jane.smith', 
+      email: 'jane@company.com', 
+      role: 'manager', 
+      status: true,
+      department: 'HR',
+      designation: 'Manager'
+    },
+    { 
+      id: '3', 
+      name: 'Bob Johnson', 
+      username: 'bob.johnson', 
+      email: 'bob@company.com', 
+      role: 'admin', 
+      status: false,
+      department: 'Admin',
+      designation: 'Administrator'
+    }
   ];
 
   beforeEach(async () => {
@@ -26,7 +55,7 @@ describe('EmployeesList', () => {
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['confirm']);
 
     await TestBed.configureTestingModule({
-      imports: [EmployeesList, RouterTestingModule],
+      imports: [EmployeesList, RouterTestingModule, HttpClientTestingModule],
       providers: [
         { provide: EmployeeService, useValue: employeeServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
@@ -42,11 +71,20 @@ describe('EmployeesList', () => {
     mockToastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
     mockPopupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
 
-    mockEmployeeService.getAllEmployees.and.returnValue(of(mockEmployees));
+    mockEmployeeService.getAllEmployees.and.returnValue(of({
+      success: true,
+      employees: mockEmployees
+    }));
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should load employees on init', () => {
+    component.ngOnInit();
+    expect(mockEmployeeService.getAllEmployees).toHaveBeenCalled();
+    expect(component.employees().length).toBe(3);
   });
 
   it('should initialize with empty search term', () => {

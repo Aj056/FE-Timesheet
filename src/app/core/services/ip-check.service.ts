@@ -32,7 +32,11 @@ export class IpCheckService {
     '49.37.',        // Primary office network
     '49.37.212.' ,
     '49.37.210.225',
-    '2405:201:e01c:21e7:ac18:5c2:c6d7:e05f'    // Specific office IP
+    '2405:201:e01c:21e7:ac18:5c2:c6d7:e05f',
+    '157.51.81.114',
+     '157.51.98.172'
+
+    // Specific office IP
   ];
 
   // Backup IP APIs for redundancy + more reliable methods

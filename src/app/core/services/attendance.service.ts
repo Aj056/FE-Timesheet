@@ -3,40 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-
-export interface AttendanceRecord {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  date: string; // YYYY-MM-DD format
-  loginTime: string | null;
-  logoutTime: string | null;
-  workingHours?: number;
-  status: 'present' | 'absent' | 'partial';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AttendanceStats {
-  totalDays: number;
-  presentDays: number;
-  absentDays: number;
-  partialDays: number;
-  totalWorkingHours: number;
-}
-
-export interface Employee {
-  id: string;
-  name?: string;
-  employeeName?: string;
-  email?: string;
-  employeeEmail?: string;
-  username: string;
-  role: string;
-  department?: string;
-  joiningDate: string;
-  status?: string;
-}
+import { Employee, AttendanceRecord, AttendanceSession, AttendanceStats } from '../interfaces/common.interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -136,7 +103,7 @@ export class AttendanceService {
             employeeName,
             date: today,
             loginTime,
-            logoutTime: null,
+            logoutTime: undefined,
             status: 'partial',
             createdAt: currentTime,
             updatedAt: currentTime
@@ -309,10 +276,10 @@ export class AttendanceService {
         const attendanceRecord: AttendanceRecord = {
           id: this.generateId(),
           employeeId: employee.id,
-          employeeName: employee.name || employee.employeeName || employee.username,
+          employeeName: employee.name || employee.username,
           date: today,
           loginTime: currentTime,
-          logoutTime: null,
+          logoutTime: undefined,
           workingHours: 0,
           status: 'partial',
           createdAt: new Date().toISOString(),
@@ -419,7 +386,7 @@ export class AttendanceService {
           const record: AttendanceRecord = {
             id: attendance._id || attendance.id,
             employeeId: attendance.employeeId,
-            employeeName: employee.name || employee.employeeName || employee.username,
+            employeeName: employee.name || employee.username,
             date: new Date(attendance.date).toISOString().split('T')[0],
             loginTime: new Date(attendance.checkIn).toLocaleTimeString('en-US', {
               hour12: true,
@@ -427,7 +394,7 @@ export class AttendanceService {
               minute: '2-digit',
               second: '2-digit'
             }),
-            logoutTime: null,
+            logoutTime: undefined,
             workingHours: 0,
             status: 'partial',
             createdAt: attendance.date,

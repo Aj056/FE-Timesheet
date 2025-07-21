@@ -9,33 +9,80 @@
   <div *ngIf="employee() as emp; else loading" class="profile-content">
     <div class="profile-card">
       <div class="profile-avatar">
-        {{ (emp.employeeName || emp.name || 'U').charAt(0).toUpperCase() }}
+        {{ getUserInitials() }}
       </div>
       
       <div class="profile-details">
+        <!-- Personal Information -->
+        <div class="section-title">Personal Information</div>
         <div class="detail-row">
           <span class="label">📝 Full Name:</span>
-          <span class="value">{{ emp.employeeName || emp.name || 'N/A' }}</span>
+          <span class="value">{{ emp.name || 'N/A' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">📧 Email:</span>
-          <span class="value">{{ emp.employeeEmail || emp.email || 'N/A' }}</span>
+          <span class="value">{{ emp.email || 'N/A' }}</span>
         </div>
+        <div class="detail-row">
+          <span class="label">📞 Phone:</span>
+          <span class="value">{{ emp.phone || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">🏠 Address:</span>
+          <span class="value">{{ emp.address || 'N/A' }}</span>
+        </div>
+        
+        <!-- Work Information -->
+        <div class="section-title">Work Information</div>
         <div class="detail-row">
           <span class="label">👥 Role:</span>
           <span class="value">{{ emp.role || 'Employee' }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">🔑 Username:</span>
-          <span class="value">{{ emp.username || emp.employeeName || emp.name || 'N/A' }}</span>
+          <span class="label">� Designation:</span>
+          <span class="value">{{ emp.designation || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">🏢 Department:</span>
+          <span class="value">{{ emp.department || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">📍 Work Location:</span>
+          <span class="value">{{ emp.workLocation || 'N/A' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">📅 Joining Date:</span>
-          <span class="value">{{ emp.joiningDate || 'N/A' }}</span>
+          <span class="value">{{ emp.joinDate || emp.joiningDate || 'N/A' }}</span>
+        </div>
+        
+        <!-- Account Information -->
+        <div class="section-title">Account Information</div>
+        <div class="detail-row">
+          <span class="label">🔑 Username:</span>
+          <span class="value">{{ emp.username || emp.name || 'N/A' }}</span>
         </div>
         <div class="detail-row" *ngIf="emp.id">
           <span class="label">🆔 Employee ID:</span>
           <span class="value">{{ emp.id }}</span>
+        </div>
+        
+        <!-- Financial Information -->
+        <div class="section-title">Financial Information</div>
+        <div class="detail-row" *ngIf="emp.bankAccount">
+          <span class="label">🏦 Bank Account:</span>
+          <span class="value">{{ emp.bankAccount }}</span>
+        </div>
+        <div class="detail-row" *ngIf="emp.panNumber">
+          <span class="label">📄 PAN Number:</span>
+          <span class="value">{{ emp.panNumber }}</span>
+        </div>
+        <div class="detail-row" *ngIf="emp.esiNumber">
+          <span class="label">🏥 ESI Number:</span>
+          <span class="value">{{ emp.esiNumber }}</span>
+        </div>
+        <div class="detail-row" *ngIf="emp.uanNumber">
+          <span class="label">📋 UAN Number:</span>
+          <span class="value">{{ emp.uanNumber }}</span>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { Authservice } from '../../../core/services/auth.service';
-import { SecureAuthService } from '../../../core/services/secure-auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,8 +11,7 @@ import { Router } from '@angular/router';
 })
 export class Logoutcomponent {
   constructor(
-    private auth: Authservice, // Keep for backward compatibility
-    private secureAuth: SecureAuthService,
+    private auth: AuthService,
     private router: Router
   ) {}
 
@@ -21,8 +19,8 @@ export class Logoutcomponent {
     console.log('🚪 Logout initiated from shared component');
     
     try {
-      // Clear all authentication data immediately
-      this.clearAllAuthData();
+      // Use AuthService logout method which handles all cleanup
+      this.auth.logout();
       
       console.log('✅ Logout completed successfully');
       

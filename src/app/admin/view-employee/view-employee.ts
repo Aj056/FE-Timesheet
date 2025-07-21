@@ -2,7 +2,8 @@ import { Component ,inject,OnInit, signal, ViewEncapsulation} from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { EmployeeService, Employee } from '../../core/services/employee.service';
+import { EmployeeService } from '../../core/services/employee.service';
+import { Employee } from '../../core/interfaces/common.interfaces';
 @Component({
   selector: 'app-view-employee',
   imports: [CommonModule,RouterModule],

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Authservice } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-redirect',
@@ -18,10 +18,10 @@ import { Authservice } from '../services/auth.service';
   `]
 })
 export class RedirectComponent implements OnInit {
-  constructor(private auth: Authservice, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
-    const role = this.auth.getuserrole();
+    const role = this.auth.getUserRole();
     console.log('🔄 Redirect component - Current role:', role);
     
     if (role === 'admin') {

@@ -497,6 +497,22 @@
     }
   }
 
+  &.sync-card:not(.disabled) {
+    &:hover {
+      border-color: #8b5cf6;
+      background: linear-gradient(135deg, var(--card-surface), rgba(139, 92, 246, 0.05));
+    }
+    
+    &.syncing {
+      background: linear-gradient(135deg, var(--card-surface), rgba(139, 92, 246, 0.1));
+      border-color: #8b5cf6;
+      
+      .action-icon svg {
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+
   .action-icon {
     margin-bottom: var(--spacing-md);
     color: var(--muted-text-color);
@@ -1509,6 +1525,24 @@ button {
 }
 
 // Enhanced Touch Experience - Add haptic feedback attributes to action buttons
+// Already defined above with all action card styles
+
+// Animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Sync button specific icon color
+.sync-card .action-icon {
+  color: #8b5cf6;
+}
+
+// Enhanced Touch Experience
 .action-card {
   // Better touch feedback
   -webkit-tap-highlight-color: transparent;

@@ -4,7 +4,7 @@ import { AdminNav} from '../admin-nav/admin-nav';
 import { RouterOutlet, Router } from '@angular/router';
 import { ToastContainerComponent } from '../../shared/components/toast-container/toast-container.component';
 import { PopupContainerComponent } from '../../shared/components/popup-container/popup-container.component';
-import { Authservice } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
   encapsulation: ViewEncapsulation.None
 })
 export class AdminComponent implements OnInit, OnDestroy {
-  private authService = inject(Authservice);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
   private themeService = inject(ThemeService);
@@ -28,50 +28,45 @@ export class AdminComponent implements OnInit, OnDestroy {
   private themeSubscription?: Subscription;
   
   constructor() {
-    console.log('Admin component initialized');
+    console.log('🏢 Admin Component initialized');
   }
-  
+
   ngOnInit(): void {
-    // Initialize theme using theme service
-    this.isDarkTheme = this.themeService.getCurrentTheme();
-    
     // Subscribe to theme changes
     this.themeSubscription = this.themeService.isDarkTheme$.subscribe(
-      isDark => {
-        this.isDarkTheme = isDark;
-        console.log('Admin component theme changed to:', isDark ? 'dark' : 'light');
-      }
+      isDark => this.isDarkTheme = isDark
     );
+    
+    // Verify admin authentication on init
+    this.verifyAdminAccess();
   }
-  
+
   ngOnDestroy(): void {
-    if (this.themeSubscription) {
-      this.themeSubscription.unsubscribe();
+    this.themeSubscription?.unsubscribe();
+  }
+
+  private verifyAdminAccess(): void {
+    const userRole = this.authService.getUserRole();
+    
+    if (userRole !== 'admin') {
+      console.warn('⚠️ Non-admin user attempting to access admin panel:', userRole);
+      
+      this.toastService.error({
+        title: 'Access Denied',
+        message: 'You do not have permission to access the admin panel',
+        duration: 3000
+      });
+      
+      // Redirect to appropriate dashboard
+      const redirectPath = userRole === 'employee' ? '/employee' : '/auth/login';
+      this.router.navigate([redirectPath], { replaceUrl: true });
     }
   }
-  
+
   /**
-   * Toggle between light and dark theme
+   * Handle mobile logout with user feedback
    */
-  toggleTheme(): void {
-    console.log('🎨 Mobile theme toggle clicked');
-    this.themeService.toggleTheme();
-    
-    // Show toast feedback for mobile users
-    const newTheme = this.themeService.getCurrentTheme() ? 'dark' : 'light';
-    this.toastService.success({
-      title: 'Theme Changed',
-      message: `Switched to ${newTheme} mode`,
-      duration: 2000
-    });
-    
-    console.log(`Mobile theme toggled to: ${newTheme}`);
-  }
-  
-  /**
-   * Handle user logout with mobile feedback
-   */
-  logout(): void {
+  onMobileLogout(): void {
     console.log('🚪 Mobile logout initiated');
     
     try {
@@ -83,58 +78,48 @@ export class AdminComponent implements OnInit, OnDestroy {
       });
       
       // Perform logout
-      this.authService.logout().subscribe({
-        next: (response) => {
-          console.log('✅ Logout successful:', response);
-          
-          // Show success toast
-          this.toastService.success({
-            title: 'Signed Out',
-            message: 'You have been successfully logged out',
-            duration: 2000
-          });
-          
-          // Navigate after a short delay to show the toast
-          setTimeout(() => {
-            this.router.navigate(['/auth/login'], { 
-              replaceUrl: true,
-              queryParams: { message: 'logged_out' }
-            });
-          }, 1000);
-        },
-        error: (error) => {
-          console.error('❌ Logout error:', error);
-          
-          // Show error toast
-          this.toastService.error({
-            title: 'Logout Error',
-            message: 'There was an issue signing out. Redirecting anyway...',
-            duration: 2000
-          });
-          
-          // Force navigation even if service fails
-          setTimeout(() => {
-            this.router.navigate(['/auth/login'], { replaceUrl: true });
-          }, 1000);
-        }
+      this.authService.logout();
+      console.log('✅ Logout successful');
+      
+      // Show success toast
+      this.toastService.success({
+        title: 'Signed Out',
+        message: 'You have been successfully logged out',
+        duration: 2000
       });
-    } catch (error) {
-      console.error('❌ Logout exception:', error);
+      
+      // Navigate after a short delay to show the toast
+      setTimeout(() => {
+        this.router.navigate(['/auth/login'], { 
+          replaceUrl: true,
+          queryParams: { message: 'logged_out' }
+        });
+      }, 1000);
+      
+    } catch (error: any) {
+      console.error('❌ Logout error:', error);
       
       // Show error toast
       this.toastService.error({
         title: 'Logout Error',
-        message: 'Unexpected error occurred. Redirecting...',
+        message: 'There was an issue signing out. Redirecting anyway...',
         duration: 2000
       });
       
-      // Force navigation
+      // Force navigation even if service fails
       setTimeout(() => {
         this.router.navigate(['/auth/login'], { replaceUrl: true });
       }, 1000);
     }
   }
-  
+
+  /**
+   * Handle regular logout (called from template)
+   */
+  logout(): void {
+    this.onMobileLogout();
+  }
+
   /**
    * Handle mobile navigation clicks with feedback
    */
@@ -151,6 +136,20 @@ export class AdminComponent implements OnInit, OnDestroy {
       title: 'Navigating',
       message: `Loading ${label}...`,
       duration: 1000
+    });
+  }
+
+  /**
+   * Toggle theme between light and dark mode
+   */
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    
+    // Show feedback toast
+    this.toastService.info({
+      title: 'Theme Changed',
+      message: `Switched to ${this.isDarkTheme ? 'light' : 'dark'} mode`,
+      duration: 1500
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Authservice } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -28,7 +28,7 @@ export class Logincomponent implements OnInit {
   loginError = signal('');
 
   constructor(
-    private auth: Authservice,
+    private auth: AuthService,
     private router: Router,
     private toast: ToastService,
     private popup: PopupService,
@@ -38,7 +38,7 @@ export class Logincomponent implements OnInit {
   ngOnInit(): void {
     // Check if user is already authenticated
     if (this.auth.isLoggedIN()) {
-      const userRole = this.auth.getuserrole();
+      const userRole = this.auth.getUserRole();
       if (userRole) {
         this.redirectBasedOnRole(userRole);
       }
@@ -108,7 +108,11 @@ export class Logincomponent implements OnInit {
     // Check if account is locked
     if (this.isAccountLocked()) {
       this.validationErrors.set(['Account is temporarily locked due to multiple failed login attempts. Please try again later.']);
-      this.toast.error('Account is temporarily locked due to multiple failed login attempts. Please try again later.');
+      this.toast.error({
+        title: 'Account Locked',
+        message: 'Account is temporarily locked due to multiple failed login attempts. Please try again later.',
+        duration: 5000 // Auto-hide after 5 seconds
+      });
       return;
     }
 
@@ -136,7 +140,7 @@ export class Logincomponent implements OnInit {
     // }, 15000); // 15 seconds timeout
 
     // Perform login
-    this.auth.login(this.username(), this.password()).subscribe({
+    this.auth.login({ username: this.username(), password: this.password() }).subscribe({
       next: (response) => {
         console.log('✅ Login response received:', response);
         this.handleLoginResponse(response);
@@ -208,6 +212,17 @@ export class Logincomponent implements OnInit {
       localStorage.setItem(key, value);
     });
     
+    // Store attendance status from login response
+    const attendanceStatus = userData.attendanceStatus || userData.status; // Check both possible fields
+    if (typeof attendanceStatus === 'boolean') {
+      localStorage.setItem('currentAttendanceStatus', attendanceStatus.toString());
+      console.log('💾 Stored attendance status from manual login:', attendanceStatus);
+    } else {
+      // Default to false if no attendance status in response
+      localStorage.setItem('currentAttendanceStatus', 'false');
+      console.log('💾 No attendance status in manual login response, defaulting to false');
+    }
+    
     console.log('💾 Login data stored manually:', authData);
   }
 
@@ -241,7 +256,7 @@ export class Logincomponent implements OnInit {
   }
 
   private redirectUserByRole(): void {
-    const role = this.auth.getuserrole();
+    const role = this.auth.getUserRole();
     if (role) {
       this.redirectBasedOnRole(role);
     }
@@ -287,7 +302,11 @@ export class Logincomponent implements OnInit {
   private showErrorMessage(errorMessage: string): void {
     this.loginError.set(errorMessage);
     this.validationErrors.set([errorMessage]);
-    this.toast.error(errorMessage);
+    this.toast.error({
+      title: 'Login Failed',
+      message: errorMessage,
+      duration: 4000 // Auto-hide after 4 seconds
+    });
   }
 
   private updateLoginAttempts(): void {
@@ -311,7 +330,11 @@ export class Logincomponent implements OnInit {
     
     const lockMessage = `Account locked for 15 minutes due to ${this.maxLoginAttempts} failed login attempts.`;
     this.validationErrors.set([lockMessage]);
-    this.toast.error('Account locked for 15 minutes due to failed login attempts.');
+    this.toast.error({
+      title: 'Account Locked',
+      message: 'Account locked for 15 minutes due to failed login attempts.',
+      duration: 6000 // Auto-hide after 6 seconds
+    });
     console.log('🔒 Account locked due to too many failed attempts');
   }
 
@@ -398,7 +421,7 @@ export class Logincomponent implements OnInit {
       message: 'Checking server connectivity...'
     });
     
-    this.auth.login(this.username(), this.password()).subscribe({
+    this.auth.login({ username: this.username(), password: this.password() }).subscribe({
       next: (result: any) => {
         this.popup.close('close', undefined, loadingId);
         const message = result.success ? 'Backend connection successful!' : 'Backend reachable but login failed';

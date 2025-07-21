@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, ViewEncapsulation } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PayslipService, PayslipInfo, PayslipRequest } from '../../core/services/payslip.service';
-import { Authservice } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -229,7 +229,7 @@ export class PayslipDownloadComponent implements OnInit {
 
   constructor(
     private payslipService: PayslipService,
-    private authService: Authservice,
+    private authService: AuthService,
     private toastService: ToastService
   ) {
     this.availableYears = this.payslipService.getAvailableYears(3);

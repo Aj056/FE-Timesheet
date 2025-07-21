@@ -75,16 +75,13 @@
     <!-- User Profile Section -->
     <div class="sidebar-user">
       <div class="user-avatar">
-        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
-             alt="User Avatar" 
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-        <div class="avatar-fallback" style="display:none">
-          {{ getCurrentUser()?.name?.charAt(0)?.toUpperCase() || 'U' }}
+        <div class="avatar-initials">
+          {{ getUserInitials() }}
         </div>
       </div>
       <div class="user-info">
         <h4 class="user-name">{{ getCurrentUser()?.name || 'Employee' }}</h4>
-        <p class="user-role">Software Developer</p>
+        <p class="user-role">{{ getCurrentUser()?.department || getCurrentUser()?.designation ||  'Software Developer' }}</p>
       </div>
       <button class="logout-button" (click)="logout()" title="Logout">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

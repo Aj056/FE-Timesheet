@@ -3,7 +3,8 @@ import {Router} from '@angular/router'
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EmployeeService, Employee } from '../../core/services/employee.service';
+import { EmployeeService } from '../../core/services/employee.service';
+import { Employee } from '../../core/interfaces/common.interfaces';
 import { ToastService } from '../../core/services/toast.service';
 import { PopupService } from '../../core/services/popup.service';
 
@@ -77,14 +78,14 @@ export class EmployeesList {
         next: (response: any) => {
           console.log('📊 Employee service response:', response);
           
-          if (response && response.success && Array.isArray(response.employees)) {
-            this.employees.set(response.employees);
+          if (response && response.success && Array.isArray(response.data)) {
+            this.employees.set(response.data);
             this.isLoading.set(false);
-            console.log('Employees fetched successfully!', response.employees);
+            console.log('Employees fetched successfully!', response.data);
             
             this.toastService.success({
               title: 'Employees Loaded Successfully',
-              message: `Found ${response.employees.length} employee${response.employees.length !== 1 ? 's' : ''} in the system.`,
+              message: `Found ${response.data.length} employee${response.data.length !== 1 ? 's' : ''} in the system.`,
               duration: 3000
             });
           } else {
