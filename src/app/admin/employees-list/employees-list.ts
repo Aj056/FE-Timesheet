@@ -7,6 +7,7 @@ import { EmployeeService } from '../../core/services/employee.service';
 import { Employee } from '../../core/interfaces/common.interfaces';
 import { ToastService } from '../../core/services/toast.service';
 import { PopupService } from '../../core/services/popup.service';
+import { filter, map, tap } from 'rxjs';
 
 @Component({
   selector: 'app-employees-list',
@@ -76,7 +77,7 @@ export class EmployeesList {
     this.employeeService.getAllEmployees()
       .subscribe({
         next: (response: any) => {
-          console.log('📊 Employee service response:', response);
+          console.warn('📊 Employee service response:', response);
           
           if (response && response.success && Array.isArray(response.data)) {
             this.employees.set(response.data);

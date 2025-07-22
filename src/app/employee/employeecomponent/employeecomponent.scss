@@ -896,6 +896,12 @@
   .main-header .header-content .header-right .header-date {
     display: none;
   }
+   .metrics-row {
+    grid-template-columns:none;
+  }
+  .dashboard-main{
+    padding: 10px;
+  }
 }
 
 // Animation keyframes

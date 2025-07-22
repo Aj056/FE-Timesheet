@@ -53,17 +53,17 @@ export class EmployeeService {
         console.log('📊 Response keys:', Object.keys(response || {}));
         
         if (response?.data && Array.isArray(response.data)) {
-          const mappedEmployees = response.data.map((emp: any) => this.mapBackendToFrontend(emp));
+          const mappedEmployees = response.data.map((emp: any) => this.mapBackendToFrontend(emp)).filter((emp:any) => emp.role !== 'admin');
           console.log('✅ Mapped employees:', mappedEmployees);
           return {
             success: true,
             data: mappedEmployees,
-            message: `Found ${response.data.length} employees`
+            message: `Found ${mappedEmployees.length} employees`
           };
         } else if (response && Array.isArray(response)) {
           // Handle case where API returns array directly without wrapper
           console.log('📦 Direct array response detected');
-          const mappedEmployees = response.map((emp: any) => this.mapBackendToFrontend(emp));
+          const mappedEmployees = response.map((emp: any) => this.mapBackendToFrontend(emp)).filter((emp)=> emp.role !== 'admin');
           console.log('✅ Mapped employees from direct array:', mappedEmployees);
           return {
             success: true,
@@ -91,7 +91,7 @@ export class EmployeeService {
           message: `Failed to fetch employees: ${error.message || 'Unknown error'}`
         });
       })
-    );
+    );  
   }
 
   /**
