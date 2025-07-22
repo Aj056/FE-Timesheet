@@ -125,15 +125,15 @@
           <thead>
             <tr>
               <th>Employee</th>
-              <th>ID</th>
               <th>Department</th>
               <th>Phone</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th class="actions-column">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row">
+              @if(emp.role !== 'admin') {
               <td class="employee-cell">
                 <div class="employee-info">
                   <div class="employee-avatar">
@@ -145,9 +145,6 @@
                     <div class="employee-designation">{{ emp.designation || emp.role || 'No designation' }}</div>
                   </div>
                 </div>
-              </td>
-              <td class="id-cell">
-                <span class="employee-id">#{{ emp.id }}</span>
               </td>
               <td class="department-cell">
                 <div class="department-info">
@@ -190,6 +187,7 @@
                   </button>
                 </div>
               </td>
+            }
             </tr>
           </tbody>
         </table>

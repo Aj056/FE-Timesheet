@@ -36,7 +36,7 @@
   // For screen viewing in dark theme, use dark colors
   .payslip-document {
     background: var(--admin-card-bg) !important;
-    color: var(--admin-text-primary) !important;
+    // color: var(--admin-text-primary) !important;
     border-color: var(--admin-card-border) !important;
     
     // Override the header for dark theme viewing
@@ -415,13 +415,26 @@
     padding: 20px;
     
     .company-details {
+      .company-logo{
+        width: 50px;
+        height: 50px;
+      }
       .company-name {
         font-size: 18px;
         font-weight: bold;
         margin-bottom: 8px;
         color: #000;
       }
-      
+      .amount-input-net-company{
+        border: none !important;
+      outline: none !important;
+      padding:0.25rem !important;
+      color: black !important;
+      background: none !important;
+      width:60px;
+      font-size: 16px !important;
+      font-weight: bold !important;
+      }
       .company-address {
         font-size: 14px;
         margin-bottom: 10px;
@@ -434,6 +447,20 @@
         margin-top: 10px;
         color: #000;
       }
+    }
+  }
+  .Net-pay-section-header{
+    border: 2px solid #000 !important;
+    padding:0.5rem;
+    color: black !important;
+    text-align: center;
+       
+    .amount-input-net{
+      border: none !important;
+      outline: none !important;
+      padding:0.25rem !important;
+      color: black !important;
+    background: none !important;
     }
   }
 }
@@ -1583,7 +1610,6 @@
       background: #f8f9fa !important;
     }
   }
-  
   .employee-info,
   .company-info,
   .earnings-table,
@@ -1591,8 +1617,21 @@
   .summary-section {
     color: black !important;
   }
+  
 }
-
+ .Net-pay-section-header{
+    border: 2px solid #000 !important;
+    padding:0.5rem;
+    color: black !important;
+    text-align: center;
+    .amount-input-net{
+      border: none !important;
+      outline: none !important;
+      padding:0.5rem !important;
+       color: black !important;
+    background: none !important ;
+    }
+  }
 // PDF Generation specific styling
 .pdf-generation {
   background: #ffffff !important;

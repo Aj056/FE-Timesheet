@@ -1019,8 +1019,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--admin-primary), var(--admin-accent));
-  color: white;
+  background: #78dce16e;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1110,12 +1109,15 @@
     color: #ef4444;
   }
 }
-
+.actions-column{
+  text-align: center !important;
+}
 // Action Buttons
 .action-buttons {
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: center;
 }
 
 // Employee ID

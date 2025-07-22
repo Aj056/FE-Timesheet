@@ -6,44 +6,56 @@
         <h1 class="page-title">
           <div class="title-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
           Generate Payslip
         </h1>
         <p class="page-subtitle">Create and download employee payslip</p>
       </div>
-      
+
       <div class="header-actions">
         <button class="admin-btn btn-secondary" (click)="goBack()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           Back to Employee
         </button>
         <button class="admin-btn btn-warning" (click)="resetForm()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           Reset
         </button>
         <button class="admin-btn btn-info" (click)="previewPayslip()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           Preview
         </button>
         <button class="admin-btn btn-success" (click)="downloadPayslip()" [disabled]="isLoading() || !employee()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           {{ isLoading() ? 'Generating PDF...' : 'Download PDF' }}
         </button>
@@ -70,9 +82,11 @@
     <!-- Company Header -->
     <div class="payslip-header">
       <div class="company-details">
+        <img src="../../../assets/images/wilwarelogo.png" alt="Company Logo" class="company-logo">
         <h1 class="company-name">WillWare Technologies Pvt Ltd</h1>
         <p class="company-address">No.105, 7th Block, Koramangala, Bangalore-560095</p>
-        <p class="payslip-title-text">Payslip for {{ payslipData.month }} {{ payslipData.year }}</p>
+        <p class="payslip-title-text">Payslip for <input type="text" [(ngModel)]="payslipData.month" class="amount-input-net-company"><input type="text" [(ngModel)]="payslipData.year" class="amount-input-net-company"></p>
+
       </div>
     </div>
 
@@ -91,7 +105,7 @@
             <input type="text" [(ngModel)]="payslipData.workLocation" class="info-input">
           </div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>Employee ID</label>
@@ -104,7 +118,7 @@
             <input type="number" [(ngModel)]="payslipData.lopDays" class="info-input" step="0.01">
           </div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>Designation</label>
@@ -117,7 +131,7 @@
             <input type="number" [(ngModel)]="payslipData.workedDays" class="info-input">
           </div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>Department</label>
@@ -130,7 +144,7 @@
             <input type="text" [(ngModel)]="payslipData.bankAccount" class="info-input">
           </div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>Date of Joining</label>
@@ -143,7 +157,7 @@
             <input type="text" [(ngModel)]="payslipData.uanNumber" class="info-input">
           </div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>ESI Number</label>
@@ -152,7 +166,7 @@
           </div>
           <div class="info-cell"></div>
         </div>
-        
+
         <div class="info-row">
           <div class="info-cell">
             <label>PAN</label>
@@ -170,12 +184,16 @@
         <div class="salary-header">
           <div class="earnings-header">
             <strong>Salary Payable</strong>
+            @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
             <span class="amount-header">Amount</span>
+            }
           </div>
+          @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
           <div class="deductions-header">
             <strong>Deductions</strong>
             <span class="amount-header">Amount</span>
           </div>
+          }
         </div>
 
         <div class="salary-content">
@@ -201,11 +219,14 @@
               <span>:</span>
               <input type="text" [(ngModel)]="payslipData.incentive" class="amount-input" placeholder="N/A">
             </div>
+            @if(payslipData.resourceType !== 'Payment Confirmation - Individual GST Consultant' &&
+            payslipData.resourceType !== 'Pay-slip-INTERN'){
             <div class="salary-row">
               <label>PF</label>
               <span>:</span>
               <input type="text" [(ngModel)]="payslipData.pf" class="amount-input" placeholder="N/A">
             </div>
+            }
             <div class="salary-row total-row">
               <strong>Total Earnings</strong>
               <span>:</span>
@@ -215,6 +236,8 @@
 
           <!-- Deductions -->
           <div class="deductions-section">
+            @if(payslipData.resourceType !== 'Payment Confirmation - Individual GST Consultant' &&
+            payslipData.resourceType !== 'Pay-slip-INTERN'){
             <div class="salary-row">
               <label>PF</label>
               <span>:</span>
@@ -225,6 +248,8 @@
               <span>:</span>
               <input type="text" [(ngModel)]="payslipData.esi" class="amount-input" placeholder="N/A">
             </div>
+            }
+            @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
             <div class="salary-row">
               <label>TDS</label>
               <span>:</span>
@@ -239,17 +264,33 @@
             <div class="salary-row total-row">
               <strong>Total Deductions</strong>
               <span>:</span>
-              <strong class="total-amount">{{ totalDeductions === 0 ? 'N/A' : (totalDeductions | number:'1.0-0') }}</strong>
+              <strong class="total-amount">{{ totalDeductions === 0 ? 'N/A' : (totalDeductions | number:'1.0-0')
+                }}</strong>
             </div>
+            }
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Empty Section (matching original format) -->
-    <div class="empty-section">
-      <div class="empty-row">
+    <!-- Net Pay Section -->
+
+
+    <div class="Net-pay-section-header">
+      <div class="Net-pay-section salary-row form-row">
+        <strong>Net Pay</strong>
         <span>:</span>
+        <input type="text" [(ngModel)]="netSalary" class="amount-input-net" placeholder="N/A">
+      </div>
+      <div class="Net-pay-section salary-row form-row">
+        <strong>Amount in words</strong>
+        <span>:</span>
+        <input type="text" class="amount-input-net" placeholder="N/A" value='twelve thousand only'>
+      </div>
+      <div class="Net-pay-section salary-row form-row">
+        <strong>Mode of Payment</strong>
+        <span>:</span>
+        <input type="text" class="amount-input-net" placeholder="N/A" value='Bank Transfer'>
       </div>
     </div>
 

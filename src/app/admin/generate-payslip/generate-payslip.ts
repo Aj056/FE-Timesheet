@@ -33,6 +33,7 @@ interface PayslipData {
   esi: number;
   tds: number;
   staffAdvance: number;
+  resourceType: string;
 }
 
 @Component({
@@ -82,7 +83,8 @@ export class GeneratePayslipComponent implements OnInit {
     pf: 0,
     esi: 0,
     tds: 0,
-    staffAdvance: 0
+    staffAdvance: 0,
+    resourceType: 'payslip'
   };
 
   ngOnInit(): void {
@@ -118,7 +120,8 @@ export class GeneratePayslipComponent implements OnInit {
           this.payslipData.department = employee.department || 'Software Development';
           this.payslipData.designation = employee.designation || employee.role || 'Software Developer';
           this.payslipData.workLocation = employee.workLocation || 'Bangalore';
-          
+          this.payslipData.resourceType = employee.resourceType || 'payslip';
+          console.log('Resource Type:', this.payslipData.resourceType);
           // Format joining date from employee data
           if (employee.joiningDate) {
             const joiningDate = new Date(employee.joiningDate);
@@ -464,7 +467,8 @@ export class GeneratePayslipComponent implements OnInit {
         pf: 0,
         esi: 0,
         tds: 0,
-        staffAdvance: 0
+        staffAdvance: 0,
+        resourceType: 'payslip'
       };
     } else {
       // Reset to defaults if no employee data
@@ -491,7 +495,8 @@ export class GeneratePayslipComponent implements OnInit {
         pf: 0,
         esi: 0,
         tds: 0,
-        staffAdvance: 0
+        staffAdvance: 0,
+        resourceType: 'payslip'
       };
     }
   }
