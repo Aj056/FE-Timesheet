@@ -47,7 +47,7 @@ private readonly baseUrl = environment.apiUrl;
       resourceType: ['Pay Slip', Validators.required],
       address: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      status: [true, Validators.required]
+      status: ['', Validators.required]
     });
 
   }
@@ -83,7 +83,7 @@ private readonly baseUrl = environment.apiUrl;
             resourceType: emp.resourceType || 'Pay Slip',
             address: emp.address || '',
             phone: emp.phone || '',
-            status: emp.status ?? true
+            status: emp.status ?? false
           };
           
           this.employeeForm.patchValue(formData);

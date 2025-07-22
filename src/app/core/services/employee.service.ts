@@ -249,7 +249,7 @@ export class EmployeeService {
       resourceType: backendEmp.resourceType,
       address: backendEmp.address,
       phone: backendEmp.phone,
-      status: backendEmp.status ?? true,
+      status: backendEmp.status ?? false,
       createdAt: backendEmp.createdAt,
       updatedAt: backendEmp.updatedAt
     };
