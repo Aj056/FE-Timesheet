@@ -276,7 +276,7 @@ export class EmployeeService {
       resourceType: frontendEmp.resourceType,
       address: frontendEmp.address,
       phone: frontendEmp.phone,
-      status: frontendEmp.status ?? true
+      status: frontendEmp.status ?? false
     };
   }
 }
