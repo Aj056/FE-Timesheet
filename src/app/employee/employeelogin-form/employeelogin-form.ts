@@ -372,18 +372,13 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     return session?.loginTime != null && !session?.logoutTime;
   }
 
-  canLogout(): boolean {
+canLogout(): boolean {
     if (!this.currentEmployee()?.status) return false;
     const session = this.currentEmployee();
     const checkInTime = session?.timelog?.length ? session?.timelog[0]?.checkin : '';
     if (!checkInTime) return false;
-    // Use the actual check-in datetime for accurate calculation
-    const loginTime = new Date(checkInTime);
-    const now = new Date();
-    const timeDiff = now.getTime() - loginTime.getTime();
-    const thirtySeconds = 30 * 1000; // 30 seconds in milliseconds
 
-    return timeDiff >= thirtySeconds;
+    return (checkInTime&& this.currentEmployee()?.status) ? true : false;
   }
 
   getTimeUntilLogout(): string {
