@@ -26,6 +26,7 @@ export interface Employee {
   status: boolean;
   createdAt?: string;
   updatedAt?: string;
+  timelog?:any[]
 }
 
 // Authentication related interfaces

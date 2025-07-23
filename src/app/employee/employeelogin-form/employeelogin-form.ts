@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, ViewEncapsulation, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
@@ -7,16 +7,21 @@ import { ToastService } from '../../core/services/toast.service';
 import { PopupService } from '../../core/services/popup.service';
 import { IpCheckService } from '../../core/services/ip-check.service';
 import { Employee, AttendanceSession, Quote, OfficeNetworkStatus } from '../../core/interfaces/common.interfaces';
+import { EmployeeDataService } from '../../core/services/checkin-Employee/get-employee.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormatTimePipe } from '../../core/pipes/timeFormat.pipe';
 
 @Component({
   selector: 'app-employeelogin-form',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormatTimePipe],
   templateUrl: './employeelogin-form.html',
   styleUrls: ['./employeelogin-form-clean.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class EmployeeloginFormComponent implements OnInit, OnDestroy {
+  private service = inject(EmployeeDataService);
+  private destroyRef = inject(DestroyRef);
   // Core data - using signals for zoneless
   currentEmployee = signal<Employee | null>(null);
   currentSession = signal<AttendanceSession | null>(null);
@@ -31,14 +36,14 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   currentQuote = signal<Quote | null>(null);
   isQuoteLoading = signal(false);
   lastSyncTime = signal<string | null>(null);
-  
+
   // Cached countdown to prevent NG0100 error
   private cachedTimeUntilLogout = signal<string>('');
 
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private toastService: ToastService,
     private popupService: PopupService,
@@ -60,64 +65,32 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   // Employee Management
   private loadEmployee(): void {
     // Check for individual auth data in localStorage (correct format)
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-    const token = localStorage.getItem('token');
-    
-    if (userId && userName && token) {
-      // Set employee data from individual localStorage items
-      this.currentEmployee.set({
-        id: userId,
-        name: userName,
-        email: userEmail || '',
-        username: userEmail || userName,
-        role: localStorage.getItem('role') || 'employee',
-        status: true
-      });
-      
-      console.log('✅ Authentication successful - User loaded:', {
-        id: userId,
-        name: userName,
-        email: userEmail
-      });
-      
-      // Load attendance status from /allemp API data stored during login
-      this.loadStoredAttendanceStatus();
-    } else {
-      // Missing auth data, set default and show login message
-      this.currentEmployee.set({
-        id: 'guest',
-        name: 'Guest User',
-        email: '',
-        username: 'guest',
-        role: 'guest',
-        status: false
-      });
-      
-      console.log('❌ Authentication failed - Missing data:', {
-        userId: !!userId,
-        userName: !!userName,
-        token: !!token
-      });
-      
-      // Show message that user needs to login
-      this.toastService.warning({
-        title: 'Authentication Required',
-        message: 'Please login to access the timesheet system.',
-        duration: 5000
-      });
-    }
+    const userId: string = localStorage.getItem('userId') ?? '';
+    this.service.getEmployeeDetailWithID(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res: any) => {
+        this.currentEmployee.set({
+          id: userId,
+          name: res.employeeName,
+          email: res.employeeEmail || '',
+          username: res.employeeEmail || res.employeeName,
+          role: res.role,
+          status: res.status,
+          timelog: res.timelog
+        });
+        this.loadStoredAttendanceStatus(res);
+      })
+
   }
 
-  private loadStoredAttendanceStatus(): void {
-    const storedStatus = localStorage.getItem('currentAttendanceStatus');
-    const userEmployeeData = localStorage.getItem('currentUserEmployeeData');
-    
+  private loadStoredAttendanceStatus(empData: any): void {
+    const storedStatus = empData?.status;
+    const userEmployeeData = empData;
+
     if (storedStatus !== null) {
       const isCheckedIn = storedStatus === 'true';
       console.log('📊 Loaded attendance status from /allemp API:', isCheckedIn);
-      
+
       // Log user details if available
       if (userEmployeeData) {
         try {
@@ -132,28 +105,28 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           console.log('⚠️ Could not parse user employee data');
         }
       }
-      
+
       if (isCheckedIn) {
         // User is currently checked in according to /allemp API - restore session
         console.log('✅ User is already checked in according to /allemp - syncing session');
-        
+
         // Create/restore local session to match stored status
         const today = new Date().toDateString();
         const existingSession = localStorage.getItem(`session_${today}`);
-        
+
         if (!existingSession) {
           // Restore session - use current time as estimate since we don't have exact check-in time
           const estimatedLoginTime = new Date().toLocaleTimeString('en-US', {
             hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
           });
-          
+
           this.currentSession.set({
             loginTime: estimatedLoginTime,
             date: today,
             checkinDateTime: new Date().toISOString() // Use current time as estimate
           });
           this.saveSession();
-          
+
           this.toastService.info({
             title: 'Session Restored',
             message: 'Your attendance status has been synchronized from the server.',
@@ -163,7 +136,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       } else {
         // User is not checked in according to /allemp status
         console.log('ℹ️ User is not checked in according to /allemp - ready for check-in');
-        
+
         // Clear any stale local session that doesn't match stored status
         const today = new Date().toDateString();
         const existingSession = localStorage.getItem(`session_${today}`);
@@ -174,7 +147,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
             console.log('⚠️ Local session mismatch with /allemp status - clearing stale session');
             this.currentSession.set(null);
             localStorage.removeItem(`session_${today}`);
-            
+
             this.toastService.warning({
               title: 'Session Synchronized',
               message: 'Your session has been synchronized with the server status.',
@@ -194,7 +167,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   refreshSessionFromBackend(): void {
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
-    
+
     if (userId && token) {
       this.isSyncing.set(true);
       this.toastService.info('Syncing with server...');
@@ -208,7 +181,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   // Fetch current user status from /allemp API (for manual refresh)
   private fetchAndUpdateAttendanceStatus(userId: string, token: string): void {
     console.log('🔄 Manual refresh: Fetching status from /allemp for user:', userId);
-    
+
     this.http.get<any>('https://attendance-three-lemon.vercel.app/allemp', {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe({
@@ -217,19 +190,19 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
         this.lastSyncTime.set(new Date().toLocaleTimeString('en-US', {
           hour12: true, hour: '2-digit', minute: '2-digit'
         }));
-        
+
         console.log('📊 /allemp response (manual refresh):', response);
-        
+
         if (response.data && Array.isArray(response.data)) {
           const currentUser = response.data.find((emp: any) => emp._id === userId);
-          
+
           if (currentUser) {
             const previousStatus = localStorage.getItem('currentAttendanceStatus');
             const newStatus = currentUser.status.toString();
-            
+
             localStorage.setItem('currentAttendanceStatus', newStatus);
             localStorage.setItem('currentUserEmployeeData', JSON.stringify(currentUser));
-            
+
             console.log('✅ Status refreshed from /allemp:', {
               userId: userId,
               username: currentUser.username,
@@ -242,12 +215,12 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
               // User is currently checked in - restore session
               const today = new Date().toDateString();
               const existingSession = localStorage.getItem(`session_${today}`);
-              
+
               if (!existingSession) {
                 const estimatedLoginTime = new Date().toLocaleTimeString('en-US', {
                   hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
                 });
-                
+
                 this.currentSession.set({
                   loginTime: estimatedLoginTime,
                   date: today,
@@ -303,75 +276,6 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  private verifyAndRefreshEmployeeData(token: string): void {
-    // Make a request to verify token and get fresh user data
-    this.http.get<any>('https://attendance-three-lemon.vercel.app/all', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).subscribe({
-      next: (response) => {
-        // Token is valid, you could fetch more detailed user data here if needed
-        console.log('✅ Token verified successfully');
-      },
-      error: (error) => {
-        // Token is invalid or expired
-        console.warn('⚠️ Token verification failed:', error);
-        this.handleInvalidToken();
-      }
-    });
-  }
-
-  private handleInvalidToken(): void {
-    // Clear all auth-related localStorage items
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('role');
-    
-    // Set guest user
-    this.currentEmployee.set({
-      id: 'guest',
-      name: 'Guest User',
-      email: '',
-      username: 'guest',
-      role: 'guest',
-      status: false
-    });
-    
-    // Show login required message
-    this.toastService.error({
-      title: 'Session Expired',
-      message: 'Your session has expired. Please login again.',
-      duration: 5000
-    });
-  }
-
-  // Utility Methods
-  private formatDateToDDMMYYYY(date: Date): string {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  }
-
-  private calculateTotalHours(checkinTime: string, checkoutTime: string): string {
-    try {
-      const checkin = new Date(`${new Date().toDateString()} ${checkinTime}`);
-      const checkout = new Date(`${new Date().toDateString()} ${checkoutTime}`);
-      
-      const diffMs = checkout.getTime() - checkin.getTime();
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      
-      return `${hours}:${minutes.toString().padStart(2, '0')}`;
-    } catch (error) {
-      console.error('Error calculating total hours:', error);
-      return "0:00";
-    }
-  }
-
   // Session Management
   private loadSession(): void {
     const today = new Date().toDateString();
@@ -412,7 +316,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       month: 'long',
       day: 'numeric'
     }));
-    
+
     // Update cached countdown to prevent NG0100 error
     this.cachedTimeUntilLogout.set(this.calculateTimeUntilLogout());
   }
@@ -425,7 +329,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges(); // Use detectChanges instead of markForCheck to prevent NG0100
     });
     this.subscriptions.push(networkSub);
-    
+
     // Get initial network status
     this.ipCheckService.forceRefresh().subscribe();
   }
@@ -469,12 +373,12 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   }
 
   canLogout(): boolean {
-    if (!this.isLoggedIn()) return false;
-    const session = this.currentSession();
-    if (!session?.checkinDateTime) return false;
-
+    if (!this.currentEmployee()?.status) return false;
+    const session = this.currentEmployee();
+    const checkInTime = session?.timelog?.length ? session?.timelog[0]?.checkin : '';
+    if (!checkInTime) return false;
     // Use the actual check-in datetime for accurate calculation
-    const loginTime = new Date(session.checkinDateTime);
+    const loginTime = new Date(checkInTime);
     const now = new Date();
     const timeDiff = now.getTime() - loginTime.getTime();
     const thirtySeconds = 30 * 1000; // 30 seconds in milliseconds
@@ -517,22 +421,22 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   canCheckInToday(): boolean {
     const session = this.currentSession();
     if (!session) return true; // No session today, can check in
-    
+
     // If there's a session but no logout, user is still checked in
     if (session.loginTime && !session.logoutTime) {
       return false; // Already checked in
     }
-    
+
     // If user has completed a session (both login and logout), check 1-hour restriction
     if (session.loginTime && session.logoutTime && session.checkoutDateTime) {
       const checkoutTime = new Date(session.checkoutDateTime);
       const now = new Date();
       const timeDiff = now.getTime() - checkoutTime.getTime();
       const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-      
+
       return timeDiff >= oneHour; // Can check in only after 1 hour
     }
-    
+
     // If session exists but no checkout datetime, allow check-in (legacy sessions)
     return session.loginTime != null && session.logoutTime != null;
   }
@@ -541,18 +445,18 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   getTimeUntilNextCheckIn(): string {
     const session = this.currentSession();
     if (!session?.checkoutDateTime) return '';
-    
+
     const checkoutTime = new Date(session.checkoutDateTime);
     const now = new Date();
     const timeDiff = now.getTime() - checkoutTime.getTime();
     const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
     const remaining = oneHour - timeDiff;
-    
+
     if (remaining <= 0) return '';
-    
+
     const minutes = Math.floor(remaining / (1000 * 60));
     const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-    
+
     if (minutes > 0) {
       return `${minutes}m ${seconds}s`;
     } else {
@@ -605,7 +509,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     // Check authentication before proceeding
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
-    
+
     if (!userId || !token) {
       this.toastService.error({
         title: 'Authentication Error',
@@ -676,43 +580,23 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   //send data to backend
   private sendCheckinData(serverTime: any, isFallback = false): void {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const token = localStorage.getItem('token');
-
-    if (!userId || !userName || !token) return;
-
-    // Format date as dd.MM.yyyy (e.g., "21.07.2025")
-    const currentDate = this.formatDateToDDMMYYYY(new Date());
-
-    const payload = {
-      id: userId,
-      employeeName: userName,
-      status: true,
-      checkin: serverTime.dateTime, // Send full dateTime for check-in
-      checkout: null, // Checkout should be null during check-in
-      totalhours: "0:00" // Will be calculated on checkout
-    };
-
-    console.log('📤 Check-in payload:', payload);
-
-    this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).pipe(
+    const date = new Date();
+     let payload = { id: this.currentEmployee()?.id || '', checkin: `${date.getHours()}:${date.getMinutes()}`};
+    this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload).pipe(
+      takeUntilDestroyed(this.destroyRef),
       timeout(10000) // 10 second timeout to prevent getting stuck
     ).subscribe({
       next: (response: any) => {
-        console.log('✅ Check-in response:', response);
-        
+        this.loadEmployee();
         // Check if response is successful
         if (response && (response.msg || response.message)) {
           const loginTime = new Date().toLocaleTimeString('en-US', {
             hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
           });
-          
+
           // Store the attendance record ID from check-in response for checkout
           const attendanceId = response?.data?._id || response?._id;
-          
+
           this.currentSession.set({
             loginTime: loginTime,
             date: new Date().toDateString(),
@@ -748,10 +632,10 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private handleCheckInError(error: any, serverTime: any, isFallback: boolean): void {
     this.isLoggingIn.set(false);
-    
+
     // Check if it's a server error (500, 502, 503, etc.) that might be temporary
     const isServerError = error.status >= 500 || error.status === 0 || !error.status;
-    
+
     if (isServerError) {
       // Server error - suggest retry after 5-10 minutes
       this.toastService.error({
@@ -760,7 +644,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
         duration: 8000,
         persistent: true
       });
-      
+
       console.log('🔄 Server error detected, user should retry in 5-10 minutes');
     } else {
       // Client error or other issues - use fallback
@@ -773,7 +657,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     const loginTime = new Date().toLocaleTimeString('en-US', {
       hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    
+
     // Save session locally even if backend fails
     // Note: No attendanceId available in fallback mode, checkout will need to handle this
     this.currentSession.set({
@@ -802,7 +686,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     }
 
     // Check if user is logged in
-    if (!this.isLoggedIn()) {
+    if (!this.currentEmployee()?.status) {
       this.toastService.warning('You are not currently checked in.');
       return;
     }
@@ -856,114 +740,50 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   private proceedWithLogout(): void {
     this.isLoggingOut.set(true);
     this.cdr.detectChanges();
-
+    let payload = { id: this.currentEmployee()?.id || '', checkout: '' }
     // Get server time for accurate logout timestamp
-    this.http.get<any>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata').subscribe({
-      next: (response) => {
-        console.log('🕒 Server time received for checkout:', response);
-        this.sendCheckoutData(response);
-      },
-      error: () => {
-        // Fallback to local time if server time API fails
-        const localTime = {
-          dateTime: new Date().toISOString(),
-          date: new Date().toLocaleDateString('en-US'),
-          time: new Date().toLocaleTimeString('en-US', { hour12: false })
-        };
-        this.sendCheckoutData(localTime);
-      }
-    });
+    this.http.get<any>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          payload.checkout = `${response.hour}:${response.minute}`;
+          this.sendCheckoutData(payload);
+
+        },
+        error: () => {
+          // Fallback to local time if server time API fails
+          const date = new Date();
+          payload.checkout = `${date.getHours()}:${date.getMinutes()}`;
+          this.sendCheckoutData(payload);
+        }
+      });
   }
 
-  private sendCheckoutData(serverTime: any, isFallback = false): void {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const token = localStorage.getItem('token');
-    const currentSession = this.currentSession();
-
-    if (!userId || !userName || !token || !currentSession?.loginTime) {
-      this.isLoggingOut.set(false);
-      return;
-    }
-
-    // Get the attendance ID from the current session (stored during check-in)
-    const attendanceId = currentSession.attendanceId;
-    
-    if (!attendanceId) {
-      console.error('❌ No attendance ID found for checkout');
-      this.toastService.error({
-        title: 'Checkout Error',
-        message: 'Unable to find check-in record. Please check in again.',
-        duration: 4000
-      });
-      this.isLoggingOut.set(false);
-      return;
-    }
-
-    // Get the stored check-in datetime from current session
-    const checkinDateTime = currentSession.checkinDateTime;
-
-    // Calculate total working hours (you can still calculate locally for display)
-    const checkoutTimeDisplay = new Date().toLocaleTimeString('en-US', {
-      hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
-    });
-    const totalHours = this.calculateTotalHours(currentSession.loginTime, checkoutTimeDisplay);
-
-    const payload = {
-      id: userId,
-      employeeName: userName,
-      status: false, // false for checkout
-      checkin: checkinDateTime, // Send existing check-in datetime
-      checkout: serverTime.dateTime, // Send full dateTime for check-out
-      totalhours: totalHours
-    };
-
-    console.log('📤 Check-out payload:', payload);
-    console.log('📤 Using attendance ID for checkout:', attendanceId);
+  private sendCheckoutData(payload: any, isFallback = false): void {
 
     // Use the attendance ID from check-in response for checkout endpoint
-    this.http.put(`https://attendance-three-lemon.vercel.app/checkout/${attendanceId}`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).pipe(
+    this.http.post(`https://attendance-three-lemon.vercel.app/checkout`, payload,).pipe(
+      takeUntilDestroyed(this.destroyRef),
       timeout(10000) // 10 second timeout to prevent getting stuck
     ).subscribe({
       next: (response) => {
-        console.log('✅ Check-out response:', response);
-        
+        this.loadEmployee();
         // Update local session with checkout datetime for 1-hour restriction
-        this.currentSession.set({
-          ...currentSession,
-          logoutTime: checkoutTimeDisplay,
-          checkoutDateTime: serverTime.dateTime // Store actual checkout datetime
-        });
+        this.currentSession.set(response as AttendanceSession);
         this.saveSession();
         this.isLoggingOut.set(false);
         this.cdr.detectChanges();
-        
-        const workingHours = this.getWorkingHours();
-        
-        if (isFallback) {
-          this.toastService.success({
-            title: 'Check-out Successful',
-            message: `You've checked out at ${checkoutTimeDisplay} (local time). Total working time: ${workingHours}. Great job today! Next check-in will be available after 1 hour.`,
-            duration: 5000
-          });
-        } else {
-          this.toastService.checkOutSuccess(checkoutTimeDisplay, workingHours);
-        }
 
-        console.log('✅ Check-out successful at:', checkoutTimeDisplay);
       },
       error: (err) => {
         console.error('❌ Backend check-out failed:', err);
-        this.handleCheckOutError(err, attendanceId, checkoutTimeDisplay, isFallback);
       }
     });
   }
 
   private handleCheckOutError(error: any, attendanceId: string | undefined, checkoutTimeDisplay: string, isFallback: boolean): void {
     this.isLoggingOut.set(false);
-    
+
     // Check if this is due to missing attendance ID
     if (!attendanceId) {
       this.toastService.error({
@@ -973,10 +793,10 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       });
       return;
     }
-    
+
     // Check if it's a server error (500, 502, 503, etc.) that might be temporary
     const isServerError = error.status >= 500 || error.status === 0 || !error.status;
-    
+
     if (isServerError) {
       // Server error - suggest retry after 5-10 minutes
       this.toastService.error({
@@ -985,7 +805,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
         duration: 8000,
         persistent: true
       });
-      
+
       console.log('🔄 Server error detected, user should retry checkout in 5-10 minutes');
     } else {
       // Client error or other issues - use fallback
@@ -996,7 +816,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private handleCheckOutFallback(checkoutTime: string, isFallback: boolean): void {
     const currentSession = this.currentSession();
-    
+
     if (currentSession) {
       // Save session locally even if backend fails
       this.currentSession.set({
@@ -1006,9 +826,9 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       });
       this.saveSession();
       this.cdr.detectChanges();
-      
+
       const workingHours = this.getWorkingHours();
-      
+
       // Show appropriate toast message
       this.toastService.warning({
         title: 'Check-out Completed (Offline Mode)',
@@ -1024,15 +844,15 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   testToastNotifications(): void {
     // Test different types of toasts
     this.toastService.success('This is a success message!');
-    
+
     setTimeout(() => {
       this.toastService.warning('This is a warning message!');
     }, 1000);
-    
+
     setTimeout(() => {
       this.toastService.info('This is an info message with actions!');
     }, 2000);
-    
+
     setTimeout(() => {
       this.toastService.error({
         title: 'Error with Actions',
@@ -1114,13 +934,13 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   isCheckInAvailable(): boolean {
     // Disable if already logged in
     if (this.isLoggedIn()) return false;
-    
+
     // Disable if can't check in today due to restrictions
     if (!this.canCheckInToday()) return false;
-    
+
     // Disable if currently processing login
     if (this.isLoggingIn()) return false;
-    
+
     return true;
   }
 
@@ -1128,13 +948,13 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   isCheckOutAvailable(): boolean {
     // Must be logged in
     if (!this.isLoggedIn()) return false;
-    
+
     // Must meet minimum time requirement
     if (!this.canLogout()) return false;
-    
+
     // Must not be currently processing logout
     if (this.isLoggingOut()) return false;
-    
+
     return true;
   }
 
@@ -1304,7 +1124,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   private fallbackShareQuote(quote: Quote): void {
     const text = `"${quote.content}" - ${quote.author}`;
-    
+
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         this.toastService.success({

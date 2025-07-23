@@ -1,3 +1,4 @@
+@let isUserActive = currentEmployee()?.status;
 <!-- Modern Professional Attendance Dashboard -->
 <div class="attendance-dashboard">
   <!-- Welcome Header -->
@@ -135,9 +136,9 @@
       <div class="action-grid">
         <button 
           class="action-card checkin-card"
-          [class.active]="isLoggedIn()"
-          [class.disabled]="isLoggedIn() || isLoggingIn() || !isOfficeNetworkConnected()"
-          [disabled]="isLoggedIn() || isLoggingIn() || !isOfficeNetworkConnected()"
+          [class.active]="isUserActive"
+          [class.disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected()"
+          [disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected()"
           (click)="employee_login()">
           <div class="action-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
@@ -147,11 +148,11 @@
           </div>
           <div class="action-content">
             <h3 class="action-title">
-              {{ isLoggingIn() ? 'Checking In...' : (isLoggedIn() ? 'Checked In' : 'Check In') }}
+              {{ isLoggingIn() ? 'Checking In...' : (currentEmployee()?.status  ? 'Checked In' : 'Check In') }}
             </h3>
-            <p class="action-description">{{ isLoggedIn() ? 'Already clocked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}</p>
-            <div class="action-time" *ngIf="isLoggedIn() && lastLoginTime()">
-              Started at {{ lastLoginTime() }}
+            <p class="action-description">{{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}</p>
+            <div class="action-time" *ngIf="isUserActive && currentEmployee()?.timelog?.length">
+              Started at {{  currentEmployee()?.timelog|formatTime:'checkin' }}
             </div>
           </div>
           <div class="action-status" *ngIf="isLoggedIn()">
@@ -163,7 +164,7 @@
 
         <button 
           class="action-card checkout-card"
-          [class.active]="canLogout()"
+          [class.active]="isUserActive && canLogout()"
           [class.disabled]="!canLogout() || isLoggingOut() || !isOfficeNetworkConnected()"
           [disabled]="!canLogout() || isLoggingOut() || !isOfficeNetworkConnected()"
           (click)="employee_logout()">
@@ -184,7 +185,7 @@
             <div class="action-time" *ngIf="canLogout()">
               Ready to clock out
             </div>
-            <div class="action-time restriction-notice" *ngIf="isLoggedIn() && !canLogout() && getTimeUntilLogoutAvailable()">
+            <div class="action-time restriction-notice" *ngIf="isUserActive && !canLogout() && getTimeUntilLogoutAvailable()">
               <span class="restriction-text">⏳ Wait {{ getTimeUntilLogoutAvailable() }} (30 min minimum)</span>
             </div>
           </div>
