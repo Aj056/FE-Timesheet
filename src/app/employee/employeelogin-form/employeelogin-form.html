@@ -156,7 +156,7 @@
             </h3>
             <p class="action-description">
               @if(isCheckedOut){
-                You have Already Checked Out today at {{ (currentEmployee()?.timelog | formatTime:'checkout')  || '--:--' }}
+                You have Already Checked Out today at {{ (currentEmployee()?.timelog | formatTime:'checkout') }}
               }@else {
                {{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}
               }
