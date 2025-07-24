@@ -1,5 +1,7 @@
-@let isUserActive = currentEmployee()?.status;
-@let isCheckedIn = currentEmployee()?.timelog?.length && currentEmployee()?.timelog?.[0]?.checkin !== '';
+@let isUserActive = currentEmployee()?.status ? true : false;
+@let isCheckedIn = currentEmployee()?.timelog ? (currentEmployee()?.timelog?.length && currentEmployee()?.timelog?.[0]?.checkin !== '' ): false;
+@let isCheckedOut = currentEmployee()?.timelog ? (currentEmployee()?.timelog?.length && currentEmployee()?.timelog?.[0]?.checkout !== '' ): false;
+@let disableCheckIn = ((isUserActive && !isOfficeNetworkConnected()) || isCheckedIn) || !isApiLoaded();
 <!-- Modern Professional Attendance Dashboard -->
 <div class="attendance-dashboard">
   <!-- Welcome Header -->
@@ -138,8 +140,8 @@
         <button 
           class="action-card checkin-card"
           [class.active]="isUserActive"
-          [class.disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected() || isCheckedIn"
-          [disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected() || isCheckedIn"
+          [class.disabled]="disableCheckIn"
+          [disabled]="disableCheckIn "
           (click)="employee_login()">
           <div class="action-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
@@ -151,7 +153,13 @@
             <h3 class="action-title">
               {{ isLoggingIn() ? 'Checking In...' : (currentEmployee()?.status  ? 'Checked In' : 'Check In') }}
             </h3>
-            <p class="action-description">{{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}</p>
+            <p class="action-description">
+              @if(isCheckedOut){
+                {{`You have Already Checked Out today at ${currentEmployee()?.timelog?.[0]?.checkout || '--:--'}`}}
+              }@else {
+               {{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}
+              }
+              </p>
             <div class="action-time" *ngIf="isUserActive && currentEmployee()?.timelog?.length">
               Started at {{  currentEmployee()?.timelog|formatTime:'checkin' }}
             </div>
@@ -180,8 +188,12 @@
               {{ isLoggingOut() ? 'Checking Out...' : 'Check Out' }}
             </h3>
             <p class="action-description">
-              {{ canLogout() ? (isOfficeNetworkConnected() ? 'End your workday' : 'Office network required') : 
-                 (isLoggedIn() ? 'Available in ' + getTimeUntilLogoutAvailable() : 'Check in first') }}
+              @if(isCheckedOut){
+              {{'Kindly come back tommorrow to start your workday again.'}}
+              }@else {
+              {{ canLogout() ? (isOfficeNetworkConnected() ? 'End your workday' : 'Office network required') :
+              (isLoggedIn() ? 'Available in ' + getTimeUntilLogoutAvailable() : 'Check in first') }}
+              }
             </p>
             <div class="action-time" *ngIf="canLogout()">
               Ready to clock out

@@ -27,7 +27,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   currentSession = signal<AttendanceSession | null>(null);
   currentTime = signal<string>('');
   currentDate = signal<string>('');
-
+  isApiLoaded = signal<boolean>(false);
   // Status - using signals
   isLoggingIn = signal(false);
   isLoggingOut = signal(false);
@@ -79,6 +79,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           timelog: res.timelog
         });
         this.loadStoredAttendanceStatus(res);
+        this.isApiLoaded
       })
 
   }
