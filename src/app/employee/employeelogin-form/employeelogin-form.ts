@@ -368,8 +368,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
 
   // Attendance Logic
   isLoggedIn(): boolean {
-    const session = this.currentSession();
-    return session?.loginTime != null && !session?.logoutTime;
+    return this.currentEmployee()?.status ?? false;
   }
 
 canLogout(): boolean {
@@ -463,57 +462,6 @@ canLogout(): boolean {
 
   // Main Actions
   employee_login(): void {
-    // Prevent multiple concurrent login attempts
-    if (this.isLoggingIn()) {
-      return;
-    }
-
-    // Check if already logged in (local session check)
-    if (this.isLoggedIn()) {
-      this.toastService.warning('You are already checked in.');
-      return;
-    }
-
-    // Check daily restriction - can't check in if already checked in today (unless completed previous session)
-    if (!this.canCheckInToday()) {
-      if (this.hasCompletedTodaySession()) {
-        const timeRemaining = this.getTimeUntilNextCheckIn();
-        if (timeRemaining) {
-          this.toastService.warning({
-            title: 'Please Wait Before Next Check-in',
-            message: `You can check in again after ${timeRemaining}. This ensures adequate rest time between sessions.`,
-            duration: 6000
-          });
-        } else {
-          this.toastService.info({
-            title: 'Daily Attendance Completed',
-            message: 'You have already completed your attendance for today. Check-in will be available tomorrow.',
-            duration: 5000
-          });
-        }
-      } else {
-        this.toastService.warning({
-          title: 'Already Checked In',
-          message: 'You have already checked in today. Please check out first to complete your session.',
-          duration: 5000
-        });
-      }
-      return;
-    }
-
-    // Check authentication before proceeding
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('token');
-
-    if (!userId || !token) {
-      this.toastService.error({
-        title: 'Authentication Error',
-        message: 'Missing user credentials. Please login again.',
-        duration: 4000
-      });
-      return;
-    }
-
     // Show confirmation popup for check-in
     this.popupService.attendanceConfirm('checkin', 'Are you ready to start your work session?').then((result) => {
       if (result.action === 'confirm') {
@@ -568,13 +516,13 @@ canLogout(): boolean {
           date: new Date().toLocaleDateString('en-US'),
           time: new Date().toLocaleTimeString('en-US', { hour12: false })
         };
-        this.sendCheckinData(localTime);
+        this.sendCheckinData();
       }
     });
   }
 
   //send data to backend
-  private sendCheckinData(serverTime: any, isFallback = false): void {
+  private sendCheckinData( isFallback = false): void {
     const date = new Date();
      let payload = { id: this.currentEmployee()?.id || '', checkin: `${date.getHours()}:${date.getMinutes()}`};
     this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload).pipe(
@@ -592,13 +540,7 @@ canLogout(): boolean {
           // Store the attendance record ID from check-in response for checkout
           const attendanceId = response?.data?._id || response?._id;
 
-          this.currentSession.set({
-            loginTime: loginTime,
-            date: new Date().toDateString(),
-            checkinDateTime: serverTime.dateTime, // Store the actual check-in datetime
-            attendanceId: attendanceId // Store the attendance record ID for checkout
-          });
-          this.saveSession();
+         this.saveSession();
           this.isLoggingIn.set(false);
           this.cdr.detectChanges();
 
@@ -613,40 +555,14 @@ canLogout(): boolean {
           }
 
           console.log('✅ Check-in successful at:', loginTime);
-        } else {
-          // Invalid response format, treat as error
-          this.handleCheckInError(new Error('Invalid server response'), serverTime, isFallback);
-        }
+        } 
       },
       error: (err) => {
         console.error('❌ Backend check-in failed:', err);
-        this.handleCheckInError(err, serverTime, isFallback);
       }
     });
   }
 
-  private handleCheckInError(error: any, serverTime: any, isFallback: boolean): void {
-    this.isLoggingIn.set(false);
-
-    // Check if it's a server error (500, 502, 503, etc.) that might be temporary
-    const isServerError = error.status >= 500 || error.status === 0 || !error.status;
-
-    if (isServerError) {
-      // Server error - suggest retry after 5-10 minutes
-      this.toastService.error({
-        title: 'Server Error',
-        message: 'Check-in server is temporarily unavailable. Please try again after 5-10 minutes.',
-        duration: 8000,
-        persistent: true
-      });
-
-      console.log('🔄 Server error detected, user should retry in 5-10 minutes');
-    } else {
-      // Client error or other issues - use fallback
-      console.log('❌ Client error or network issue, using localStorage fallback');
-      this.handleCheckInFallback(serverTime, isFallback);
-    }
-  }
 
   private handleCheckInFallback(serverTime: any, isFallback: boolean): void {
     const loginTime = new Date().toLocaleTimeString('en-US', {
@@ -693,9 +609,7 @@ canLogout(): boolean {
       return;
     }
 
-    // Show confirmation popup for checkout
-    const workingHours = this.getWorkingHours();
-    this.popupService.attendanceConfirm('checkout', `Current working time: ${workingHours}`).then((result) => {
+    this.popupService.attendanceConfirm('checkout', `Current working time: `).then((result) => {
       if (result.action === 'confirm') {
         this.performLogoutProcess();
       }
@@ -822,12 +736,12 @@ canLogout(): boolean {
       this.saveSession();
       this.cdr.detectChanges();
 
-      const workingHours = this.getWorkingHours();
+     
 
       // Show appropriate toast message
       this.toastService.warning({
         title: 'Check-out Completed (Offline Mode)',
-        message: `Checked out at ${checkoutTime}. Total working time: ${workingHours}. Data saved locally - will sync when server is available.`,
+        message: `Checked out at ${checkoutTime}. Total working time: . Data saved locally - will sync when server is available.`,
         duration: 5000
       });
 
@@ -901,9 +815,10 @@ canLogout(): boolean {
 
   // Template Helpers
   getWelcomeMessage(): string {
+    const localData = JSON.parse(localStorage.getItem('currentUserEmployeeData') || '{}');
     const hour = new Date().getHours();
     const employee = this.currentEmployee();
-    const name = employee?.name || 'Employee';
+    const name = employee?.name || localData?.employeeName || 'Employee';
 
     if (hour < 12) return `Good morning, ${name}!`;
     if (hour < 17) return `Good afternoon, ${name}!`;
@@ -1037,9 +952,7 @@ canLogout(): boolean {
     return this.getTimeUntilLogout();
   }
 
-  getWorkingHoursFormatted(): string {
-    return this.getWorkingHours();
-  }
+ 
 
   workingHours(): string {
     const session = this.currentSession();
@@ -1068,22 +981,7 @@ canLogout(): boolean {
     return session?.logoutTime || '';
   }
 
-  getWorkingHours(): string {
-    const session = this.currentSession();
-    if (!session?.checkinDateTime) return '0h 0m';
-
-    // Use actual check-in datetime for accurate calculation
-    const loginTime = new Date(session.checkinDateTime);
-    const logoutTime = session.logoutTime
-      ? new Date(`${new Date().toDateString()} ${session.logoutTime}`)
-      : new Date();
-
-    const diffMs = logoutTime.getTime() - loginTime.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${hours}h ${minutes}m`;
-  }
+ 
 
   getCurrentTime(): string {
     return this.currentTime();
@@ -1098,7 +996,7 @@ canLogout(): boolean {
       loginTime: this.lastLoginTime() || '--:--',
       logoutTime: this.lastLogoutTime() || '--:--',
       status: this.getStatusText(),
-      workingHours: this.getWorkingHours()
+     
     };
   }
 

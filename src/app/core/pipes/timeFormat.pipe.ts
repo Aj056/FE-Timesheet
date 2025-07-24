@@ -16,21 +16,23 @@ export class FormatTimePipe implements PipeTransform {
     }
 
     const date = new Date(timeString);
-    if (isNaN(date.getTime())) {
-      return ''; 
+    if (!isNaN(date.getTime())) {
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      return this.convert24To12Hour(`${hours}:${minutes}`);
     }
 
-    return this.convert24To12Hour(`${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`);
+    console.error('❌ Invalid date format:', timeString);
+    return '--';
   }
 
   private convert24To12Hour(time24: string): string {
     const [hoursStr, minutesStr] = time24.split(':');
     let hours = parseInt(hoursStr, 10);
-    const minutes = minutesStr;
-    
+    let minutes = minutesStr.padStart(2, '0');
+
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours || 12; 
+    hours = hours % 12 || 12;
 
     return `${hours}:${minutes} ${ampm}`;
   }
