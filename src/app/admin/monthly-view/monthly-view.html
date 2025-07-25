@@ -73,74 +73,7 @@
       </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid" *ngIf="monthlyStats() as stats">
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-primary">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 11H15M9 15H15M17 21H7A2 2 0 0 1 5 19V5A2 2 0 0 1 7 3H12.586A1 1 0 0 1 13.293 3.293L18.707 8.707A1 1 0 0 1 19 9.414V19A2 2 0 0 1 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalRecords }}</div>
-          <div class="stat-label">Total Records</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-success">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.presentRecords }}</div>
-          <div class="stat-label">Present Days</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-warning">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.incompleteRecords }}</div>
-          <div class="stat-label">Incomplete</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-danger">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.absentRecords }}</div>
-          <div class="stat-label">Absent</div>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-info">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalHours }}h</div>
-          <div class="stat-label">Total Hours</div>
-        </div>
-      </div>
-    </div>
+  
   </div>
 
   <!-- Error State -->

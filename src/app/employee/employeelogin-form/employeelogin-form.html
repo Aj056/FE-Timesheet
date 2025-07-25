@@ -1,4 +1,8 @@
-@let isUserActive = currentEmployee()?.status;
+@let isUserActive = currentEmployee()?.status ? true : false;
+@let isCheckedIn = currentEmployee()?.timelog ? (currentEmployee()?.timelog?.length && currentEmployee()?.timelog?.[0]?.checkin !== '' ): false;
+@let isCheckedOut = currentEmployee()?.timelog ? (currentEmployee()?.timelog?.length && currentEmployee()?.timelog?.[0]?.checkout !== '' ): false;
+@let disableCheckIn = ((isUserActive && !isOfficeNetworkConnected()) || isCheckedIn) || !isApiLoaded();
+@let totalHours =  currentEmployee()?.timelog?.[0]?.totalhours || '00:00';
 <!-- Modern Professional Attendance Dashboard -->
 <div class="attendance-dashboard">
   <!-- Welcome Header -->
@@ -137,8 +141,8 @@
         <button 
           class="action-card checkin-card"
           [class.active]="isUserActive"
-          [class.disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected()"
-          [disabled]="isUserActive || isLoggingIn() || !isOfficeNetworkConnected()"
+          [class.disabled]="disableCheckIn"
+          [disabled]="disableCheckIn "
           (click)="employee_login()">
           <div class="action-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
@@ -150,7 +154,13 @@
             <h3 class="action-title">
               {{ isLoggingIn() ? 'Checking In...' : (currentEmployee()?.status  ? 'Checked In' : 'Check In') }}
             </h3>
-            <p class="action-description">{{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}</p>
+            <p class="action-description">
+              @if(isCheckedOut){
+                You have Already Checked Out today at {{ (currentEmployee()?.timelog | formatTime:'checkout') }}
+              }@else {
+               {{ isUserActive ? 'Already checked in' : (isOfficeNetworkConnected() ? 'Start your workday' : 'Office network required') }}
+              }
+              </p>
             <div class="action-time" *ngIf="isUserActive && currentEmployee()?.timelog?.length">
               Started at {{  currentEmployee()?.timelog|formatTime:'checkin' }}
             </div>
@@ -179,8 +189,12 @@
               {{ isLoggingOut() ? 'Checking Out...' : 'Check Out' }}
             </h3>
             <p class="action-description">
-              {{ canLogout() ? (isOfficeNetworkConnected() ? 'End your workday' : 'Office network required') : 
-                 (isLoggedIn() ? 'Available in ' + getTimeUntilLogoutAvailable() : 'Check in first') }}
+              @if(isCheckedOut){
+              {{'Kindly come back tommorrow to start your workday again.'}}
+              }@else {
+              {{ canLogout() ? (isOfficeNetworkConnected() ? 'End your workday' : 'Office network required') :
+              (isLoggedIn() ? 'Available in ' + getTimeUntilLogoutAvailable() : 'Check in first') }}
+              }
             </p>
             <div class="action-time" *ngIf="canLogout()">
               Ready to clock out
@@ -231,12 +245,12 @@
   </div>
 
   <!-- Today's Summary -->
+  @if( isCheckedOut){
   <div class="summary-section">
     <h2 class="section-title">Today's Summary</h2>
     
     <div class="summary-grid">
-      <!-- Today's Activity -->
-      <div class="summary-card today-card" *ngIf="todayAttendance() as attendance; else noAttendanceCard">
+      <div class="summary-card today-card">
         <div class="card-header">
           <div class="card-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -245,7 +259,7 @@
           </div>
           <div class="card-title-group">
             <h3 class="card-title">Today's Activity</h3>
-            <div class="card-badge" [class]="attendance.status">{{ attendance.status | titlecase }}</div>
+            <div class="card-badge" [class]=""></div>
           </div>
         </div>
         <div class="card-content">
@@ -258,7 +272,7 @@
               </div>
               <div class="entry-details">
                 <span class="entry-label">Check In</span>
-                <span class="entry-value">{{ attendance.loginTime || '--:--' }}</span>
+                <span class="entry-value">{{ currentEmployee()?.timelog|formatTime:'checkin' }}</span>
               </div>
             </div>
             <div class="time-entry">
@@ -269,10 +283,10 @@
               </div>
               <div class="entry-details">
                 <span class="entry-label">Check Out</span>
-                <span class="entry-value">{{ attendance.logoutTime || '--:--' }}</span>
+                <span class="entry-value">{{  currentEmployee()?.timelog|formatTime:'checkout' }}</span>
               </div>
             </div>
-            <div class="time-entry highlight" *ngIf="attendance.workingHours">
+            <div class="time-entry highlight">
               <div class="entry-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
@@ -281,77 +295,7 @@
               </div>
               <div class="entry-details">
                 <span class="entry-label">Total Hours</span>
-                <span class="entry-value">{{ getWorkingHoursFormatted() }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- No Attendance Card -->
-      <ng-template #noAttendanceCard>
-        <div class="summary-card empty-card">
-          <div class="card-header">
-            <div class="card-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2-7h-3V2h-2v2H8V2H6v2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H3V9h14v11z"/>
-              </svg>
-            </div>
-            <div class="card-title-group">
-              <h3 class="card-title">Today's Activity</h3>
-              <div class="card-badge pending">Pending</div>
-            </div>
-          </div>
-          <div class="card-content">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <h4 class="empty-title">No Activity Yet</h4>
-              <p class="empty-description">Start your day by checking in when you arrive at the office.</p>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-      <!-- Previous Day Summary -->
-      <div class="summary-card previous-card">
-        <div class="card-header">
-          <div class="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
-              <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-            </svg>
-          </div>
-          <div class="card-title-group">
-            <h3 class="card-title">Previous Day</h3>
-            <div class="card-badge history">History</div>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="time-entries">
-            <div class="time-entry">
-              <div class="entry-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 10l5 5 5-5z"/>
-                </svg>
-              </div>
-              <div class="entry-details">
-                <span class="entry-label">Check In</span>
-                <span class="entry-value">{{ lastLoginTime() || '--:--' }}</span>
-              </div>
-            </div>
-            <div class="time-entry">
-              <div class="entry-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 14l5-5 5 5z"/>
-                </svg>
-              </div>
-              <div class="entry-details">
-                <span class="entry-label">Check Out</span>
-                <span class="entry-value">{{ lastLogoutTime() || '--:--' }}</span>
+                    <span class="entry-value">{{ totalHours }}hrs</span>
               </div>
             </div>
           </div>
@@ -359,6 +303,7 @@
       </div>
     </div>
   </div>
+}
 
   <!-- Live Session (if logged in) -->
   <div class="live-session" *ngIf="isLoggedIn() && !lastLogoutTime()">
