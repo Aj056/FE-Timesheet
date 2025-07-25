@@ -699,7 +699,9 @@
     display: none;
   }
 }
-
+.table-card-row:hover{
+  background: var(--admin-card-bg-hover);
+}
 // Mobile Card View (≤1024px)
 .mobile-view {
   display: none;

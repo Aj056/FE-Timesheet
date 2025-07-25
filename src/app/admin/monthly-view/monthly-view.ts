@@ -87,31 +87,7 @@ export class MonthlyView implements OnInit {
   });
 
   // Summary statistics for the selected month
-  monthlyStats = computed(() => {
-    const filtered = this.filteredLogs();
-    const totalRecords = filtered.length;
-    const presentRecords = filtered.filter(r => r.status === 'Present').length;
-    const incompleteRecords = filtered.filter(r => r.status === 'Incomplete').length;
-    const absentRecords = filtered.filter(r => r.status === 'Absent').length;
-    
-    // Calculate total hours from string format (e.g., "9:00" -> 9.0)
-    const totalHours = filtered.reduce((sum, r) => {
-      if (r.totalHours) {
-        const hours = this.parseHoursFromString(r.totalHours);
-        return sum + hours;
-      }
-      return sum;
-    }, 0);
-
-    return {
-      totalRecords,
-      presentRecords,
-      incompleteRecords,
-      absentRecords,
-      totalHours: Math.round(totalHours * 100) / 100,
-      averageHours: totalRecords > 0 ? Math.round((totalHours / totalRecords) * 100) / 100 : 0
-    };
-  });
+ 
 
   constructor() {
     // Watch for month/year changes and reload data

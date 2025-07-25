@@ -79,7 +79,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           timelog: res.timelog
         });
         this.loadStoredAttendanceStatus(res);
-        this.isApiLoaded
+        this.isApiLoaded.set(true)
       })
 
   }

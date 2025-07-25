@@ -79,7 +79,7 @@
   </div>
 
   <!-- Employees Table -->
-  <div class="data-table-container admin-card">
+  <div class="data-table-container">
     <div class="table-header">
       <div class="table-title-section">
         <h2 class="table-title">Employee Directory</h2>
@@ -132,7 +132,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row">
+            <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row table-card-row">
               @if(emp.role !== 'admin') {
               <td class="employee-cell">
                 <div class="employee-info">

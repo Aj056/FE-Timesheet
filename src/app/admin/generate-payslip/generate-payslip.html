@@ -85,7 +85,14 @@
         <img src="../../../assets/images/wilwarelogo.png" alt="Company Logo" class="company-logo">
         <h1 class="company-name">WillWare Technologies Pvt Ltd</h1>
         <p class="company-address">No.105, 7th Block, Koramangala, Bangalore-560095</p>
-        <p class="payslip-title-text">Payslip for <input type="text" [(ngModel)]="payslipData.month" class="amount-input-net-company"><input type="text" [(ngModel)]="payslipData.year" class="amount-input-net-company"></p>
+        <p class="payslip-title-text">Payslip for 
+          <select>
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+        </select>
+        <select>
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        </select>
+        </p>
 
       </div>
     </div>
