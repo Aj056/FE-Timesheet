@@ -32,7 +32,7 @@ export interface ToastConfig {
 export class ToastService {
   private toasts = signal<Toast[]>([]);
   private maxToasts = 5;
-  private defaultDuration = 5000; // 5 seconds
+  private defaultDuration = 500000; // 5 seconds
   
   // Public signal for components to subscribe to
   public toasts$ = this.toasts.asReadonly();

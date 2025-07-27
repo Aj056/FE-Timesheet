@@ -58,7 +58,6 @@ export class Employeecomponent implements OnInit, OnDestroy {
     this.themeSubscription = this.themeService.isDarkTheme$.subscribe(
       isDark => {
         this.isDarkTheme = isDark;
-        console.log('Theme changed to:', isDark ? 'dark' : 'light');
       }
     );
   }
@@ -72,6 +71,7 @@ export class Employeecomponent implements OnInit, OnDestroy {
 
   // Load current user data from localStorage (called once during initialization)
   private loadCurrentUser(): void {
+    //need To remove All Code With View API
     // Check for individual auth data in localStorage (correct format)
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
@@ -186,7 +186,6 @@ export class Employeecomponent implements OnInit, OnDestroy {
   toggleTheme(): void {
     this.themeService.toggleTheme();
     this.isMenuOpen = false;
-    console.log(`Theme toggled to: ${this.isDarkTheme ? 'dark' : 'light'}`);
   }
 
   // View user profile - navigate to profile page

@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from "@angular/router";
 import { ToastService } from '../../core/services/toast.service';
-import { PopupService } from '../../core/services/popup.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
 
@@ -22,7 +21,6 @@ export class AdminNav implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private toastService: ToastService,
-    private popupService: PopupService,
     private themeService: ThemeService
   ) {}
 
