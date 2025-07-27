@@ -1,5 +1,4 @@
 import { Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 export type PopupType = 'confirm' | 'alert' | 'custom' | 'loading' | 'form';
 

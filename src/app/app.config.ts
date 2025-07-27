@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     // Global Error Handler
     {
       provide: ErrorHandler,
-      useClass: GlobalErrorHandlerService
+      useClass: GlobalErrorHandlerService,
     }
   ]
 };
