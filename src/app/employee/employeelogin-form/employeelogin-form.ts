@@ -24,7 +24,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   // Core data - using signals for zoneless
   currentEmployee = signal<Employee | null>(null);
-  currentSession = signal<AttendanceSession | null>(null);
+  currentSession = signal<AttendanceSession | null>(null);///need to be removed
   currentTime = signal<string>('');
   currentDate = signal<string>('');
   isApiLoaded = signal<boolean>(false);

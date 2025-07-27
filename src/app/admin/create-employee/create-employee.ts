@@ -7,7 +7,6 @@ import { CreateEmployeeRequest } from '../../core/interfaces/common.interfaces';
 import { ValidationService } from '../../core/services/validation.service';
 import { PasswordSecurityService } from '../../core/services/password-security.service';
 import { ToastService } from '../../core/services/toast.service';
-import { PopupService } from '../../core/services/popup.service';
 
 @Component({
   selector: 'app-create-employee',
@@ -31,7 +30,6 @@ export class CreateEmployee implements OnInit {
     private validationService: ValidationService,
     private passwordSecurity: PasswordSecurityService,
     private toastService: ToastService,
-    private popupService: PopupService
   ) {}
   
   ngOnInit() {
