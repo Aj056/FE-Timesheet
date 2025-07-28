@@ -686,6 +686,14 @@ canLogout(): boolean {
 
       },
       error: (err) => {
+        if(err.status === 403 ){
+          this.toastService.warning({
+            title: 'Access Denied',
+            message:err.error.message,
+            duration: 5000
+          });
+           this.isLoggingOut.set(false);
+        }
         console.error('❌ Backend check-out failed:', err);
       }
     });
