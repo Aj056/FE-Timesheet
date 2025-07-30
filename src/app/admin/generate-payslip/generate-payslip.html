@@ -85,13 +85,13 @@
         <img src="../../../assets/images/wilwarelogo.png" alt="Company Logo" class="company-logo">
         <h1 class="company-name">WillWare Technologies Pvt Ltd</h1>
         <p class="company-address">No.105, 7th Block, Koramangala, Bangalore-560095</p>
-        <p class="payslip-title-text">Payslip for 
-          <select>
-          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-        </select>
-        <select>
-          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-        </select>
+        <p class="payslip-title-text">
+          Payslip for 
+          <span class="month-year-container">
+            <input type="text" [(ngModel)]="payslipData.month" class="month-year-input" placeholder="Month">
+            <span class="separator">-</span>
+            <input type="number" [(ngModel)]="payslipData.year" class="month-year-input" placeholder="Year">
+          </span>
         </p>
 
       </div>
@@ -191,14 +191,18 @@
         <div class="salary-header">
           <div class="earnings-header">
             <strong>Salary Payable</strong>
-            @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
             <span class="amount-header">Amount</span>
-            }
           </div>
           @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
           <div class="deductions-header">
             <strong>Deductions</strong>
             <span class="amount-header">Amount</span>
+          </div>
+          }
+          @if(payslipData.resourceType === 'Pay-slip-INTERN'){
+          <div class="deductions-header intern-no-deductions">
+            <strong>&nbsp;</strong>
+            <span class="amount-header">&nbsp;</span>
           </div>
           }
         </div>
@@ -209,22 +213,22 @@
             <div class="salary-row">
               <label>Basic Pay</label>
               <span>:</span>
-              <input type="number" [(ngModel)]="payslipData.basicSalary" class="amount-input">
+              <input type="number" [(ngModel)]="payslipData.basicSalary" class="amount-input" (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>HRA</label>
               <span>:</span>
-              <input type="number" [(ngModel)]="payslipData.hra" class="amount-input">
+              <input type="number" [(ngModel)]="payslipData.hra" class="amount-input" (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>Others</label>
               <span>:</span>
-              <input type="number" [(ngModel)]="payslipData.others" class="amount-input">
+              <input type="number" [(ngModel)]="payslipData.others" class="amount-input" (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>Incentive</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.incentive" class="amount-input" placeholder="N/A">
+              <input type="text" [(ngModel)]="payslipData.incentive" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
             </div>
             @if(payslipData.resourceType !== 'Payment Confirmation - Individual GST Consultant' &&
             payslipData.resourceType !== 'Pay-slip-INTERN'){
@@ -237,7 +241,7 @@
             <div class="salary-row total-row">
               <strong>Total Earnings</strong>
               <span>:</span>
-              <strong class="total-amount">{{ grossSalary | number:'1.0-0' }}</strong>
+              <input type="number" [(ngModel)]="manualTotalEarnings" class="total-amount-input" (input)="onTotalEarningsChange()">
             </div>
           </div>
 
@@ -248,32 +252,38 @@
             <div class="salary-row">
               <label>PF</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.pf" class="amount-input" placeholder="N/A">
+              <input type="text" [(ngModel)]="payslipData.pf" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>ESI</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.esi" class="amount-input" placeholder="N/A">
+              <input type="text" [(ngModel)]="payslipData.esi" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
             </div>
-            }
-            @if(payslipData.resourceType !== 'Pay-slip-INTERN'){
             <div class="salary-row">
               <label>TDS</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.tds" class="amount-input" placeholder="N/A">
+              <input type="text" [(ngModel)]="payslipData.tds" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>Staff Advance</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.staffAdvance" class="amount-input" placeholder="N/A">
+              <input type="text" [(ngModel)]="payslipData.staffAdvance" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
             </div>
             <div class="salary-row empty-row"></div>
             <div class="salary-row total-row">
               <strong>Total Deductions</strong>
               <span>:</span>
-              <strong class="total-amount">{{ totalDeductions === 0 ? 'N/A' : (totalDeductions | number:'1.0-0')
-                }}</strong>
+              <input type="number" [(ngModel)]="manualTotalDeductions" class="total-amount-input" (input)="onTotalDeductionsChange()">
             </div>
+            }
+            @if(payslipData.resourceType === 'Pay-slip-INTERN'){
+            <!-- Empty rows for intern layout consistency -->
+            <div class="salary-row empty-row">&nbsp;</div>
+            <div class="salary-row empty-row">&nbsp;</div>
+            <div class="salary-row empty-row">&nbsp;</div>
+            <div class="salary-row empty-row">&nbsp;</div>
+            <div class="salary-row empty-row">&nbsp;</div>
+            <div class="salary-row empty-row">&nbsp;</div>
             }
           </div>
         </div>
@@ -287,7 +297,7 @@
       <div class="Net-pay-section salary-row form-row">
         <strong>Net Pay</strong>
         <span>:</span>
-        <input type="text" [(ngModel)]="netSalary" class="amount-input-net" placeholder="N/A">
+        <input type="number" [(ngModel)]="editableNetPay" class="amount-input-net">
       </div>
       <div class="Net-pay-section salary-row form-row">
         <strong>Amount in words</strong>

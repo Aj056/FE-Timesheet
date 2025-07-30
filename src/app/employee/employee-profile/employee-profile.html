@@ -17,11 +17,11 @@
         <div class="section-title">Personal Information</div>
         <div class="detail-row">
           <span class="label">📝 Full Name:</span>
-          <span class="value">{{ emp.name || 'N/A' }}</span>
+          <span class="value">{{ emp.employeeName || 'N/A' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">📧 Email:</span>
-          <span class="value">{{ emp.email || 'N/A' }}</span>
+          <span class="value">{{ emp.employeeName || 'N/A' }}</span>
         </div>
         <div class="detail-row">
           <span class="label">📞 Phone:</span>
@@ -59,11 +59,11 @@
         <div class="section-title">Account Information</div>
         <div class="detail-row">
           <span class="label">🔑 Username:</span>
-          <span class="value">{{ emp.username || emp.name || 'N/A' }}</span>
+          <span class="value">{{ emp.username || emp.employeeName || 'N/A' }}</span>
         </div>
-        <div class="detail-row" *ngIf="emp.id">
+        <div class="detail-row" *ngIf="emp._id">
           <span class="label">🆔 Employee ID:</span>
-          <span class="value">{{ emp.id }}</span>
+          <span class="value">{{ emp._id }}</span>
         </div>
         
         <!-- Financial Information -->

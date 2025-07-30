@@ -232,9 +232,9 @@ export class EmployeeService {
    */
   private mapBackendToFrontend(backendEmp: any): Employee {
     return {
-      id: backendEmp._id || backendEmp.id,
-      name: backendEmp.employeeName || backendEmp.name,
-      email: backendEmp.employeeEmail || backendEmp.email,
+      _id: backendEmp._id || backendEmp.id,
+      employeeName: backendEmp.employeeName || backendEmp.name,
+      employeeEmail: backendEmp.employeeEmail || backendEmp.email,
       username: backendEmp.username,
       password: backendEmp.password,
       role: backendEmp.role,

@@ -40,7 +40,7 @@ export class AuthService {
             map(response => {
                 if (response.success && response.user && response.token) {
                     this.storeAuthData(response);
-                    this.fetchEmployeeStatusAfterLogin(response.user.id);
+                    this.fetchEmployeeStatusAfterLogin(response.user._id);
                     console.log('✅ Login successful');
                 }
                 return response;
@@ -57,9 +57,9 @@ export class AuthService {
         if (response.token?.tokens && response.data) {
             const userData = response.data;
             const mappedUser: Employee = {
-                id: userData._id || userData.id,
-                name: userData.employeeName || userData.name || userData.username,
-                email: userData.employeeEmail || userData.email || '',
+                _id: userData._id || userData.id,
+                employeeName: userData.employeeName || userData.name || userData.username,
+                employeeEmail: userData.employeeEmail || userData.email || '',
                 username: userData.username,
                 password: '',
                 role: userData.role || 'employee',
@@ -155,10 +155,10 @@ export class AuthService {
         const authData = {
             token: response.token,
             role: role,
-            userId: response.user.id,
+            userId: response.user._id,
             username: response.user.username,
-            userEmail: response.user.email || '',
-            userName: response.user.name || ''
+            userEmail: response.user.employeeEmail|| '',
+            userName: response.user.employeeName || ''
         };
         
         Object.entries(authData).forEach(([key, value]) => {

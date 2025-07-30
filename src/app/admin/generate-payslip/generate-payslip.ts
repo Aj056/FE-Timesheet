@@ -86,7 +86,13 @@ export class GeneratePayslipComponent implements OnInit {
     staffAdvance: 0,
     resourceType: 'payslip'
   };
-  years = [2024, 2025, 2026];
+
+  // Manual override values for totals
+  manualTotalEarnings: number = 0;
+  manualTotalDeductions: number = 0;
+  editableNetPay: number = 0;
+  useManualTotals: boolean = false;
+  years = [2024, 2025, 2026, 2027];
   months = [
     { value: 1, label: 'January' },
     { value: 2, label: 'February' },
@@ -102,10 +108,12 @@ export class GeneratePayslipComponent implements OnInit {
     { value: 12, label: 'December' }
   ];
 
-
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     console.log('Employee ID from route:', id);
+    
+    // Initialize manual totals with calculated values
+    this.initializeManualTotals();
     
     if (id) {
       this.loadEmployee(id);
@@ -130,9 +138,9 @@ export class GeneratePayslipComponent implements OnInit {
         
         if (employee) {
           // Pre-populate payslip data with employee details using correct mapping
-          this.payslipData.employeeId = employee.id || 'UNKNOWN';
-          this.payslipData.employeeName = employee.name || 'Unknown Employee';
-          this.payslipData.employeeEmail = employee.email || 'unknown@company.com';
+          this.payslipData.employeeId = employee._id || 'UNKNOWN';
+          this.payslipData.employeeName = employee.employeeName || 'Unknown Employee';
+          this.payslipData.employeeEmail = employee.employeeEmail || 'unknown@company.com';
           this.payslipData.department = employee.department || 'Software Development';
           this.payslipData.designation = employee.designation || employee.role || 'Software Developer';
           this.payslipData.workLocation = employee.workLocation || 'Bangalore';
@@ -153,6 +161,9 @@ export class GeneratePayslipComponent implements OnInit {
           this.payslipData.panNumber = employee.panNumber || 'CSPPA0064D';
           
           console.log('Employee details loaded for payslip:', employee);
+          
+          // Initialize manual totals after employee data is loaded
+          this.initializeManualTotals();
         } else {
           this.error.set('Employee not found');
           // Set fallback values
@@ -173,21 +184,66 @@ export class GeneratePayslipComponent implements OnInit {
     });
   }
 
-  // Calculate gross salary (Total Earnings)
-  get grossSalary(): number {
-    return this.payslipData.basicSalary + 
-           this.payslipData.hra + 
-           this.payslipData.others + 
-           this.payslipData.incentive + 
-           this.payslipData.pf;
+  // Initialize manual totals with calculated values
+  initializeManualTotals(): void {
+    this.manualTotalEarnings = this.grossSalary;
+    this.manualTotalDeductions = this.totalDeductions;
+    this.editableNetPay = this.calculatedNetPay;
   }
 
-  // Calculate total deductions
+  // Handle manual total earnings change
+  onTotalEarningsChange(): void {
+    this.useManualTotals = true;
+  }
+
+  // Handle manual total deductions change
+  onTotalDeductionsChange(): void {
+    this.useManualTotals = true;
+  }
+
+  // Update manual totals when salary fields change
+  updateManualTotals(): void {
+    if (!this.useManualTotals) {
+      this.manualTotalEarnings = this.grossSalary;
+      this.manualTotalDeductions = this.totalDeductions;
+      this.editableNetPay = this.calculatedNetPay;
+    }
+  }
+
+  // Get total earnings (manual or calculated)
+  get finalTotalEarnings(): number {
+    return this.useManualTotals ? this.manualTotalEarnings : this.grossSalary;
+  }
+
+  // Get total deductions (manual or calculated)
+  get finalTotalDeductions(): number {
+    return this.useManualTotals ? this.manualTotalDeductions : this.totalDeductions;
+  }
+
+  // Calculate net pay based on manual or calculated totals
+  get calculatedNetPay(): number {
+    return this.finalTotalEarnings - this.finalTotalDeductions;
+  }
+
+  // Calculate gross salary (Total Earnings) - fixed calculation
+  get grossSalary(): number {
+    const basic = Number(this.payslipData.basicSalary) || 0;
+    const hra = Number(this.payslipData.hra) || 0;
+    const others = Number(this.payslipData.others) || 0;
+    const incentive = Number(this.payslipData.incentive) || 0;
+    
+    // PF should NOT be included in total earnings - it's a deduction
+    return basic + hra + others + incentive;
+  }
+
+  // Calculate total deductions - fixed calculation
   get totalDeductions(): number {
-    return this.payslipData.pf + 
-           this.payslipData.esi + 
-           this.payslipData.tds + 
-           this.payslipData.staffAdvance;
+    const pf = Number(this.payslipData.pf) || 0;
+    const esi = Number(this.payslipData.esi) || 0;
+    const tds = Number(this.payslipData.tds) || 0;
+    const staffAdvance = Number(this.payslipData.staffAdvance) || 0;
+    
+    return pf + esi + tds + staffAdvance;
   }
 
   // Calculate net salary
@@ -222,7 +278,7 @@ export class GeneratePayslipComponent implements OnInit {
     try {
       // Create filename
       const employeeName = (this.payslipData.employeeName || 'Employee').replace(/[^a-zA-Z0-9]/g, '_');
-      const month = this.payslipData.month || 'Unknown';
+      const month = (this.payslipData.month || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
       const year = this.payslipData.year || new Date().getFullYear();
       const filename = `Payslip_${employeeName}_${month}_${year}.pdf`;
 
@@ -263,6 +319,20 @@ export class GeneratePayslipComponent implements OnInit {
       // Wait for scroll and rendering
       await new Promise(resolve => setTimeout(resolve, 500));
 
+      // Ensure month and year values are properly set before cloning
+      console.log('Current month/year values:', this.payslipData.month, this.payslipData.year);
+      
+      // Force update month/year input values in the DOM before cloning
+      const monthInput = payslipElement.querySelector('input[type="text"].month-year-input') as HTMLInputElement;
+      const yearInput = payslipElement.querySelector('input[type="number"].month-year-input') as HTMLInputElement;
+      
+      if (monthInput) {
+        monthInput.value = this.payslipData.month || 'July';
+      }
+      if (yearInput) {
+        yearInput.value = this.payslipData.year?.toString() || '2025';
+      }
+
       // Create a clone for PDF generation to avoid affecting the original
       const clonedElement = payslipElement.cloneNode(true) as HTMLElement;
       clonedElement.style.position = 'absolute';
@@ -276,6 +346,7 @@ export class GeneratePayslipComponent implements OnInit {
       clonedElement.style.transform = 'none';
       clonedElement.style.fontSize = '14px';
       clonedElement.style.fontFamily = 'Arial, sans-serif';
+      clonedElement.style.lineHeight = '1.4';
       clonedElement.classList.add('pdf-generation');
       
       // Force all text to be black and backgrounds to be white
@@ -289,14 +360,124 @@ export class GeneratePayslipComponent implements OnInit {
         
         // Ensure headers have proper styling
         if (el.classList.contains('payslip-header')) {
-          el.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-          el.style.color = '#ffffff';
+          el.style.background = 'white';
+          el.style.color = '#000000';
+          el.style.border = '2px solid #000';
+          el.style.textAlign = 'center';
+          el.style.padding = '20px';
         }
         
         // Ensure proper table styling
         if (el.tagName === 'TABLE' || el.classList.contains('earnings-section') || el.classList.contains('deductions-section')) {
           el.style.border = '1px solid #e5e7eb';
           el.style.backgroundColor = '#ffffff';
+        }
+
+        // Style the payslip title properly
+        if (el.classList.contains('payslip-title-text')) {
+          el.style.fontSize = '16px';
+          el.style.fontWeight = 'bold';
+          el.style.color = '#000';
+          el.style.textAlign = 'center';
+          el.style.margin = '10px 0';
+        }
+
+        // Style the month-year container
+        if (el.classList.contains('month-year-container')) {
+          el.style.display = 'inline';
+          el.style.margin = '0 8px';
+        }
+
+        // Style the separator
+        if (el.classList.contains('separator')) {
+          el.style.margin = '0 4px';
+          el.style.fontWeight = 'bold';
+        }
+
+        // Style company details
+        if (el.classList.contains('company-details')) {
+          el.style.textAlign = 'center';
+          el.style.padding = '20px';
+        }
+
+        // Style company name
+        if (el.classList.contains('company-name')) {
+          el.style.fontSize = '18px';
+          el.style.fontWeight = 'bold';
+          el.style.color = '#000';
+          el.style.margin = '8px 0';
+        }
+
+        // Style company address
+        if (el.classList.contains('company-address')) {
+          el.style.fontSize = '14px';
+          el.style.color = '#000';
+          el.style.margin = '8px 0';
+        }
+
+        // Handle select elements for PDF (if any remain)
+        if (el.tagName === 'SELECT') {
+          const select = el as HTMLSelectElement;
+          let selectedText = '';
+          
+          selectedText = select.options[select.selectedIndex]?.text || select.value;
+          
+          const span = document.createElement('span');
+          span.textContent = selectedText;
+          span.style.fontWeight = '600';
+          span.style.color = '#000';
+          span.style.fontSize = '14px';
+          span.style.padding = '0';
+          span.style.margin = '0';
+          el.parentNode?.replaceChild(span, el);
+        }
+
+        // Handle input elements for PDF
+        if (el.tagName === 'INPUT') {
+          const input = el as HTMLInputElement;
+          const span = document.createElement('span');
+          
+          // Get the actual value, handling different input types
+          let displayValue = input.value || '';
+          
+          // Special handling for month/year inputs - ensure values are from component data
+          if (input.classList.contains('month-year-input')) {
+            if (input.type === 'text') {
+              displayValue = this.payslipData.month || 'July';
+            } else if (input.type === 'number') {
+              displayValue = this.payslipData.year?.toString() || '2025';
+            }
+          }
+          
+          // Special formatting for certain fields
+          if (input.type === 'number' && displayValue && !input.classList.contains('month-year-input')) {
+            // For number inputs, ensure proper formatting
+            displayValue = parseFloat(displayValue).toString();
+          }
+          
+          span.textContent = displayValue;
+          span.style.fontWeight = input.classList.contains('total-amount-input') ? 'bold' : 'normal';
+          span.style.color = '#000';
+          span.style.fontSize = '14px';
+          span.style.padding = '0';
+          span.style.margin = '0';
+          
+          // Special styling for different input types
+          if (input.classList.contains('total-amount-input') || input.classList.contains('amount-input-net')) {
+            span.style.textAlign = 'right';
+            span.style.display = 'inline-block';
+            span.style.minWidth = '80px';
+            span.style.fontWeight = 'bold';
+          }
+          
+          if (input.classList.contains('month-year-input')) {
+            span.style.textAlign = 'center';
+            span.style.display = 'inline-block';
+            span.style.fontWeight = '600';
+            span.style.minWidth = '60px';
+          }
+          
+          el.parentNode?.replaceChild(span, el);
         }
       });
       
@@ -400,7 +581,7 @@ export class GeneratePayslipComponent implements OnInit {
 
   // Go back to employee details
   goBack(): void {
-    const employeeId = this.employee()?.id;
+    const employeeId = this.employee()?._id;
     if (employeeId) {
       this.router.navigate(['/admin/employee-details', employeeId]);
     } else {
@@ -461,9 +642,9 @@ export class GeneratePayslipComponent implements OnInit {
     const currentEmployee = this.employee();
     if (currentEmployee) {
       this.payslipData = {
-        employeeId: currentEmployee.id || 'UNKNOWN',
-        employeeName: currentEmployee.name || 'Unknown Employee',
-        employeeEmail: currentEmployee.email || 'unknown@company.com',
+        employeeId: currentEmployee._id || 'UNKNOWN',
+        employeeName: currentEmployee.employeeName || 'Unknown Employee',
+        employeeEmail: currentEmployee.employeeEmail || 'unknown@company.com',
         department: currentEmployee.department || 'Software Development',
         designation: currentEmployee.role || 'Software Developer',
         workLocation: 'Bangalore',
@@ -515,6 +696,10 @@ export class GeneratePayslipComponent implements OnInit {
         resourceType: 'payslip'
       };
     }
+    
+    // Reset manual totals
+    this.useManualTotals = false;
+    this.initializeManualTotals();
   }
 
   // Format currency
