@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AttendanceService } from '../../core/services/attendance.service';
+// import { AttendanceService } from '../../core/services/attendance.service';
 import { AttendanceRecord, AttendanceStats } from '../../core/interfaces/common.interfaces';
 
 @Component({
@@ -46,7 +46,7 @@ import { AttendanceRecord, AttendanceStats } from '../../core/interfaces/common.
             <div class="col-date">{{ formatDate(record.date) }}</div>
             <div class="col-login">{{ record.loginTime || '--' }}</div>
             <div class="col-logout">{{ record.logoutTime || '--' }}</div>
-            <div class="col-hours">{{ record.workingHours ? record.workingHours.toFixed(1) + 'h' : '--' }}</div>
+            <!-- <div class="col-hours">{{ record.workingHours ? record.workingHours.toFixed(1) + 'h' : '--' }}</div> -->
             <div class="col-status">
               <span class="status-badge" [class]="'status-' + record.status">
                 {{ record.status | titlecase }}
@@ -202,7 +202,7 @@ import { AttendanceRecord, AttendanceStats } from '../../core/interfaces/common.
   encapsulation: ViewEncapsulation.None
 })
 export class AttendanceSummary implements OnInit {
-  private readonly attendanceService = inject(AttendanceService);
+  // private readonly attendanceService = inject(AttendanceService);
   
   // Get current employee ID from localStorage (set during login)
   private getCurrentEmployeeId(): string {
@@ -227,36 +227,36 @@ export class AttendanceSummary implements OnInit {
   readonly recentRecords = signal<AttendanceRecord[]>([]);
 
   ngOnInit(): void {
-    this.loadAttendanceStats();
-    this.loadRecentRecords();
+    // this.loadAttendanceStats();
+    // this.loadRecentRecords();
   }
 
-  private loadAttendanceStats(): void {
-    // Get stats for current month
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+  // private loadAttendanceStats(): void {
+  //   // Get stats for current month
+  //   const now = new Date();
+  //   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  //   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
     
-    this.attendanceService.getAttendanceStats(this.currentEmployeeId, startOfMonth, endOfMonth)
-      .subscribe({
-        next: (stats) => this.stats.set(stats),
-        error: (error) => console.error('Failed to load attendance stats:', error)
-      });
-  }
+  //   this.attendanceService.getAttendanceStats(this.currentEmployeeId, startOfMonth, endOfMonth)
+  //     .subscribe({
+  //       next: (stats) => this.stats.set(stats),
+  //       error: (error) => console.error('Failed to load attendance stats:', error)
+  //     });
+  // }
 
-  private loadRecentRecords(): void {
-    this.attendanceService.getRecentAttendance(this.currentEmployeeId)
-      .subscribe({
-        next: (records) => {
-          // Sort by date descending and take last 10
-          const sortedRecords = records
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 10);
-          this.recentRecords.set(sortedRecords);
-        },
-        error: (error) => console.error('Failed to load recent records:', error)
-      });
-  }
+  // private loadRecentRecords(): void {
+  //   this.attendanceService.getRecentAttendance(this.currentEmployeeId)
+  //     .subscribe({
+  //       next: (records) => {
+  //         // Sort by date descending and take last 10
+  //         const sortedRecords = records
+  //           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  //           .slice(0, 10);
+  //         this.recentRecords.set(sortedRecords);
+  //       },
+  //       error: (error) => console.error('Failed to load recent records:', error)
+  //     });
+  // }
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);

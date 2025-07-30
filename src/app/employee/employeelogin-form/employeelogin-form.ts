@@ -70,9 +70,9 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: any) => {
         this.currentEmployee.set({
-          id: userId,
-          name: res.employeeName,
-          email: res.employeeEmail || '',
+          _id: userId,
+          employeeName: res.employeeName,
+          employeeEmail: res.employeeEmail || '',
           username: res.employeeEmail || res.employeeName,
           role: res.role,
           status: res.status,
@@ -124,7 +124,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
           this.currentSession.set({
             loginTime: estimatedLoginTime,
             date: today,
-            checkinDateTime: new Date().toISOString() // Use current time as estimate
+            // checkinDateTime: new Date().toISOString() // Use current time as estimate
           });
           this.saveSession();
 
@@ -225,7 +225,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
                 this.currentSession.set({
                   loginTime: estimatedLoginTime,
                   date: today,
-                  checkinDateTime: new Date().toISOString() // Use current time as estimate
+                  // checkinDateTime: new Date().toISOString() // Use current time as estimate
                 });
                 this.saveSession();
               }
@@ -319,7 +319,7 @@ export class EmployeeloginFormComponent implements OnInit, OnDestroy {
     }));
 
     // Update cached countdown to prevent NG0100 error
-    this.cachedTimeUntilLogout.set(this.calculateTimeUntilLogout());
+    // this.cachedTimeUntilLogout.set(this.calculateTimeUntilLogout());
   }
 
   // Network Management - using IpCheckService
@@ -385,22 +385,22 @@ canLogout(): boolean {
     return this.cachedTimeUntilLogout();
   }
 
-  private calculateTimeUntilLogout(): string {
-    const session = this.currentSession();
-    if (!session?.checkinDateTime) return '';
+  // private calculateTimeUntilLogout(): string {
+  //   const session = this.currentSession();
+  //   // if (!session?.checkinDateTime) return '';
 
-    // Use the actual check-in datetime for accurate countdown
-    const loginTime = new Date(session.checkinDateTime);
-    const now = new Date();
-    const timeDiff = now.getTime() - loginTime.getTime();
-    const thirtySeconds = 30 * 1000; // 30 seconds in milliseconds
-    const remaining = thirtySeconds - timeDiff;
+  //   // Use the actual check-in datetime for accurate countdown
+  //   // const loginTime = new Date(session.checkinDateTime);
+  //   const now = new Date();
+  //   // const timeDiff = now.getTime() - loginTime.getTime();
+  //   const thirtySeconds = 30 * 1000; // 30 seconds in milliseconds
+  //   // const remaining = thirtySeconds - timeDiff;
 
-    if (remaining <= 0) return '';
+  //   // if (remaining <= 0) return '';
 
-    const seconds = Math.floor(remaining / 1000);
-    return `${seconds}s`;
-  }
+  //   // const seconds = Math.floor(remaining / 1000);
+  //   // return `${seconds}s`;
+  // }
 
   // Daily Check-in Restriction Logic
   hasCheckedInToday(): boolean {
@@ -423,41 +423,41 @@ canLogout(): boolean {
     }
 
     // If user has completed a session (both login and logout), check 1-hour restriction
-    if (session.loginTime && session.logoutTime && session.checkoutDateTime) {
-      const checkoutTime = new Date(session.checkoutDateTime);
-      const now = new Date();
-      const timeDiff = now.getTime() - checkoutTime.getTime();
-      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    // if (session.loginTime && session.logoutTime && session.checkoutDateTime) {
+    //   const checkoutTime = new Date(session.checkoutDateTime);
+    //   const now = new Date();
+    //   const timeDiff = now.getTime() - checkoutTime.getTime();
+    //   const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
 
-      return timeDiff >= oneHour; // Can check in only after 1 hour
-    }
+    //   return timeDiff >= oneHour; // Can check in only after 1 hour
+    // }
 
     // If session exists but no checkout datetime, allow check-in (legacy sessions)
     return session.loginTime != null && session.logoutTime != null;
   }
 
   // Get time remaining until next check-in is allowed
-  getTimeUntilNextCheckIn(): string {
-    const session = this.currentSession();
-    if (!session?.checkoutDateTime) return '';
+  // getTimeUntilNextCheckIn(): string {
+  //   const session = this.currentSession();
+  //   if (!session?.checkoutDateTime) return '';
 
-    const checkoutTime = new Date(session.checkoutDateTime);
-    const now = new Date();
-    const timeDiff = now.getTime() - checkoutTime.getTime();
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-    const remaining = oneHour - timeDiff;
+  //   const checkoutTime = new Date(session.checkoutDateTime);
+  //   const now = new Date();
+  //   const timeDiff = now.getTime() - checkoutTime.getTime();
+  //   const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+  //   const remaining = oneHour - timeDiff;
 
-    if (remaining <= 0) return '';
+  //   if (remaining <= 0) return '';
 
-    const minutes = Math.floor(remaining / (1000 * 60));
-    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+  //   const minutes = Math.floor(remaining / (1000 * 60));
+  //   const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
-    if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  }
+  //   if (minutes > 0) {
+  //     return `${minutes}m ${seconds}s`;
+  //   } else {
+  //     return `${seconds}s`;
+  //   }
+  // }
 
   // Method to refresh session data from backend - moved above to use /allemp API
 
@@ -525,7 +525,7 @@ canLogout(): boolean {
   //send data to backend
   private sendCheckinData( isFallback = false): void {
     const date = new Date();
-     let payload = { id: this.currentEmployee()?.id || '', checkin: `${date.getHours()}:${date.getMinutes()}`};
+     let payload = { id: this.currentEmployee()?._id || '', checkin: `${date.getHours()}:${date.getMinutes()}`};
     this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload).pipe(
       takeUntilDestroyed(this.destroyRef),
       timeout(10000) // 10 second timeout to prevent getting stuck
@@ -572,12 +572,12 @@ canLogout(): boolean {
 
     // Save session locally even if backend fails
     // Note: No attendanceId available in fallback mode, checkout will need to handle this
-    this.currentSession.set({
-      loginTime: loginTime,
-      date: new Date().toDateString(),
-      checkinDateTime: serverTime.dateTime, // Store the datetime even in fallback
-      attendanceId: undefined // No ID available in offline mode
-    });
+    // this.currentSession.set({
+    //   loginTime: loginTime,
+    //   date: new Date().toDateString(),
+    //   checkinDateTime: serverTime.dateTime, // Store the datetime even in fallback
+    //   attendanceId: undefined // No ID available in offline mode
+    // });
     this.saveSession();
     this.cdr.detectChanges();
 
@@ -650,7 +650,7 @@ canLogout(): boolean {
   private proceedWithLogout(): void {
     this.isLoggingOut.set(true);
     this.cdr.detectChanges();
-    let payload = { id: this.currentEmployee()?.id || '', checkout: '' }
+    let payload = { id: this.currentEmployee()?._id || '', checkout: '' }
     // Get server time for accurate logout timestamp
     this.http.get<any>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata')
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -735,27 +735,27 @@ canLogout(): boolean {
   private handleCheckOutFallback(checkoutTime: string, isFallback: boolean): void {
     const currentSession = this.currentSession();
 
-    if (currentSession) {
-      // Save session locally even if backend fails
-      this.currentSession.set({
-        ...currentSession,
-        logoutTime: checkoutTime,
-        checkoutDateTime: new Date().toISOString() // Store current time as checkout datetime
-      });
-      this.saveSession();
-      this.cdr.detectChanges();
+    // if (currentSession) {
+    //   // Save session locally even if backend fails
+    //   this.currentSession.set({
+    //     ...currentSession,
+    //     logoutTime: checkoutTime,
+    //     checkoutDateTime: new Date().toISOString() // Store current time as checkout datetime
+    //   });
+    //   this.saveSession();
+    //   this.cdr.detectChanges();
 
      
 
-      // Show appropriate toast message
-      this.toastService.warning({
-        title: 'Check-out Completed (Offline Mode)',
-        message: `Checked out at ${checkoutTime}. Total working time: . Data saved locally - will sync when server is available.`,
-        duration: 5000
-      });
+    //   // Show appropriate toast message
+    //   this.toastService.warning({
+    //     title: 'Check-out Completed (Offline Mode)',
+    //     message: `Checked out at ${checkoutTime}. Total working time: . Data saved locally - will sync when server is available.`,
+    //     duration: 5000
+    //   });
 
-      console.log('✅ Check-out completed with localStorage fallback at:', checkoutTime);
-    }
+    //   console.log('✅ Check-out completed with localStorage fallback at:', checkoutTime);
+    // }
   }
 
   // Example methods to demonstrate toast usage
@@ -827,7 +827,7 @@ canLogout(): boolean {
     const localData = JSON.parse(localStorage.getItem('currentUserEmployeeData') || '{}');
     const hour = new Date().getHours();
     const employee = this.currentEmployee();
-    const name = employee?.name || localData?.employeeName || 'Employee';
+    const name = employee?.employeeName || localData?.employeeName || 'Employee';
 
     if (hour < 12) return `Good morning, ${name}!`;
     if (hour < 17) return `Good afternoon, ${name}!`;
@@ -882,16 +882,16 @@ canLogout(): boolean {
     if (this.isLoggingIn()) return 'Checking in...';
     if (this.isLoggedIn()) return 'Already checked in';
     if (!this.canCheckInToday()) {
-      if (this.hasCompletedTodaySession()) {
-        const timeRemaining = this.getTimeUntilNextCheckIn();
-        if (timeRemaining) {
-          return `Wait ${timeRemaining} before next check-in`;
-        } else {
-          return 'Daily attendance completed';
-        }
-      } else {
-        return 'Already checked in today';
-      }
+      // if (this.hasCompletedTodaySession()) {
+      //   const timeRemaining = this.getTimeUntilNextCheckIn();
+      //   if (timeRemaining) {
+      //     return `Wait ${timeRemaining} before next check-in`;
+      //   } else {
+      //     return 'Daily attendance completed';
+      //   }
+      // } else {
+      //   return 'Already checked in today';
+      // }
     }
     return '';
   }
@@ -963,22 +963,22 @@ canLogout(): boolean {
 
  
 
-  workingHours(): string {
-    const session = this.currentSession();
-    if (!session?.checkinDateTime) return '0';
+  // workingHours(): string {
+  //   const session = this.currentSession();
+  //   // if (!session?.checkinDateTime) return '0';
 
-    // Use actual check-in datetime for accurate calculation
-    const loginTime = new Date(session.checkinDateTime);
-    const logoutTime = session.logoutTime
-      ? new Date(`${new Date().toDateString()} ${session.logoutTime}`)
-      : new Date();
+  //   // Use actual check-in datetime for accurate calculation
+  //   const loginTime = new Date(session.checkinDateTime);
+  //   const logoutTime = session.logoutTime
+  //     ? new Date(`${new Date().toDateString()} ${session.logoutTime}`)
+  //     : new Date();
 
-    const diffMs = logoutTime.getTime() - loginTime.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  //   const diffMs = logoutTime.getTime() - loginTime.getTime();
+  //   const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  //   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-    return `${hours}.${Math.round(minutes / 60 * 10)}`;
-  }
+  //   return `${hours}.${Math.round(minutes / 60 * 10)}`;
+  // }
 
   lastLoginTime(): string {
     const session = this.currentSession();

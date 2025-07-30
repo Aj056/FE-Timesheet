@@ -80,9 +80,9 @@ export class EmployeeProfile implements OnInit {
       });
       
       const profileData: Employee = {
-        id: userId,
-        name: userName,
-        email: userEmail || employeeData?.employeeEmail || '',
+        _id: userId,
+        employeeName: userName,
+        employeeEmail: userEmail || employeeData?.employeeEmail || '',
         username: username || userName || employeeData?.username,
         role: role || employeeData?.role || 'employee',
         status: true,
@@ -121,9 +121,9 @@ export class EmployeeProfile implements OnInit {
     
     if (fallbackUserId && fallbackUserName && token) {
       const profileData: Employee = {
-        id: fallbackUserId,
-        name: fallbackUserName,
-        email: fallbackUserEmail || '',
+        _id: fallbackUserId,
+        employeeName: fallbackUserName,
+        employeeEmail: fallbackUserEmail || '',
         username: fallbackUserEmail || fallbackUserName,
         role: fallbackRole || 'employee',
         status: true
@@ -164,9 +164,9 @@ export class EmployeeProfile implements OnInit {
   // Get user initials (first two characters of the name)
   getUserInitials(): string {
     const emp = this.employee();
-    if (!emp?.name) return 'US'; // Default initials
+    if (!emp?.employeeName) return 'US'; // Default initials
     
-    const names = emp.name.trim().split(' ');
+    const names = emp.employeeName.trim().split(' ');
     if (names.length === 1) {
       // Single name - take first two characters
       return names[0].substring(0, 2).toUpperCase();

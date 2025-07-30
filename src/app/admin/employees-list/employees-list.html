@@ -6,29 +6,35 @@
         <h1 class="page-title">
           <div class="title-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path
+                d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
-          Employee Management--dev
+          Employee Management
         </h1>
         <p class="page-subtitle">Manage and view all employees in your organization</p>
       </div>
-      
+
       <div class="header-actions">
         <button class="admin-btn btn-primary" routerLink="/admin/create-employee">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2"/>
-            <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+            <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" />
+            <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" />
           </svg>
           Add Employee
         </button>
         <button class="admin-btn btn-secondary" (click)="refreshData()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="23,4 23,10 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline points="1,20 1,14 7,14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10M22.94,14.36A9,9,0,0,1,3.51,15L7,14" stroke="currentColor" stroke-width="2"/>
+            <polyline points="23,4 23,10 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <polyline points="1,20 1,14 7,14" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10M22.94,14.36A9,9,0,0,1,3.51,15L7,14" stroke="currentColor"
+              stroke-width="2" />
           </svg>
           Refresh
         </button>
@@ -36,13 +42,16 @@
     </div>
   </div>
 
-  <!-- Statistics Cards -->
+  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon stat-icon-primary">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
       </div>
       <div class="stat-content">
@@ -50,11 +59,12 @@
         <div class="stat-label">Total Employees</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon stat-icon-success">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="20,6 9,17 4,12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
         </svg>
       </div>
       <div class="stat-content">
@@ -62,13 +72,13 @@
         <div class="stat-label">Active</div>
       </div>
     </div>
-    
+
     <div class="stat-card">
       <div class="stat-icon stat-icon-warning">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-          <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
-          <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+          <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" />
+          <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2" />
         </svg>
       </div>
       <div class="stat-content">
@@ -78,49 +88,32 @@
     </div>
   </div>
 
-  <!-- Employees Table -->
+  <!-- Data Table -->
   <div class="data-table-container">
+    <!-- Table Header -->
     <div class="table-header">
       <div class="table-title-section">
         <h2 class="table-title">Employee Directory</h2>
         <div class="search-results" *ngIf="isSearchActive()">
           <span class="results-count">
-            {{ getSearchResultsCount() }} result{{ getSearchResultsCount() !== 1 ? 's' : '' }} 
+            {{ getSearchResultsCount() }} result{{ getSearchResultsCount() !== 1 ? 's' : '' }}
             for "{{ searchTerm() }}"
           </span>
         </div>
+
       </div>
+      
       <div class="table-actions">
-        <div class="search-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Search by name, email, department, or phone..." 
-            class="admin-input search-input"
-            [value]="searchTerm()"
-            (input)="onSearchChange($any($event.target).value)"
-          >
-          <button 
-            *ngIf="isSearchActive()" 
-            class="clear-search-btn"
-            (click)="clearSearch()"
-            title="Clear search"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
+        <input type="text" placeholder="Search employees..." class="admin-input search-input" [value]="searchTerm()"
+          (input)="onSearchChange($any($event.target).value)" />
+        <button *ngIf="isSearchActive()" class="clear-search-btn" (click)="clearSearch()">❌</button>
       </div>
+      
     </div>
-    
-    <!-- Desktop Table View -->
+
+    <!-- Desktop View -->
     <div class="desktop-view">
-      <div class="table-content" *ngIf="filteredEmployees().length > 0; else noEmployees">
+      <div *ngIf="paginatedEmployees().length > 0; else noResults">
         <table class="modern-table">
           <thead>
             <tr>
@@ -132,83 +125,78 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" class="table-row table-card-row">
+            <tr *ngFor="let emp of paginatedEmployees(); trackBy: trackEmployee">
               @if(emp.role !== 'admin') {
-              <td class="employee-cell">
+              <td>
                 <div class="employee-info">
-                  <div class="employee-avatar">
-                    {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
-                  </div>
+                  <div class="employee-avatar">{{ (emp.employeeName)[0].toUpperCase() }}</div>
                   <div class="employee-details">
-                    <div class="employee-name">{{ emp.name || emp.username || 'Unknown' }}</div>
-                    <div class="employee-email">{{ emp.email || 'No email' }}</div>
-                    <div class="employee-designation">{{ emp.designation || emp.role || 'No designation' }}</div>
+                    <div class="employee-name">{{ emp.employeeName || emp.username || 'Unknown' }}</div>
+                    <div class="employee-email">{{ emp.employeeEmail || 'No email' }}</div>
+                    <div class="employee-designation">{{ emp.designation || emp.role || 'N/A' }}</div>
                   </div>
                 </div>
               </td>
-              <td class="department-cell">
+              <td>
                 <div class="department-info">
-                  <div class="department-name">{{ emp.department || 'No Department' }}</div>
-                  <div class="work-location">{{ emp.workLocation || 'No Location' }}</div>
+                  <div class="department-name">{{ emp.department || 'N/A' }}</div>
+                  <small>{{ emp.workLocation || '-' }}</small>
                 </div>
               </td>
-              <td class="phone-cell">
+              <td>
                 <div class="contact-info">
-                  <div class="phone-number">{{ emp.phone || 'No phone' }}</div>
-                  <div class="address-short" *ngIf="emp.address" title="{{ emp.address }}">
-                    {{ getShortAddress(emp.address) }}
-                  </div>
+                  <div class="phone-number">{{ emp.phone || '-' }}</div>
+                  <small *ngIf="emp.address" title="{{ emp.address }}">{{ getShortAddress(emp.address) }}</small>
                 </div>
               </td>
-              <td class="status-cell">
-                <div class="status-indicator" [ngClass]="getStatusClass(emp.status)">
+              <td>
+                <span class="status-indicator" [ngClass]="getStatusClass(emp.status)">
                   {{ getStatusText(emp.status) }}
-                </div>
+                </span>
               </td>
               <td class="actions-cell">
                 <div class="action-buttons">
-                  <button class="admin-btn btn-sm btn-secondary" 
-                          (click)="viewDetails(emp.id)"
-                          title="View Details">
+                  <button class="admin-btn btn-sm btn-secondary" (click)="viewDetails(emp._id)" title="View Details">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
-                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                      <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor"
+                        stroke-width="2" />
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                     </svg>
                     View
                   </button>
-                  <button class="admin-btn btn-sm btn-warning" 
-                          (click)="editEmployee(emp.id)"
-                          title="Edit Employee">
+                  <button class="admin-btn btn-sm btn-warning" (click)="editEmployee(emp._id)" title="Edit Employee">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M11 4H4A2 2 0 0 0 2 6V20A2 2 0 0 0 4 22H18A2 2 0 0 0 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M18.5 2.5A2.12 2.12 0 0 1 21 5L12 14L8 15L9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M11 4H4A2 2 0 0 0 2 6V20A2 2 0 0 0 4 22H18A2 2 0 0 0 20 20V13" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M18.5 2.5A2.12 2.12 0 0 1 21 5L12 14L8 15L9 11Z" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     Edit
                   </button>
                 </div>
               </td>
-            }
+              }
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Modern Mobile Cards View (Dribbble/Webflow Inspired) -->
+     <!-- Modern Mobile Cards View (Dribbble/Webflow Inspired) -->
     <div class="mobile-view">
-      <div class="employee-cards" *ngIf="filteredEmployees().length > 0; else noEmployees">
+      <div class="employee-cards" *ngIf="filteredEmployees().length > 0; else noResults">
         <div 
-          *ngFor="let emp of filteredEmployees(); trackBy: trackEmployee" 
+          *ngFor="let emp of paginatedEmployees(); trackBy: trackEmployee" 
           class="employee-card"
         >
           <!-- Modern Card Header -->
           <div class="employee-card-header">
             <div class="employee-card-avatar">
-              {{ (emp.name || emp.username || 'U').charAt(0).toUpperCase() }}
+              {{ (emp.employeeName || emp.username || 'U').charAt(0).toUpperCase() }}
             </div>
             <div class="employee-card-info">
-              <h3 class="employee-card-name">{{ emp.name || emp.username || 'Unknown' }}</h3>
-              <p class="employee-card-email">{{ emp.email || 'No email' }}</p>
+              <h3 class="employee-card-name">{{ emp.employeeName || emp.username || 'Unknown' }}</h3>
+              <p class="employee-card-email">{{ emp.employeeEmail || 'No email' }}</p>
             </div>
             <div class="status-badge" [ngClass]="getStatusClass(emp.status)">
               {{ getStatusText(emp.status) }}
@@ -219,7 +207,7 @@
           <div class="employee-card-details">
             <div class="employee-card-detail">
               <div class="detail-label">ID</div>
-              <div class="detail-value">#{{ emp.id }}</div>
+              <div class="detail-value">#{{ emp._id }}</div>
             </div>
             <div class="employee-card-detail">
               <div class="detail-label">Department</div>
@@ -241,13 +229,13 @@
 
           <!-- Modern Card Actions -->
           <div class="employee-card-actions">
-            <button class="admin-btn btn-secondary btn-sm" (click)="viewDetails(emp.id)">
+            <button class="admin-btn btn-secondary btn-sm" (click)="viewDetails(emp._id)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
               </svg>
               View
             </button>
-            <button class="admin-btn btn-primary btn-sm" (click)="editEmployee(emp.id)">
+            <button class="admin-btn btn-primary btn-sm" (click)="editEmployee(emp._id)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
               </svg>
@@ -257,41 +245,62 @@
         </div>
       </div>
     </div>
+    <!-- pagination controls  -->
+     @if(paginatedEmployees().length > 0){
+  <div class="pagination-summary">
+    Showing {{ paginatedEmployees().length }} of {{ filteredEmployees().length }} employees
+  </div>
 
-    <ng-template #noEmployees>
+  <div class="pagination-footer">
+    <app-pagination
+      [pagination]="pagination()"
+      [totalPages]="totalPages()"
+      (next)="nextPage()"
+      (prev)="prevPage()"
+    ></app-pagination>
+  </div>
+}
+
+    <!-- No Employees Template -->
+    <ng-template #noResults>
       <div class="empty-state">
         <div class="empty-icon">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path
+              d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
         </div>
-        
+
         <!-- No search results -->
         <div *ngIf="isSearchActive(); else noEmployeesAtAll">
           <h3 class="empty-title">No Results Found</h3>
           <p class="empty-subtitle">
-            No employees match your search for "{{ searchTerm() }}". 
+            No employees match your search for "{{ searchTerm() }}".
             Try adjusting your search terms or clearing the search.
           </p>
           <button class="admin-btn btn-secondary" (click)="clearSearch()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
             Clear Search
           </button>
         </div>
-        
+
         <!-- No employees at all -->
         <ng-template #noEmployeesAtAll>
           <h3 class="empty-title">No Employees Found</h3>
           <p class="empty-subtitle">Get started by adding your first employee to the system.</p>
           <button class="admin-btn btn-primary" routerLink="/admin/create-employee">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+              <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" />
+              <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" />
             </svg>
             Add First Employee
           </button>
