@@ -53,6 +53,7 @@ export class GeneratePayslipComponent implements OnInit {
   employee = signal<Employee | null>(null);
   isLoading = signal(false);
   error = signal<string | null>(null);
+  isPdfGenerating = signal(false);
 
   // Current date for payslip generation
   currentDate = new Date();
@@ -92,6 +93,9 @@ export class GeneratePayslipComponent implements OnInit {
   manualTotalDeductions: number = 0;
   editableNetPay: number = 0;
   useManualTotals: boolean = false;
+  isEditingMonthYear: boolean = false;
+  selectedMonth: number = this.currentDate.getMonth() + 1;
+  selectedYear: number = this.currentYear;
   years = [2024, 2025, 2026, 2027];
   months = [
     { value: 1, label: 'January' },
@@ -111,6 +115,16 @@ export class GeneratePayslipComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     console.log('Employee ID from route:', id);
+    
+    // Ensure month and year are properly set
+    if (!this.payslipData.month || this.payslipData.month.trim() === '') {
+      this.payslipData.month = this.currentMonth;
+    }
+    if (!this.payslipData.year || this.payslipData.year === 0) {
+      this.payslipData.year = this.currentYear;
+    }
+    
+    console.log('Initial month/year values:', this.payslipData.month, this.payslipData.year);
     
     // Initialize manual totals with calculated values
     this.initializeManualTotals();
@@ -189,6 +203,88 @@ export class GeneratePayslipComponent implements OnInit {
     this.manualTotalEarnings = this.grossSalary;
     this.manualTotalDeductions = this.totalDeductions;
     this.editableNetPay = this.calculatedNetPay;
+  }
+
+  // Get month name from number
+  getMonthName(monthNum: number): string {
+    const month = this.months.find(m => m.value === monthNum);
+    return month ? month.label : 'January';
+  }
+
+  // Handle month/year changes
+  onMonthYearChange(): void {
+    this.payslipData.month = this.getMonthName(this.selectedMonth);
+    this.payslipData.year = this.selectedYear;
+  }
+
+  // Toggle month/year editing mode
+  toggleMonthYearEdit(): void {
+    this.isEditingMonthYear = !this.isEditingMonthYear;
+    
+    // Ensure the values are properly set
+    if (!this.isEditingMonthYear) {
+      console.log('Exiting edit mode, current values:', this.payslipData.month, this.payslipData.year);
+    }
+  }
+
+  // Handle Enter key pressed
+  onEnterPressed(event: any): void {
+    event.preventDefault();
+    if (event.target && typeof event.target.blur === 'function') {
+      event.target.blur();
+    }
+  }
+
+  // Handle contenteditable input for month (real-time)
+  onMonthInput(event: any): void {
+    const newMonth = event.target.textContent || event.target.innerText;
+    if (newMonth && newMonth.trim()) {
+      this.payslipData.month = newMonth.trim();
+    }
+  }
+
+  // Handle contenteditable input for year (real-time)
+  onYearInput(event: any): void {
+    const newYear = event.target.textContent || event.target.innerText;
+    if (newYear && newYear.trim()) {
+      const yearNum = parseInt(newYear.trim());
+      if (!isNaN(yearNum) && yearNum > 1999 && yearNum < 3000) {
+        this.payslipData.year = yearNum;
+      }
+    }
+  }
+
+  // Handle contenteditable changes for month
+  onMonthChange(event: any): void {
+    const newMonth = event.target.textContent || event.target.innerText;
+    if (newMonth && newMonth.trim()) {
+      this.payslipData.month = newMonth.trim();
+      console.log('Month changed to:', this.payslipData.month);
+    } else {
+      // Reset to current month if empty
+      this.payslipData.month = this.currentMonth;
+      event.target.textContent = this.payslipData.month;
+    }
+  }
+
+  // Handle contenteditable changes for year
+  onYearChange(event: any): void {
+    const newYear = event.target.textContent || event.target.innerText;
+    if (newYear && newYear.trim()) {
+      const yearNum = parseInt(newYear.trim());
+      if (!isNaN(yearNum) && yearNum > 1999 && yearNum < 3000) {
+        this.payslipData.year = yearNum;
+        console.log('Year changed to:', this.payslipData.year);
+      } else {
+        // Reset to current year if invalid
+        this.payslipData.year = this.currentYear;
+        event.target.textContent = this.payslipData.year.toString();
+      }
+    } else {
+      // Reset to current year if empty
+      this.payslipData.year = this.currentYear;
+      event.target.textContent = this.payslipData.year.toString();
+    }
   }
 
   // Handle manual total earnings change
@@ -293,264 +389,231 @@ export class GeneratePayslipComponent implements OnInit {
 
   private async generatePDF(filename: string): Promise<void> {
     try {
-      // Get the payslip document element with more robust selection
-      let payslipElement = document.querySelector('.payslip-document') as HTMLElement;
+      console.log('Starting PDF generation for:', filename);
+      console.log('Current component state:', {
+        isLoading: this.isLoading(),
+        error: this.error(),
+        hasEmployee: !!this.employee(),
+        employeeName: this.payslipData.employeeName
+      });
       
-      if (!payslipElement) {
-        // Try alternative selectors if main one fails
-        payslipElement = document.querySelector('.payslip-container') as HTMLElement;
-        if (!payslipElement) {
-          payslipElement = document.querySelector('#payslip-content') as HTMLElement;
-        }
+      // Ensure component is in the right state for PDF generation
+      if (this.isLoading()) {
+        console.warn('Component is still loading, waiting...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      if (!payslipElement) {
-        console.error('Payslip element not found');
-        alert('Unable to locate payslip content. Please ensure the payslip is fully loaded.');
+      if (this.error()) {
+        console.error('Component has error state:', this.error());
+        alert('Cannot generate PDF while there is an error. Please resolve the error first.');
         return;
       }
 
-      // Show loading indicator
-      this.isLoading.set(true);
-
-      // Ensure element is visible and scrolled into view
-      payslipElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Get the payslip document element with better detection
+      let payslipElement: HTMLElement | null = null;
+      const selectors = [
+        '.payslip-document',
+        '.payslip-container .payslip-document',
+        '[class*="payslip-document"]',
+        '.payslip-container',
+        '#payslip-content'
+      ];
       
-      // Wait for scroll and rendering
+      for (const selector of selectors) {
+        payslipElement = document.querySelector(selector) as HTMLElement;
+        if (payslipElement) {
+          console.log(`Found payslip element with selector: ${selector}`);
+          break;
+        }
+      }
+      
+      if (!payslipElement) {
+        console.error('Payslip element not found with any selector. Available elements:');
+        console.log('All payslip-related elements:', document.querySelectorAll('[class*="payslip"]'));
+        console.log('All elements in container:', document.querySelector('.payslip-container')?.children);
+        alert('Unable to locate payslip content. Please ensure the payslip is fully loaded and visible.');
+        return;
+      }
+
+      console.log('Found payslip element:', {
+        className: payslipElement.className,
+        tagName: payslipElement.tagName,
+        id: payslipElement.id
+      });
+
+      // Show PDF generation indicator (don't use main loading flag as it hides the payslip!)
+      this.isPdfGenerating.set(true);
+
+      // Temporarily exit edit mode for PDF generation to show display spans
+      const wasEditing = this.isEditingMonthYear;
+      this.isEditingMonthYear = false;
+      console.log('Set editing mode to false, was editing:', wasEditing);
+      console.log('Current month/year values:', this.payslipData.month, this.payslipData.year);
+
+      // Wait for DOM updates and ensure element is properly rendered
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Ensure month and year values are properly set before cloning
-      console.log('Current month/year values:', this.payslipData.month, this.payslipData.year);
-      
-      // Force update month/year input values in the DOM before cloning
-      const monthInput = payslipElement.querySelector('input[type="text"].month-year-input') as HTMLInputElement;
-      const yearInput = payslipElement.querySelector('input[type="number"].month-year-input') as HTMLInputElement;
-      
-      if (monthInput) {
-        monthInput.value = this.payslipData.month || 'July';
-      }
-      if (yearInput) {
-        yearInput.value = this.payslipData.year?.toString() || '2025';
-      }
+      // Force element visibility and layout
+      const originalStyle = {
+        display: payslipElement.style.display,
+        visibility: payslipElement.style.visibility,
+        opacity: payslipElement.style.opacity,
+        position: payslipElement.style.position
+      };
 
-      // Create a clone for PDF generation to avoid affecting the original
-      const clonedElement = payslipElement.cloneNode(true) as HTMLElement;
-      clonedElement.style.position = 'absolute';
-      clonedElement.style.left = '-9999px';
-      clonedElement.style.top = '0';
-      clonedElement.style.width = '800px'; // Fixed width for consistency
-      clonedElement.style.background = '#ffffff';
-      clonedElement.style.color = '#000000';
-      clonedElement.style.padding = '20px';
-      clonedElement.style.boxShadow = 'none';
-      clonedElement.style.transform = 'none';
-      clonedElement.style.fontSize = '14px';
-      clonedElement.style.fontFamily = 'Arial, sans-serif';
-      clonedElement.style.lineHeight = '1.4';
-      clonedElement.classList.add('pdf-generation');
-      
-      // Force all text to be black and backgrounds to be white
-      const allElements = clonedElement.querySelectorAll('*') as NodeListOf<HTMLElement>;
-      allElements.forEach(el => {
-        el.style.color = '#000000';
-        el.style.backgroundColor = 'transparent';
-        el.style.boxShadow = 'none';
-        el.style.textShadow = 'none';
-        el.style.transform = 'none';
-        
-        // Ensure headers have proper styling
-        if (el.classList.contains('payslip-header')) {
-          el.style.background = 'white';
-          el.style.color = '#000000';
-          el.style.border = '2px solid #000';
-          el.style.textAlign = 'center';
-          el.style.padding = '20px';
-        }
-        
-        // Ensure proper table styling
-        if (el.tagName === 'TABLE' || el.classList.contains('earnings-section') || el.classList.contains('deductions-section')) {
-          el.style.border = '1px solid #e5e7eb';
-          el.style.backgroundColor = '#ffffff';
-        }
+      // Ensure element is visible
+      payslipElement.style.display = 'block';
+      payslipElement.style.visibility = 'visible';
+      payslipElement.style.opacity = '1';
+      payslipElement.style.position = 'static';
 
-        // Style the payslip title properly
-        if (el.classList.contains('payslip-title-text')) {
-          el.style.fontSize = '16px';
-          el.style.fontWeight = 'bold';
-          el.style.color = '#000';
-          el.style.textAlign = 'center';
-          el.style.margin = '10px 0';
-        }
+      // Add PDF generation class for styling
+      payslipElement.classList.add('pdf-generation');
+      console.log('Added pdf-generation class');
 
-        // Style the month-year container
-        if (el.classList.contains('month-year-container')) {
-          el.style.display = 'inline';
-          el.style.margin = '0 8px';
-        }
-
-        // Style the separator
-        if (el.classList.contains('separator')) {
-          el.style.margin = '0 4px';
-          el.style.fontWeight = 'bold';
-        }
-
-        // Style company details
-        if (el.classList.contains('company-details')) {
-          el.style.textAlign = 'center';
-          el.style.padding = '20px';
-        }
-
-        // Style company name
-        if (el.classList.contains('company-name')) {
-          el.style.fontSize = '18px';
-          el.style.fontWeight = 'bold';
-          el.style.color = '#000';
-          el.style.margin = '8px 0';
-        }
-
-        // Style company address
-        if (el.classList.contains('company-address')) {
-          el.style.fontSize = '14px';
-          el.style.color = '#000';
-          el.style.margin = '8px 0';
-        }
-
-        // Handle select elements for PDF (if any remain)
-        if (el.tagName === 'SELECT') {
-          const select = el as HTMLSelectElement;
-          let selectedText = '';
-          
-          selectedText = select.options[select.selectedIndex]?.text || select.value;
-          
-          const span = document.createElement('span');
-          span.textContent = selectedText;
-          span.style.fontWeight = '600';
-          span.style.color = '#000';
-          span.style.fontSize = '14px';
-          span.style.padding = '0';
-          span.style.margin = '0';
-          el.parentNode?.replaceChild(span, el);
-        }
-
-        // Handle input elements for PDF
-        if (el.tagName === 'INPUT') {
-          const input = el as HTMLInputElement;
-          const span = document.createElement('span');
-          
-          // Get the actual value, handling different input types
-          let displayValue = input.value || '';
-          
-          // Special handling for month/year inputs - ensure values are from component data
-          if (input.classList.contains('month-year-input')) {
-            if (input.type === 'text') {
-              displayValue = this.payslipData.month || 'July';
-            } else if (input.type === 'number') {
-              displayValue = this.payslipData.year?.toString() || '2025';
-            }
-          }
-          
-          // Special formatting for certain fields
-          if (input.type === 'number' && displayValue && !input.classList.contains('month-year-input')) {
-            // For number inputs, ensure proper formatting
-            displayValue = parseFloat(displayValue).toString();
-          }
-          
-          span.textContent = displayValue;
-          span.style.fontWeight = input.classList.contains('total-amount-input') ? 'bold' : 'normal';
-          span.style.color = '#000';
-          span.style.fontSize = '14px';
-          span.style.padding = '0';
-          span.style.margin = '0';
-          
-          // Special styling for different input types
-          if (input.classList.contains('total-amount-input') || input.classList.contains('amount-input-net')) {
-            span.style.textAlign = 'right';
-            span.style.display = 'inline-block';
-            span.style.minWidth = '80px';
-            span.style.fontWeight = 'bold';
-          }
-          
-          if (input.classList.contains('month-year-input')) {
-            span.style.textAlign = 'center';
-            span.style.display = 'inline-block';
-            span.style.fontWeight = '600';
-            span.style.minWidth = '60px';
-          }
-          
-          el.parentNode?.replaceChild(span, el);
-        }
-      });
-      
-      // Append clone to body temporarily
-      document.body.appendChild(clonedElement);
-      
-      // Wait for clone to render
+      // Wait for style changes to take effect
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      // Configure html2canvas with optimal settings for cloned element
-      const canvas = await html2canvas(clonedElement, {
+      // Verify element dimensions
+      const rect = payslipElement.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(payslipElement);
+      console.log('Element dimensions:', {
+        boundingRect: { width: rect.width, height: rect.height },
+        offsetDimensions: { width: payslipElement.offsetWidth, height: payslipElement.offsetHeight },
+        scrollDimensions: { width: payslipElement.scrollWidth, height: payslipElement.scrollHeight },
+        computedDisplay: computedStyle.display,
+        computedVisibility: computedStyle.visibility,
+        computedOpacity: computedStyle.opacity
+      });
+
+      if (rect.width === 0 || rect.height === 0) {
+        console.warn(`Payslip element has zero dimensions: ${rect.width}x${rect.height}. Trying fallback approach...`);
+        
+        // Try to restore original styles
+        Object.assign(payslipElement.style, originalStyle);
+        payslipElement.classList.remove('pdf-generation');
+        
+        // Fallback: Try to find a parent container or use the form container
+        const fallbackSelectors = [
+          '.payslip-container',
+          '.form-container',
+          'form',
+          '.content'
+        ];
+        
+        for (const fallbackSelector of fallbackSelectors) {
+          const fallbackElement = document.querySelector(fallbackSelector) as HTMLElement;
+          if (fallbackElement) {
+            const fallbackRect = fallbackElement.getBoundingClientRect();
+            console.log(`Trying fallback element: ${fallbackSelector}`, {
+              width: fallbackRect.width,
+              height: fallbackRect.height
+            });
+            
+            if (fallbackRect.width > 0 && fallbackRect.height > 0) {
+              console.log(`Using fallback element: ${fallbackSelector}`);
+              payslipElement = fallbackElement;
+              
+              // Apply the same visibility fixes to the fallback element
+              payslipElement.style.display = 'block';
+              payslipElement.style.visibility = 'visible';
+              payslipElement.style.opacity = '1';
+              payslipElement.style.position = 'static';
+              payslipElement.classList.add('pdf-generation');
+              
+              // Wait for changes to take effect
+              await new Promise(resolve => setTimeout(resolve, 200));
+              
+              const newRect = payslipElement.getBoundingClientRect();
+              console.log('Fallback element final dimensions:', newRect.width, 'x', newRect.height);
+              
+              if (newRect.width > 0 && newRect.height > 0) {
+                break; // Success with fallback
+              }
+            }
+          }
+        }
+        
+        // Final check after fallback attempts
+        const finalRect = payslipElement.getBoundingClientRect();
+        if (finalRect.width === 0 || finalRect.height === 0) {
+          throw new Error(`All elements have zero dimensions. Final attempt: ${finalRect.width}x${finalRect.height}. 
+          
+          Possible causes:
+          1. The payslip content is hidden by CSS
+          2. Angular *ngIf conditions are preventing content from rendering
+          3. The page is still loading employee data
+          
+          Please ensure:
+          - Employee data is loaded (check for loading states)
+          - The payslip content is visible on screen
+          - No CSS rules are hiding the content`);
+        }
+      }
+
+      // Configure html2canvas with optimal settings
+      console.log('Starting html2canvas capture...');
+      const canvas = await html2canvas(payslipElement, {
         scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
-        logging: false,
-        width: clonedElement.scrollWidth || 800,
-        height: clonedElement.scrollHeight || 1200,
+        width: payslipElement.scrollWidth,
+        height: payslipElement.scrollHeight,
         scrollX: 0,
         scrollY: 0,
-        onclone: (clonedDoc) => {
-          // Ensure all styles are properly applied in the clone
-          const clonedPayslip = clonedDoc.querySelector('.pdf-generation');
-          if (clonedPayslip) {
-            (clonedPayslip as HTMLElement).style.transform = 'none';
-            (clonedPayslip as HTMLElement).style.position = 'static';
-          }
-        }
+        removeContainer: false,
+        logging: true // Enable logging for debugging
       });
 
-      // Remove the temporary clone
-      document.body.removeChild(clonedElement);
+      console.log('Canvas created:', canvas.width, 'x', canvas.height);
+
+      // Remove PDF generation class
+      payslipElement.classList.remove('pdf-generation');
+
+      // Restore edit mode if it was active
+      this.isEditingMonthYear = wasEditing;
 
       // Validate canvas
       if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Failed to generate canvas from HTML content');
+        throw new Error(`Invalid canvas dimensions: ${canvas?.width || 0}x${canvas?.height || 0}`);
       }
 
-      // Calculate PDF dimensions (A4)
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      console.log('Image data created, length:', imgData.length);
+      
+      // Create PDF with proper orientation and sizing
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate image dimensions to fit page
+      const imgWidth = pdfWidth - 20; // 10mm margin on each side
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      console.log('PDF dimensions:', imgWidth, 'x', imgHeight);
+      
       let heightLeft = imgHeight;
+      let position = 10; // 10mm top margin
 
-      // Create PDF with better quality settings
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-
-      let position = 0;
-      const imgData = canvas.toDataURL('image/jpeg', 0.95); // Use JPEG with high quality
-
-      // Add the first page
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20); // Account for top and bottom margins
 
       // Add additional pages if needed
-      while (heightLeft >= 0) {
+      while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= (pdfHeight - 20);
       }
 
       // Save the PDF
+      console.log('Saving PDF...');
       pdf.save(filename);
-
-      // Hide loading indicator
-      this.isLoading.set(false);
-
+      
+      console.log(`PDF saved successfully: ${filename}`);
+      
       // Success notification
       this.toastService.success({
         title: 'PDF Generated',
@@ -558,24 +621,34 @@ export class GeneratePayslipComponent implements OnInit {
         duration: 3000
       });
 
-      console.log('PDF generated and downloaded successfully');
     } catch (error) {
-      this.isLoading.set(false);
-      console.error('Error generating PDF:', error);
+      console.error('Detailed PDF generation error:', error);
+      console.error('Error stack:', (error as Error)?.stack);
       
-      // More descriptive error handling
-      let errorMessage = 'An unexpected error occurred while generating the PDF.';
+      let errorMessage = 'PDF generation failed: ';
       if (error instanceof Error) {
-        if (error.message.includes('canvas')) {
-          errorMessage = 'Failed to capture payslip content. Please try refreshing the page.';
-        } else if (error.message.includes('clone')) {
-          errorMessage = 'Unable to process payslip content. Please ensure all data is loaded.';
-        } else {
-          errorMessage = `PDF generation failed: ${error.message}`;
-        }
+        errorMessage += error.message;
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+      } else {
+        errorMessage += 'Unknown error occurred';
+        console.error('Non-Error object thrown:', error);
       }
       
-      alert(errorMessage + ' If the problem persists, please contact IT support.');
+      alert(errorMessage + '\n\nPlease check the browser console for more details.');
+    } finally {
+      this.isPdfGenerating.set(false);
+      
+      // Ensure PDF generation class is removed
+      const payslipElement = document.querySelector('.payslip-document, .payslip-container, #payslip-content') as HTMLElement;
+      if (payslipElement) {
+        payslipElement.classList.remove('pdf-generation');
+      }
+      
+      console.log('PDF generation cleanup completed');
     }
   }
 

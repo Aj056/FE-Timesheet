@@ -48,7 +48,7 @@
           </svg>
           Preview
         </button>
-        <button class="admin-btn btn-success" (click)="downloadPayslip()" [disabled]="isLoading() || !employee()">
+        <button class="admin-btn btn-success" (click)="downloadPayslip()" [disabled]="isLoading() || isPdfGenerating() || !employee()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" />
@@ -57,7 +57,7 @@
             <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
-          {{ isLoading() ? 'Generating PDF...' : 'Download PDF' }}
+          {{ isPdfGenerating() ? 'Generating PDF...' : isLoading() ? 'Loading...' : 'Download PDF' }}
         </button>
       </div>
     </div>
@@ -88,9 +88,20 @@
         <p class="payslip-title-text">
           Payslip for 
           <span class="month-year-container">
-            <input type="text" [(ngModel)]="payslipData.month" class="month-year-input" placeholder="Month">
-            <span class="separator">-</span>
-            <input type="number" [(ngModel)]="payslipData.year" class="month-year-input" placeholder="Year">
+            <!-- Always editable month and year -->
+            <span class="month-year-display editable-field" 
+                  contenteditable="true"
+                  (input)="onMonthInput($event)"
+                  (blur)="onMonthChange($event)"
+                  (keydown.enter)="onEnterPressed($event)"
+                  title="Click to edit month">{{ payslipData.month }}</span>
+            <span class="separator"> - </span>
+            <span class="month-year-display editable-field" 
+                  contenteditable="true"
+                  (input)="onYearInput($event)"
+                  (blur)="onYearChange($event)"
+                  (keydown.enter)="onEnterPressed($event)"
+                  title="Click to edit year">{{ payslipData.year }}</span>
           </span>
         </p>
 
@@ -213,7 +224,8 @@
             <div class="salary-row">
               <label>Basic Pay</label>
               <span>:</span>
-              <input type="number" [(ngModel)]="payslipData.basicSalary" class="amount-input" (input)="updateManualTotals()">
+              <input type="number" [(ngModel)]="payslipData.basicSalary" class="amount-input"
+                (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>HRA</label>
@@ -228,7 +240,8 @@
             <div class="salary-row">
               <label>Incentive</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.incentive" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
+              <input type="text" [(ngModel)]="payslipData.incentive" class="amount-input" placeholder="N/A"
+                (input)="updateManualTotals()">
             </div>
             @if(payslipData.resourceType !== 'Payment Confirmation - Individual GST Consultant' &&
             payslipData.resourceType !== 'Pay-slip-INTERN'){
@@ -241,7 +254,8 @@
             <div class="salary-row total-row">
               <strong>Total Earnings</strong>
               <span>:</span>
-              <input type="number" [(ngModel)]="manualTotalEarnings" class="total-amount-input" (input)="onTotalEarningsChange()">
+              <input type="number" [(ngModel)]="manualTotalEarnings" class="total-amount-input"
+                (input)="onTotalEarningsChange()">
             </div>
           </div>
 
@@ -252,28 +266,33 @@
             <div class="salary-row">
               <label>PF</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.pf" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
+              <input type="text" [(ngModel)]="payslipData.pf" class="amount-input" placeholder="N/A"
+                (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>ESI</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.esi" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
+              <input type="text" [(ngModel)]="payslipData.esi" class="amount-input" placeholder="N/A"
+                (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>TDS</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.tds" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
+              <input type="text" [(ngModel)]="payslipData.tds" class="amount-input" placeholder="N/A"
+                (input)="updateManualTotals()">
             </div>
             <div class="salary-row">
               <label>Staff Advance</label>
               <span>:</span>
-              <input type="text" [(ngModel)]="payslipData.staffAdvance" class="amount-input" placeholder="N/A" (input)="updateManualTotals()">
+              <input type="text" [(ngModel)]="payslipData.staffAdvance" class="amount-input" placeholder="N/A"
+                (input)="updateManualTotals()">
             </div>
             <div class="salary-row empty-row"></div>
             <div class="salary-row total-row">
               <strong>Total Deductions</strong>
               <span>:</span>
-              <input type="number" [(ngModel)]="manualTotalDeductions" class="total-amount-input" (input)="onTotalDeductionsChange()">
+              <input type="number" [(ngModel)]="manualTotalDeductions" class="total-amount-input"
+                (input)="onTotalDeductionsChange()">
             </div>
             }
             @if(payslipData.resourceType === 'Pay-slip-INTERN'){
@@ -287,6 +306,8 @@
             }
           </div>
         </div>
+        <!-- Clear floats for PDF generation -->
+        <div class="clearfix"></div>
       </div>
     </div>
 

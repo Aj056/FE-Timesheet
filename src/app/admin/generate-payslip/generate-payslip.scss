@@ -176,6 +176,13 @@
     background: #f8fafc !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    padding: 16px 28px 22px 28px !important; /* Extra bottom padding */
+    min-height: 56px !important; /* More height for PDF rendering */
+    font-size: 1.18rem !important;
+    line-height: 1.5 !important;
+    overflow: visible !important;
+    border-top: 2.5px solid #000 !important;
+    border-bottom: 2px solid #000 !important;
   }
 
   .net-salary-summary .summary-row.net-total {
@@ -559,15 +566,18 @@
     }
 
     .total-amount-input {
-      border: 1px solid #ddd !important;
+      border: 1.5px solid #000 !important;
       outline: none !important;
-      padding: 0.25rem 0.5rem !important;
+      padding: 0.5rem 0.8rem 0.6rem 0.8rem !important; /* Extra bottom padding */
       color: black !important;
       background: white !important;
       border-radius: 4px !important;
       font-weight: bold !important;
       text-align: right !important;
-      min-width: 100px !important;
+      min-width: 130px !important;
+      font-size: 1.18rem !important;
+      line-height: 1.5 !important;
+      overflow: visible !important;
 
       &:focus {
         border-color: #007bff !important;
@@ -1848,5 +1858,281 @@
   .payslip-footer {
     background: #f8fafc !important;
     border-top: 1px solid #e2e8f0 !important;
+  }
+}
+
+// Additional CSS to ensure payslip document is properly sized for PDF generation
+.payslip-document {
+  min-width: 600px !important;
+  min-height: 400px !important;
+  width: auto !important;
+  height: auto !important;
+  
+  // Ensure the element is visible and has dimensions
+  &.pdf-generation {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: static !important;
+    min-width: 700px !important;
+    min-height: 500px !important;
+    
+    // Force layout recalculation
+    transform: translateZ(0);
+    
+    // Ensure month/year are visible in PDF
+    .month-year-display {
+      display: inline !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      font-weight: bold !important;
+      color: #000 !important;
+    }
+    
+    .separator {
+      display: inline !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: #000 !important;
+    }
+    
+    // Hide edit inputs during PDF generation
+    .month-year-input {
+      display: none !important;
+    }
+  }
+}
+
+// Month/Year container styling
+.month-year-container {
+  display: inline-block;
+  
+  .month-year-display {
+    font-weight: bold;
+    color: inherit;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+    
+    &.editable-field {
+      cursor: text;
+      border: 2px dashed transparent;
+      
+      &:hover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.15);
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+      }
+    }
+  }
+  
+  .separator {
+    margin: 0 8px;
+    font-weight: bold;
+    color: inherit;
+  }
+}
+
+// PDF generation specific styles
+.payslip-document.pdf-generation {
+  // Clean borders and styling for PDF
+  .month-year-display {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 2px !important;
+  }
+  
+  // Ensure proper spacing and alignment
+  .payslip-title-text {
+    line-height: 1.4 !important;
+    text-align: center !important;
+  }
+  
+  // Remove any hover effects during PDF generation
+  * {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  // Ensure clean table borders
+  .payslip-info-section,
+  .info-row,
+  .salary-row {
+    border: 1px solid #000 !important;
+    border-collapse: collapse !important;
+  }
+  
+  // Clean up any input field borders
+  input, 
+  .editable-field {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  // Fix salary section layout for PDF
+  .salary-table-willware {
+    width: 100% !important;
+    border: 1px solid #000 !important;
+    border-collapse: collapse !important;
+    page-break-inside: avoid !important;
+  }
+  
+  .salary-header {
+    display: flex !important;
+    width: 100% !important;
+    background: #f0f0f0 !important;
+    
+    .earnings-header,
+    .deductions-header {
+      flex: 1 !important;
+      padding: 8px !important;
+      border: 1px solid #000 !important;
+      text-align: center !important;
+      font-weight: bold !important;
+    }
+  }
+  
+  .salary-content {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 300px !important;
+  }
+  
+  .earnings-section,
+  .deductions-section {
+    flex: 1 !important;
+    border: 1px solid #000 !important;
+    padding: 0 !important;
+    min-height: 300px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .salary-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-height: 30px !important;
+    padding: 6px 8px !important;
+    border-bottom: 1px solid #ccc !important;
+    
+    &:last-child {
+      border-bottom: none !important;
+    }
+    
+    &.total-row {
+      background: #e8e8e8 !important;
+      border: 2px solid #000 !important;
+      font-weight: bold !important;
+      margin-top: auto !important;
+      min-height: 35px !important;
+    }
+    
+    &.empty-row {
+      flex-grow: 1 !important;
+      border-bottom: none !important;
+    }
+    
+    label {
+      font-weight: normal !important;
+      color: #000 !important;
+    }
+    
+    strong {
+      font-weight: bold !important;
+      color: #000 !important;
+    }
+  }
+  
+  .total-amount-input,
+  .amount-input {
+    background: transparent !important;
+    border: none !important;
+    color: #000 !important;
+    text-align: right !important;
+    font-weight: inherit !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+  
+  // Ensure proper layout
+  .payslip-info-section {
+    page-break-inside: avoid !important;
+  }
+  
+  // Fix any layout issues
+  .clearfix::after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+  }
+}
+
+// Hidden utility class
+.hidden {
+  display: none !important;
+}
+
+// Clearfix utility
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+// Salary section base styles
+.salary-section {
+  display: flex;
+  width: 100%;
+  min-height: 300px;
+  border: 1px solid #e2e8f0;
+  
+  .earnings-section,
+  .deductions-section {
+    flex: 1;
+    padding: 16px;
+    min-height: 300px;
+    
+    &:first-child {
+      border-right: 1px solid #e2e8f0;
+    }
+  }
+  
+  .salary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    min-height: 35px;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &.total-row {
+      background: #f8fafc;
+      border-top: 2px solid #e2e8f0;
+      font-weight: 600;
+      color: #1e293b;
+      padding: 12px 0;
+      margin-top: auto;
+    }
+    
+    &.empty-row {
+      flex-grow: 1;
+      border-bottom: none;
+    }
   }
 }
