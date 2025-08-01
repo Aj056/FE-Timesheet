@@ -505,27 +505,15 @@ canLogout(): boolean {
     this.isLoggingIn.set(true);
     this.cdr.detectChanges();
 
-    this.http.get<any>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata').subscribe({
-      next: (response) => {
-        console.log('🕒 Server time received:', response);
-        this.sendCheckinData(response);
-      },
-      error: () => {
-        // Fallback to local time if server time API fails
-        const localTime = {
-          dateTime: new Date().toISOString(),
-          date: new Date().toLocaleDateString('en-US'),
-          time: new Date().toLocaleTimeString('en-US', { hour12: false })
-        };
-        this.sendCheckinData();
-      }
-    });
+    // Backend now handles time logic, so directly call sendCheckinData
+    this.sendCheckinData();
   }
 
   //send data to backend
-  private sendCheckinData( isFallback = false): void {
-    const date = new Date();
-     let payload = { id: this.currentEmployee()?._id || '', checkin: `${date.getHours()}:${date.getMinutes()}`};
+  private sendCheckinData(): void {
+    // Backend now handles time logic, so only send employee ID
+    const payload = { id: this.currentEmployee()?._id || '' };
+    
     this.http.post(`https://attendance-three-lemon.vercel.app/checkin`, payload).pipe(
       takeUntilDestroyed(this.destroyRef),
       timeout(10000) // 10 second timeout to prevent getting stuck
@@ -541,55 +529,27 @@ canLogout(): boolean {
           // Store the attendance record ID from check-in response for checkout
           const attendanceId = response?.data?._id || response?._id;
 
-         this.saveSession();
+          this.saveSession();
           this.isLoggingIn.set(false);
           this.cdr.detectChanges();
 
-          if (isFallback) {
-            this.toastService.success({
-              title: 'Check-in Successful',
-              message: `You've checked in at ${loginTime} (local time).`,
-              duration: 4000
-            });
-          } else {
-            this.toastService.checkInSuccess(loginTime);
-          }
+          this.toastService.success({
+            title: 'Check-in Successful',
+            message: `You've checked in at ${loginTime}.`,
+            duration: 4000
+          });
 
           console.log('✅ Check-in successful at:', loginTime);
         } 
       },
       error: (err) => {
         console.error('❌ Backend check-in failed:', err);
+        this.isLoggingIn.set(false);
+        this.cdr.detectChanges();
       }
     });
   }
 
-
-  private handleCheckInFallback(serverTime: any, isFallback: boolean): void {
-    const loginTime = new Date().toLocaleTimeString('en-US', {
-      hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
-    });
-
-    // Save session locally even if backend fails
-    // Note: No attendanceId available in fallback mode, checkout will need to handle this
-    // this.currentSession.set({
-    //   loginTime: loginTime,
-    //   date: new Date().toDateString(),
-    //   checkinDateTime: serverTime.dateTime, // Store the datetime even in fallback
-    //   attendanceId: undefined // No ID available in offline mode
-    // });
-    this.saveSession();
-    this.cdr.detectChanges();
-
-    // Show appropriate toast message
-    this.toastService.warning({
-      title: 'Check-in Completed (Offline Mode)',
-      message: `Checked in at ${loginTime}. Data saved locally - will sync when server is available.`,
-      duration: 5000
-    });
-
-    console.log('✅ Check-in completed with localStorage fallback at:', loginTime);
-  }
 
   employee_logout(): void {
     // Prevent multiple concurrent logout attempts
@@ -650,29 +610,15 @@ canLogout(): boolean {
   private proceedWithLogout(): void {
     this.isLoggingOut.set(true);
     this.cdr.detectChanges();
-    let payload = { id: this.currentEmployee()?._id || '', checkout: '' }
-    // Get server time for accurate logout timestamp
-    this.http.get<any>('https://timeapi.io/api/time/current/zone?timeZone=Asia/Kolkata')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          payload.checkout = `${response.hour}:${response.minute}`;
-          this.sendCheckoutData(payload);
-
-        },
-        error: () => {
-          // Fallback to local time if server time API fails
-          const date = new Date();
-          payload.checkout = `${date.getHours()}:${date.getMinutes()}`;
-          this.sendCheckoutData(payload);
-        }
-      });
+    
+    // Backend now handles time logic, so only send employee ID
+    const payload = { id: this.currentEmployee()?._id || '' };
+    this.sendCheckoutData(payload);
   }
 
-  private sendCheckoutData(payload: any, isFallback = false): void {
-
+  private sendCheckoutData(payload: any): void {
     // Use the attendance ID from check-in response for checkout endpoint
-    this.http.post(`https://attendance-three-lemon.vercel.app/checkout`, payload,).pipe(
+    this.http.post(`https://attendance-three-lemon.vercel.app/checkout`, payload).pipe(
       takeUntilDestroyed(this.destroyRef),
       timeout(10000) // 10 second timeout to prevent getting stuck
     ).subscribe({
@@ -684,78 +630,32 @@ canLogout(): boolean {
         this.isLoggingOut.set(false);
         this.cdr.detectChanges();
 
+        const logoutTime = new Date().toLocaleTimeString('en-US', {
+          hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+
+        this.toastService.success({
+          title: 'Check-out Successful',
+          message: `You've checked out at ${logoutTime}.`,
+          duration: 4000
+        });
+
+        console.log('✅ Check-out successful at:', logoutTime);
       },
       error: (err) => {
         if(err.status === 403 ){
           this.toastService.warning({
             title: 'Access Denied',
-            message:err.error.message,
+            message: err.error.message,
             duration: 5000
           });
-           this.isLoggingOut.set(false);
+          this.isLoggingOut.set(false);
         }
         console.error('❌ Backend check-out failed:', err);
+        this.isLoggingOut.set(false);
+        this.cdr.detectChanges();
       }
     });
-  }
-
-  private handleCheckOutError(error: any, attendanceId: string | undefined, checkoutTimeDisplay: string, isFallback: boolean): void {
-    this.isLoggingOut.set(false);
-
-    // Check if this is due to missing attendance ID
-    if (!attendanceId) {
-      this.toastService.error({
-        title: 'Checkout Error',
-        message: 'This session was created offline. Please check in again to sync with server, then try checking out.',
-        duration: 6000
-      });
-      return;
-    }
-
-    // Check if it's a server error (500, 502, 503, etc.) that might be temporary
-    const isServerError = error.status >= 500 || error.status === 0 || !error.status;
-
-    if (isServerError) {
-      // Server error - suggest retry after 5-10 minutes
-      this.toastService.error({
-        title: 'Server Error',
-        message: 'Check-out server is temporarily unavailable. Please try again after 5-10 minutes.',
-        duration: 8000,
-        persistent: true
-      });
-
-      console.log('🔄 Server error detected, user should retry checkout in 5-10 minutes');
-    } else {
-      // Client error or other issues - use fallback
-      console.log('❌ Client error or network issue, using localStorage fallback for checkout');
-      this.handleCheckOutFallback(checkoutTimeDisplay, isFallback);
-    }
-  }
-
-  private handleCheckOutFallback(checkoutTime: string, isFallback: boolean): void {
-    const currentSession = this.currentSession();
-
-    // if (currentSession) {
-    //   // Save session locally even if backend fails
-    //   this.currentSession.set({
-    //     ...currentSession,
-    //     logoutTime: checkoutTime,
-    //     checkoutDateTime: new Date().toISOString() // Store current time as checkout datetime
-    //   });
-    //   this.saveSession();
-    //   this.cdr.detectChanges();
-
-     
-
-    //   // Show appropriate toast message
-    //   this.toastService.warning({
-    //     title: 'Check-out Completed (Offline Mode)',
-    //     message: `Checked out at ${checkoutTime}. Total working time: . Data saved locally - will sync when server is available.`,
-    //     duration: 5000
-    //   });
-
-    //   console.log('✅ Check-out completed with localStorage fallback at:', checkoutTime);
-    // }
   }
 
   // Example methods to demonstrate toast usage
